@@ -1,7 +1,7 @@
 # ################################## #
 # DONG Shi, dongshi@mail.ustc.edu.cn #
 # loaders.py, created: 2020.08.25    #
-# Last Modified: 2020.08.26          #
+# Last Modified: 2020.08.30          #
 # ################################## #
 import os
 from config import *
@@ -89,6 +89,51 @@ class MotorolaLoader:
     # read data
     def content(self):
         return self.__cost_revenue
+
+# RALIC loader
+class RALICLoader:
+    # initialize
+    def __init__(self):
+        # preprocess data file
+        # There are three data file per dataset, but named as obj/req/sreq
+        # actually they are three level of requirements
+        self.__levels = []
+    
+    # load file with format tab separted
+    def table_separated_file_loader(self, file_name):
+        results = []
+        with open(file_name, 'r') as fin:
+            # let us read all lines in file, because we don't know how many lines
+            raw_file = fin.readlines()
+            for line in raw_file:
+                # skip empty line
+                if line == '\n':
+                    continue
+                # parse the line as tab separated, triple-tuple
+                tmp = tuple([x for x in line.split('\t') if x != '\n'])
+                # it should contain three elements per line
+                assert len(tmp) == 3
+                # append to result
+                results.append(tmp)
+            fin.close()
+        return results
+
+    # load from there files
+    def load_triple(self, file_path, obj_file, req_file, sreq_file):
+        # first of all, prepare the exact file names
+        obj_file = os.path.join(file_path, obj_file)
+        req_file = os.path.join(file_path, req_file)
+        sreq_file = os.path.join(file_path, sreq_file)
+        # load datas
+        self.__levels.append(self.table_separated_file_loader(obj_file))
+        self.__levels.append(self.table_separated_file_loader(req_file))
+        self.__levels.append(self.table_separated_file_loader(sreq_file))
+        # TODO: preprocess
+        return self.content()
+    
+    # content 
+    def content(self):
+        return self.__levels
         
 
 if __name__ == "__main__":
@@ -112,3 +157,6 @@ if __name__ == "__main__":
     #     c_l = XuanLoader()
     #     print(c_l.load(file_name))
     #     print('================================\n')
+    # try to load RALIC nrps
+    r_l = RALICLoader()
+    print(r_l.load_triple(RALIC_PATH, RATEP_OBJ_FILE, RATEP_REQ_FILE, RATEP_SREQ_FILE))
