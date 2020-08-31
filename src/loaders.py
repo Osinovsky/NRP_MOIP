@@ -3,13 +3,17 @@
 # loaders.py, created: 2020.08.25    #
 # Last Modified: 2020.08.31          #
 # ################################## #
+
 import os
 from typing import *
 from config import *
 
 # type defining
+# costs of requirements, level x [(requirement id, cost)]
 XuanCost = List[List[Tuple[int, int]]]
+# dependencies of requirements per level, [(from, to)]
 XuanDependency = List[Tuple[int, int]]
+# number of customers, [(custrom id, profit, [requirements])]
 XuanCustomer = List[Tuple[int, int, List[int]]]
 
 # datasets from Jifeng Xuan
@@ -151,7 +155,7 @@ class RALICLoader:
     def content(self) -> List[List[Tuple[str, str, str]]]:
         return self.__levels
         
-
+# just a main for testing
 if __name__ == "__main__":
     pass
     # try to load motorola
