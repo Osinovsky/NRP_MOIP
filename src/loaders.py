@@ -1,34 +1,49 @@
 # ################################## #
 # DONG Shi, dongshi@mail.ustc.edu.cn #
 # loaders.py, created: 2020.08.25    #
-# Last Modified: 2020.08.30          #
+# Last Modified: 2020.08.31          #
 # ################################## #
 import os
+from typing import *
 from config import *
+
+# type defining
+XuanCost = List[List[Tuple[int, int]]]
+XuanDependency = List[Tuple[int, int]]
+XuanCustomer = List[Tuple[int, int, List[int]]]
 
 # datasets from Jifeng Xuan
 class XuanLoader:
     # initialize
-    def __init__(self):
+    def __init__(self) -> None:
         # costs of requirements, level x [(requirement id, cost)]
-        self.__costs = []
+        self.__cost : XuanCost = []
         # dependencies of requirements per level, [(from, to)]
-        self.__dependencies = []
+        self.__dependencies : XuanDependency = []
         # number of customers, [(custrom id, profit, [requirements])]
-        self.__customers = []
+        self.__customers : XuanCustomer = []
 
     # load from file, the file format is given by example.txt
-    def load(self, file_name):
+    def load(self, file_name : str) -> Tuple[XuanCost, XuanDependency, XuanCustomer]:
         with open(file_name, 'r') as fin:
             # level of requirements
             level = int(fin.readline())
+            # employ an encoder for encoding requirements
+            encoder = 1
             for ite in range(level):
                 # requirements in current level
                 requirements_num = int(fin.readline())
                 # read requirements costs in current level
-                self.__costs.append([int(x) for x in fin.readline().split(' ') if x != '' and x != '\n'])
+                line_cost = [int(x) for x in fin.readline().split(' ') if x != '' and x != '\n']
+                cost_line = []
+                # make (id, cost) for each requirement
+                for cost in line_cost:
+                    cost_line.append(tuple((encoder, cost)))
+                    encoder += 1
+                # ... and append this line into self cost
+                self.__cost.append(cost_line)
                 # requirements_num should equal to costs read from file
-                assert requirements_num == len(self.__costs[-1])
+                assert requirements_num == len(self.__cost[-1])
             # number of dependencies
             dependencies_num = int(fin.readline())
             for ite in range(dependencies_num):
@@ -45,11 +60,11 @@ class XuanLoader:
             # we employ a encoder for helping marking customers
             encoder = 1
             for ite in range(customers_num):
-                line = [int(x) for x in fin.readline().split(' ') if x != '' and x != '\n']
+                line = [x for x in fin.readline().split(' ') if x != '' and x != '\n']
                 # parse the line, it's formatted as profit, number of requirements and the requirements
-                profit = line[0]
-                require_num = line[1]
-                require_list = line[2:]
+                profit = int(line[0])
+                require_num = int(line[1])
+                require_list = [int(x) for x in line[2:]]
                 # require_num should equal to require_list length
                 assert require_num == len(require_list)
                 # load into self.__customers
@@ -61,16 +76,16 @@ class XuanLoader:
             return self.content()
     
     # provide data
-    def content(self):
-        return (self.__costs, self.__dependencies, self.__customers)
+    def content(self) -> Tuple[XuanCost, XuanDependency, XuanCustomer]:
+        return (self.__cost, self.__dependencies, self.__customers)
 
 # motorola loader
 class MotorolaLoader:
     # initialize
     def __init__(self):
-        self.__cost_revenue = []
+        self.__cost_revenue : List[Tuple[float, float]] = []
     # load data
-    def load(self, file_name):
+    def load(self, file_name : str) -> List[Tuple[float, float]]:
         with open(file_name, 'r') as fin:
             # read into lines
             lines = fin.readlines()
@@ -87,7 +102,7 @@ class MotorolaLoader:
             return self.content()
 
     # read data
-    def content(self):
+    def content(self) -> List[Tuple[float, float]]:
         return self.__cost_revenue
 
 # RALIC loader
@@ -100,17 +115,18 @@ class RALICLoader:
         self.__levels = []
     
     # load file with format tab separted
-    def table_separated_file_loader(self, file_name):
+    def table_separated_file_loader(self, file_name : str) -> List[Tuple[str, str, str]]:
         results = []
         with open(file_name, 'r') as fin:
             # let us read all lines in file, because we don't know how many lines
             raw_file = fin.readlines()
             for line in raw_file:
                 # skip empty line
-                if line == '\n':
+                line = line.rstrip('\n\r')
+                if line == '':
                     continue
                 # parse the line as tab separated, triple-tuple
-                tmp = tuple([x for x in line.split('\t') if x != '\n'])
+                tmp = tuple([x for x in line.split('\t')])
                 # it should contain three elements per line
                 assert len(tmp) == 3
                 # append to result
@@ -119,7 +135,7 @@ class RALICLoader:
         return results
 
     # load from there files
-    def load_triple(self, file_path, obj_file, req_file, sreq_file):
+    def load_triple(self, file_path : str, obj_file : str, req_file : str, sreq_file : str) -> List[List[Tuple[str, str, str]]]:
         # first of all, prepare the exact file names
         obj_file = os.path.join(file_path, obj_file)
         req_file = os.path.join(file_path, req_file)
@@ -128,11 +144,11 @@ class RALICLoader:
         self.__levels.append(self.table_separated_file_loader(obj_file))
         self.__levels.append(self.table_separated_file_loader(req_file))
         self.__levels.append(self.table_separated_file_loader(sreq_file))
-        # TODO: preprocess
+        # return the content
         return self.content()
     
     # content 
-    def content(self):
+    def content(self) -> List[List[Tuple[str, str, str]]]:
         return self.__levels
         
 
@@ -158,5 +174,5 @@ if __name__ == "__main__":
     #     print(c_l.load(file_name))
     #     print('================================\n')
     # try to load RALIC nrps
-    r_l = RALICLoader()
-    print(r_l.load_triple(RALIC_PATH, RATEP_OBJ_FILE, RATEP_REQ_FILE, RATEP_SREQ_FILE))
+    # r_l = RALICLoader()
+    # print(r_l.load_triple(RALIC_PATH, RATEP_OBJ_FILE, RATEP_REQ_FILE, RATEP_SREQ_FILE))
