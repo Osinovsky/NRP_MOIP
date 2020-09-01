@@ -1,7 +1,7 @@
 # ################################## #
 # DONG Shi, dongshi@mail.ustc.edu.cn #
 # loaders.py, created: 2020.08.31    #
-# Last Modified: 2020.08.31          #
+# Last Modified: 2020.09.01          #
 # ################################## #
 
 from typing import *
@@ -9,6 +9,7 @@ from config import *
 from loaders import XuanLoader, MotorolaLoader, RALICLoader
 from copy import deepcopy
 import os
+from moipProb import MOIPProblem 
 
 # describe a class provide an universe class 
 # for recording next release problem
@@ -77,6 +78,10 @@ class NextReleaseProblem:
         self.__dependencies = deepcopy(dependencies)
         # don't forget have a check of all member
         assert self.__check()
+
+    # convert to MOIPProbelm Format
+    def to_MOIP(self) -> MOIPProblem:
+        pass # TODO:
         
 # just a main for testing
 if __name__ == '__main__':
