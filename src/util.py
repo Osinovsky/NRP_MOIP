@@ -6,6 +6,7 @@
 
 from typing import *
 from config import *
+from functools import reduce
 from loaders import XuanLoader, MotorolaLoader, RALICLoader
 from copy import deepcopy
 import os
@@ -79,6 +80,98 @@ class NextReleaseProblem:
         # don't forget have a check of all member
         assert self.__check()
 
+    # find all dependened requirement
+    def __all_precursors(self, req_id : int) -> Set[int]:
+        # find all dependency with right value as req_id
+        one_level = set([x[0] for x in self.__dependencies if x[1] == req_id])
+        # check result length
+        if len(one_level) == 0:
+            return one_level
+        elif len(one_level) == 1:
+            return one_level.union(self.__all_precursors(list(one_level)[0]))
+        else:
+            # find their dependecies each and merge their result
+            # then convert then into set for dupicate elimination
+            return one_level.union(set(reduce(lambda x, y: list(x)+list(y), map(self.__all_precursors, one_level))))
+
+    # sub function of flatten check
+    def __flatten_check_sub(self, c_id : int, r_id : int, neo_requirements : List[Tuple[int, int]]) -> bool:
+        next_level = set()
+        for dep in self.__dependencies:
+            if dep[1] == r_id:
+                next_level.add(dep[0])
+                if (c_id, dep[0]) not in neo_requirements:
+                    print(str((c_id, dep[0])) + " is not in new requirements")
+                    return False
+        if next_level:
+            for n_r in next_level:
+                if not self.__flatten_check_sub(c_id, n_r, neo_requirements):
+                    return False
+        return True
+
+    # check if there a precursor named as target id
+    def __is_your_precursor(self, r_id : int, target : int) -> bool:
+        if (target, r_id) in self.__dependencies or r_id == target:
+            return True
+        else:
+            for dep in self.__dependencies:
+                if not dep[1] == r_id:
+                    continue
+                if self.__is_your_precursor(dep[0], target):
+                    return True
+            return False
+
+    # check if customer require this requirement
+    def __is_your_requirement(self, c_id : int, r_id : int) -> bool:
+        if (c_id, r_id) in self.__requirements:
+            return True
+        for req in self.__requirements:
+            if req[0] == c_id and self.__is_your_precursor(req[1], r_id):
+                return True
+        return False
+
+    # check if dependency is correctly converted
+    def __flatten_check(self, neo_requirements : List[Tuple[int, int]]) -> bool:
+        # self.req => neo_req
+        for req in self.__requirements:
+            c_id = req[0]
+            r_id = req[1]
+            if req not in neo_requirements:
+                print("old requirement missed")
+                return False
+            if not self.__flatten_check_sub(c_id, r_id, neo_requirements):
+                return False
+        # neo_req => self.req
+        for req in neo_requirements:
+            if not self.__is_your_requirement(req[0], req[1]):
+                return False
+        return True
+            
+
+    # eliminate requirement level dependency
+    # after this process, there should be only one level
+    def flatten(self) -> None:
+        assert self.__dependencies
+        # employ another list to record the temporary requirements
+        neo_requirements = deepcopy(self.__requirements)
+        # traverse requirement pair
+        for req in self.__requirements:
+            customer_id = req[0]
+            # find all real requirements
+            dependecies = list(self.__all_precursors(req[1]))
+            # add into requirements
+            for dep in dependecies:
+                if (customer_id, dep) not in neo_requirements:
+                    neo_requirements.append((customer_id, dep))
+        # self check
+        # print(self.__requirements)
+        # print(self.__dependencies)
+        # print(neo_requirements)
+        assert self.__flatten_check(neo_requirements)
+        # 毋忘在莒
+        self.__requirements = neo_requirements
+        self.__dependencies : List[Tuple[int, int]]  = []
+
     # convert to MOIPProbelm Format
     def to_MOIP(self) -> MOIPProblem:
         pass # TODO:
@@ -87,10 +180,11 @@ class NextReleaseProblem:
 if __name__ == '__main__':
     pass
     # l1 = XuanLoader()
-    # classic_2 = os.path.join(CLASSIC_NRP_PATH, CLASSIC_NRPS[2])
-    # l1.load(classic_2)
+    # classic_1 = os.path.join(CLASSIC_NRP_PATH, CLASSIC_NRPS[0])
+    # l1.load(classic_1)
     # nrp = NextReleaseProblem()
     # nrp.construct_from_XuanLoader(l1)
+    # nrp.flatten()
     # res = nrp.content()
     # print(res[0])
     # print(res[1])
