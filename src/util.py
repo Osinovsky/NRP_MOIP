@@ -1,7 +1,7 @@
 # ################################## #
 # DONG Shi, dongshi@mail.ustc.edu.cn #
 # loaders.py, created: 2020.08.31    #
-# Last Modified: 2020.09.01          #
+# Last Modified: 2020.09.03          #
 # ################################## #
 
 from typing import *
@@ -12,15 +12,18 @@ from copy import deepcopy
 import os
 from moipProb import MOIPProblem 
 
+# Type 
+NRPContent = Tuple[Dict[int, int], Dict[int, int], List[Tuple[int, int]], List[Tuple[int, int]]]
+
 # describe a class provide an universe class 
 # for recording next release problem
 class NextReleaseProblem:
     # initialize
     def __init__(self):
         # requirement cost, requirement -> cost
-        self.__cost : Dict[int, float] = dict()
+        self.__cost : Dict[int, int] = dict()
         # customer profit, customer -> profit
-        self.__profit : Dict[int, float] = dict()
+        self.__profit : Dict[int, int] = dict()
         # requirement dependency, requirement -> requirement
         self.__dependencies : List[Tuple[int, int]] = []
         # requirements (customer, requirement)
@@ -48,7 +51,7 @@ class NextReleaseProblem:
         return True
 
     # content access
-    def content(self) -> Tuple[Dict[int, float], Dict[int, float], List[Tuple[int, int]], List[Tuple[int, int]]]:
+    def content(self) -> NRPContent:
         return (self.__cost, self.__profit, self.__dependencies, self.__requirements)
     
     # convert from XuanLoader
@@ -61,8 +64,8 @@ class NextReleaseProblem:
             for cost_pair in cost_line:
                 # the key should be unique
                 assert cost_pair[0] not in self.__cost
-                # we convert cost as a float for generalizing
-                self.__cost[cost_pair[0]] = float(cost_pair[1])
+                # we convert cost as a int for generalizing
+                self.__cost[cost_pair[0]] = int(cost_pair[1])
         # then, the customers' profit and the requirement pair list
         for customer in customers:
             # parse the tuple
@@ -70,7 +73,7 @@ class NextReleaseProblem:
             customer_requirement = customer[2]
             # add profit into self profit
             assert customer_id not in self.__profit
-            self.__profit[customer_id] = float(customer[1])
+            self.__profit[customer_id] = int(customer[1])
             # construct (requirer, requiree) pairs and store
             assert customer_requirement # non-empty check
             for req in customer_requirement:
@@ -147,7 +150,6 @@ class NextReleaseProblem:
                 return False
         return True
             
-
     # eliminate requirement level dependency
     # after this process, there should be only one level
     def flatten(self) -> None:
@@ -164,18 +166,175 @@ class NextReleaseProblem:
                 if (customer_id, dep) not in neo_requirements:
                     neo_requirements.append((customer_id, dep))
         # self check
-        # print(self.__requirements)
-        # print(self.__dependencies)
-        # print(neo_requirements)
         assert self.__flatten_check(neo_requirements)
         # 毋忘在莒
         self.__requirements = neo_requirements
         self.__dependencies : List[Tuple[int, int]]  = []
 
-    # convert to MOIPProbelm Format
-    def to_MOIP(self) -> MOIPProblem:
-        pass # TODO:
-        
+    # compact encoding check
+    def __if_compact_encoding(self, l : List[int]) -> bool:
+        return (max(l)-min(l)+1) == len(l)
+
+    # compact encoding check
+    def __unique_and_compact_reenconde_check(self,  \
+        neo_content : NRPContent,                   \
+        customer_rename : Dict[int, int],           \
+        requirement_rename : Dict[int, int]) -> bool:
+        # unpack the neo_content
+        neo_cost : Dict[int, int] = neo_content[0]
+        neo_profit : Dict[int, int] = neo_content[1]
+        neo_dependencies : List[Tuple[int, int]] = neo_content[2]
+        neo_requirements : List[Tuple[int, int]] = neo_content[3]
+        # check if compact
+        if not self.__if_compact_encoding(neo_cost.keys()+neo_profit.keys()):
+            print("encoding is not compact")
+            return False
+        # check rename if one-to-one mapping
+        if not len(customer_rename.keys()) == len(set(customer_rename.values())):
+            print("customner rename dict is not a one-to-one mapping")
+            return False
+        if not len(requirement_rename.keys()) == len(set(requirement_rename.values())):
+            print("requirement rename dict is not a one-to-one mapping")
+            return False
+        # check length
+        if not len(neo_cost) == len(self.__cost):
+            print("cost length not match")
+            return False
+        if not len(neo_profit) == len(self.__profit):
+            print("profit length not match")
+            return False
+        if not len(neo_dependencies) == len(self.__dependencies):
+            print("dependencies length not match")
+            return False
+        if not len(neo_requirements) == len(self.__requirements):
+            print("requirements length not match")
+            return False
+        # check rename correctness
+        # profit
+        for old_id, new_id in customer_rename.items():
+            if abs(self.__profit[old_id] - neo_profit[new_id]) > 1e-6:
+                print("profit not match")
+                return False
+        # cost
+        for old_id, new_id in requirement_rename.items():
+            if abs(self.__cost[old_id] - neo_cost[new_id]) > 1e-6:
+                print("cost not match")
+                return False
+        # dependency
+        for old_left, new_left in requirement_rename.items():
+            for old_right, new_right in requirement_rename.items():
+                if not (((old_left, old_right) in self.__dependencies) == ((new_left, new_right) in neo_dependencies)):
+                    print("dependency not match")
+                    return False
+        # requirements
+        for old_left, new_left in customer_rename.items():
+            for old_right, new_right in requirement_rename.items():
+                if not (((old_left, old_right) in self.__requirements) == ((new_left, new_right) in neo_requirements)):
+                    print("requirement not match")
+                    return False
+        # till here, all passed
+        return True
+
+    # re-encode the customer and requirement 
+    # after this, each customer and requirement has unique encoding
+    # note that, no customer id and requirement id is same
+    # ... and there won't be a number smaller than a certain id but is not used(>=1)
+    # if customer_first then c_1, ..., c_m, r_m+1, ..., r_m+n
+    # else r_1, ..., r_n, c_n+1, ..., c_n+m
+    def unique_and_compact_reenconde(self, customer_first : bool) -> NRPContent:
+        # rename map record
+        customer_rename : Dict[int, int] = {}
+        requirement_rename : Dict[int, int] = {}
+        # prepare an encoder first, from 1
+        encoder = 1
+        # clearify the order
+        if customer_first:
+            # re-encode the customers
+            for c_id, _ in self.__profit:
+                customer_rename[c_id] = encoder
+                encode += 1
+            # re-encode the requirements
+            for r_id, _ in self.__cost:
+                requirement_rename[r_id] = encoder
+                encode += 1
+        else:
+            # re-encode the requirements
+            for r_id, _ in self.__cost:
+                requirement_rename[r_id] = encoder
+                encode += 1
+            # re-encode the customers
+            for c_id, _ in self.__profit:
+                customer_rename[c_id] = encoder
+                encode += 1
+        # self check
+        # rename
+        neo_cost : Dict[int, int] = \
+            {requirement_rename[x[0]]:x[1] for x in self.__cost.items()}
+        neo_profit : Dict[int, int] = \
+            {customer_rename[x[0]]:x[1] for x in self.__profit.items()}
+        neo_dependencies : List[Tuple[int, int]] = \
+            [tuple(requirement_rename[x[0]], requirement_rename[x[1]]) for x in self.__dependencies]
+        neo_requirements : List[Tuple[int, int]] = \
+            [tuple(customer_rename[x[0]], requirement_rename[x[1]]) for x in self.__requirements]
+        # check
+        assert self.__unique_and_compact_reenconde_check(neo_content, customer_rename, requirement_rename)
+        return tuple(neo_cost, neo_profit, neo_dependencies, neo_requirements)
+
+    # convert to MOIPProbelm general Format TODO: return value
+    def to_general_MOIP(self, b : float):
+        # requirement dependencies should be eliminated
+        assert not self.__dependencies
+        # prepare the "variables"
+        neo_content = self.unique_and_compact_reenconde(True) # customer + requirement
+        neo_cost, neo_profit, neo_dependencies, neo_requirements = neo_content
+        # prepare variables
+        variables = neo_profit.keys() + neo_cost.keys()
+        # prepare objective coefs
+        objectives : List[Dict[int, int]] = [neo_profit]
+        # prepare the atrribute matrix
+        inequations : List[Dict[int, int]] = []
+        inequations_operators : List[str] = []
+        # don't forget encode the constant, it always be MAX_CODE + 1
+        constant_id = len(variables)
+        assert constant_id not in neo_cost.keys()
+        assert constant_id not in neo_profit.keys()
+        # convert requirements
+        # use requirements, y <= x
+        for req in neo_requirements:
+            # custom req[0] need requirement req[1]
+            # req[0] <= req[1] <=> req[0] - req[1] <= 0
+            inequations.append({req[0]:1, req[1]:-1, constant_id:0})
+            # 'L' for <= and 'G' for >=, we can just convert every inequations into <= format
+            inequations_operators.append('L')
+        # use sum cost_i x_i < b sum(cost)
+        cost_sum = sum(neo_cost.values())
+        tmp_inequation = neo_cost
+        tmp_inequation[constant_id] = int(cost_sum * b)
+        inequations.append(tmp_inequation)
+        inequations_operators.append('L')
+        # TODO: 0 <= x, y <= 1
+        # construct Problem 
+        # return NextReleaseProblem.to_MOIP(variables, objectives, inequations, inequations_operators)
+    
+    # to MOIP, construct from some already content
+    # @staticmethod
+    # def to_MOIP(variables : List[int], \
+    #     objectives : List[Dict[int, int]], \
+    #     inequations : List[Dict[int, int]], \
+    #     inequations_operators : List[str] \
+    # ) -> MOIPProblem:
+    #     # construct MOIP
+    #     MOIP = MOIPProblem(len(objectives), len(variables), 0)
+    #     # use objectives make attribute matrix
+    #     for objective in objectives:
+    #         line = [0] * (len(variables)+1)
+    #         for key, value in objective.items():
+    #             line[key] = value
+    #         # now the constant, constant id is MAX_VARIABLE_ID + 1
+    #         if len(variables) in objective:
+    #             line[len(variables)] = objective[len(variables)]
+        # TODO: convert to MOIP
+
 # just a main for testing
 if __name__ == '__main__':
     pass
@@ -190,3 +349,24 @@ if __name__ == '__main__':
     # print(res[1])
     # print(res[2])
     # print(res[3])
+    # lets run all Xuan datasets
+    # classic instances
+    for classic_nrp in CLASSIC_NRPS:
+        print("start " + classic_nrp)
+        loader = XuanLoader()
+        file_name = os.path.join(CLASSIC_NRP_PATH, classic_nrp)
+        loader.load(file_name)
+        nrp = NextReleaseProblem()
+        nrp.construct_from_XuanLoader(loader)
+        nrp.flatten()
+        # nrp.to_geneneral_MOIP(0.5)
+    # realistic instances
+    for realistic_nrp in REALISTIC_NRPS:
+        print("start " + realistic_nrp)
+        loader = XuanLoader()
+        file_name = os.path.join(REALISTIC_NRP_PATH, realistic_nrp)
+        loader.load(file_name)
+        nrp = NextReleaseProblem()
+        nrp.construct_from_XuanLoader(loader)
+        # nrp.flatten()
+        # nrp.to_geneneral_MOIP(0.5)
