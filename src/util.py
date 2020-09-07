@@ -81,7 +81,7 @@ class NextReleaseProblem:
         # now we copy the dependencies
         self.__dependencies = deepcopy(dependencies)
         # don't forget have a check of all member
-        assert self.__check()
+        # assert self.__check()
 
     # find all dependened requirement
     def __all_precursors(self, req_id : int) -> Set[int]:
@@ -166,7 +166,7 @@ class NextReleaseProblem:
                 if (customer_id, dep) not in neo_requirements:
                     neo_requirements.append((customer_id, dep))
         # self check
-        assert self.__flatten_check(neo_requirements)
+        # assert self.__flatten_check(neo_requirements)
         # 毋忘在莒
         self.__requirements = neo_requirements
         self.__dependencies : List[Tuple[int, int]]  = []
@@ -186,7 +186,7 @@ class NextReleaseProblem:
         neo_dependencies : List[Tuple[int, int]] = neo_content[2]
         neo_requirements : List[Tuple[int, int]] = neo_content[3]
         # check if compact
-        if not self.__if_compact_encoding(neo_cost.keys()+neo_profit.keys()):
+        if not self.__if_compact_encoding(list(neo_cost.keys())+list(neo_profit.keys())):
             print("encoding is not compact")
             return False
         # check rename if one-to-one mapping
@@ -250,22 +250,22 @@ class NextReleaseProblem:
         # clearify the order
         if customer_first:
             # re-encode the customers
-            for c_id, _ in self.__profit:
+            for c_id, _ in self.__profit.items():
                 customer_rename[c_id] = encoder
-                encode += 1
+                encoder += 1
             # re-encode the requirements
-            for r_id, _ in self.__cost:
+            for r_id, _ in self.__cost.items():
                 requirement_rename[r_id] = encoder
-                encode += 1
+                encoder += 1
         else:
             # re-encode the requirements
-            for r_id, _ in self.__cost:
+            for r_id, _ in self.__cost.items():
                 requirement_rename[r_id] = encoder
-                encode += 1
+                encoder += 1
             # re-encode the customers
-            for c_id, _ in self.__profit:
+            for c_id, _ in self.__profit.items():
                 customer_rename[c_id] = encoder
-                encode += 1
+                encoder += 1
         # self check
         # rename
         neo_cost : Dict[int, int] = \
@@ -273,12 +273,14 @@ class NextReleaseProblem:
         neo_profit : Dict[int, int] = \
             {customer_rename[x[0]]:x[1] for x in self.__profit.items()}
         neo_dependencies : List[Tuple[int, int]] = \
-            [tuple(requirement_rename[x[0]], requirement_rename[x[1]]) for x in self.__dependencies]
+            [tuple((requirement_rename[x[0]], requirement_rename[x[1]])) for x in self.__dependencies]
         neo_requirements : List[Tuple[int, int]] = \
-            [tuple(customer_rename[x[0]], requirement_rename[x[1]]) for x in self.__requirements]
+            [tuple((customer_rename[x[0]], requirement_rename[x[1]])) for x in self.__requirements]
+        # pack up
+        neo_content = tuple((neo_cost, neo_profit, neo_dependencies, neo_requirements))
         # check
-        assert self.__unique_and_compact_reenconde_check(neo_content, customer_rename, requirement_rename)
-        return tuple(neo_cost, neo_profit, neo_dependencies, neo_requirements)
+        # assert self.__unique_and_compact_reenconde_check(neo_content, customer_rename, requirement_rename)
+        return neo_content
 
     # convert to MOIPProbelm general Format TODO: return value
     def to_general_MOIP(self, b : float):
@@ -359,6 +361,7 @@ if __name__ == '__main__':
         nrp = NextReleaseProblem()
         nrp.construct_from_XuanLoader(loader)
         nrp.flatten()
+        nrp.unique_and_compact_reenconde(True)
         # nrp.to_geneneral_MOIP(0.5)
     # realistic instances
     for realistic_nrp in REALISTIC_NRPS:
@@ -369,4 +372,5 @@ if __name__ == '__main__':
         nrp = NextReleaseProblem()
         nrp.construct_from_XuanLoader(loader)
         # nrp.flatten()
+        nrp.unique_and_compact_reenconde(True)
         # nrp.to_geneneral_MOIP(0.5)
