@@ -1,7 +1,7 @@
 # ################################## #
 # DONG Shi, dongshi@mail.ustc.edu.cn #
 # loaders.py, created: 2020.08.31    #
-# Last Modified: 2020.09.03          #
+# Last Modified: 2020.09.07          #
 # ################################## #
 
 from typing import *
@@ -246,7 +246,7 @@ class NextReleaseProblem:
         customer_rename : Dict[int, int] = {}
         requirement_rename : Dict[int, int] = {}
         # prepare an encoder first, from 1
-        encoder = 1
+        encoder = 0
         # clearify the order
         if customer_first:
             # re-encode the customers
@@ -282,15 +282,15 @@ class NextReleaseProblem:
         # assert self.__unique_and_compact_reenconde_check(neo_content, customer_rename, requirement_rename)
         return neo_content
 
-    # convert to MOIPProbelm general Format TODO: return value
-    def to_general_MOIP(self, b : float):
+    # convert to MOIPProbelm general Format
+    def to_general_MOIP(self, b : float) -> MOIPProblem:
         # requirement dependencies should be eliminated
         assert not self.__dependencies
         # prepare the "variables"
         neo_content = self.unique_and_compact_reenconde(True) # customer + requirement
         neo_cost, neo_profit, neo_dependencies, neo_requirements = neo_content
         # prepare variables
-        variables = neo_profit.keys() + neo_cost.keys()
+        variables = list(neo_profit.keys()) + list(neo_cost.keys())
         # prepare objective coefs
         objectives : List[Dict[int, int]] = [neo_profit]
         # prepare the atrribute matrix
@@ -314,28 +314,70 @@ class NextReleaseProblem:
         tmp_inequation[constant_id] = int(cost_sum * b)
         inequations.append(tmp_inequation)
         inequations_operators.append('L')
-        # TODO: 0 <= x, y <= 1
+        # TODO: need 0 <= x, y <= 1 constraints?
         # construct Problem 
-        # return NextReleaseProblem.to_MOIP(variables, objectives, inequations, inequations_operators)
+        return NextReleaseProblem.to_MOIP(variables, objectives, inequations, inequations_operators)
     
     # to MOIP, construct from some already content
-    # @staticmethod
-    # def to_MOIP(variables : List[int], \
-    #     objectives : List[Dict[int, int]], \
-    #     inequations : List[Dict[int, int]], \
-    #     inequations_operators : List[str] \
-    # ) -> MOIPProblem:
-    #     # construct MOIP
-    #     MOIP = MOIPProblem(len(objectives), len(variables), 0)
-    #     # use objectives make attribute matrix
-    #     for objective in objectives:
-    #         line = [0] * (len(variables)+1)
-    #         for key, value in objective.items():
-    #             line[key] = value
-    #         # now the constant, constant id is MAX_VARIABLE_ID + 1
-    #         if len(variables) in objective:
-    #             line[len(variables)] = objective[len(variables)]
-        # TODO: convert to MOIP
+    @staticmethod
+    def to_MOIP(variables : List[int], \
+        objectives : List[Dict[int, int]], \
+        inequations : List[Dict[int, int]], \
+        inequations_operators : List[str] \
+    ) -> MOIPProblem:
+        # use objectives make attribute matrix
+        attribute_matrix = []
+        for objective in objectives:
+            line = [0] * (len(variables)+1)
+            for key, value in objective.items():
+                line[key] = value
+            # now the constant, constant id is MAX_VARIABLE_ID + 1
+            if len(variables) in objective:
+                line[len(variables)] = objective[len(variables)]
+            attribute_matrix.append(line)
+        # load into the MOIP
+        # construct MOIP
+        MOIP = MOIPProblem(len(objectives), len(variables), 0)
+        # call load
+        MOIP.load(objectives, inequations, dict(), False, None)
+        # ...load manually
+        MOIP.sparseInequationSensesList = inequations_operators
+        MOIP.attributeMatrix = attribute_matrix
+        # TODO: reorder objectives
+        # TODO: convert inequation to 'L'
+        # NOTE: above two is not useful for IST2015, so it could be implemented later
+        return MOIP
+        
+    # mainly copied from dimacsMoipProb
+    # calculate the upper and lower boundary of an objective
+    # because each variable is just 0/1
+    # so the upper is sum(coef>0), and lower is sum(coef<0)
+    # return (lower, upper)
+    @staticmethod
+    def calculate_boundary(objective : List[int]) -> Tuple[float, float]:
+        positive = list(filter(lambda x : x > 0, objective)).append(0.0)
+        negative = list(filter(lambda x : x < 0, objective)).append(0.0)
+        return sum(negative), sum(positive)
+
+    # calculate range (upper - lower) of a objective
+    # actually call calculate_boundary
+    @staticmethod
+    def caculate_range(objective : List[int]) -> float:
+        lower, upper = NextReleaseProblem.calculate_boundary(objective)
+        return upper - lower
+
+    @staticmethod
+    def show_problem_attribute(problem : MOIPProblem) -> None:
+        problem.displayObjectiveCount()
+        problem.displayFeatureCount()
+        problem.displayAttributeCount()
+        problem.displayObjectives()
+        problem.displayVariableNames()
+        problem.displayObjectiveSparseMapList()
+        problem.displaySparseInequationsMapList()
+        problem.displaySparseInequationSenseList()
+        problem.displaySparseEquationsMapList()
+        problem.displayAttributeMatrix()
 
 # just a main for testing
 if __name__ == '__main__':
@@ -362,7 +404,10 @@ if __name__ == '__main__':
         nrp.construct_from_XuanLoader(loader)
         nrp.flatten()
         nrp.unique_and_compact_reenconde(True)
-        # nrp.to_geneneral_MOIP(0.5)
+        prob = nrp.to_general_MOIP(0.5)
+        # NextReleaseProblem.show_problem_attribute(prob)
+        # break
+    print('=========================')
     # realistic instances
     for realistic_nrp in REALISTIC_NRPS:
         print("start " + realistic_nrp)
@@ -371,6 +416,7 @@ if __name__ == '__main__':
         loader.load(file_name)
         nrp = NextReleaseProblem()
         nrp.construct_from_XuanLoader(loader)
-        # nrp.flatten()
         nrp.unique_and_compact_reenconde(True)
-        # nrp.to_geneneral_MOIP(0.5)
+        nrp.to_general_MOIP(0.5)
+        # NextReleaseProblem.show_problem_attribute(prob)
+        # break
