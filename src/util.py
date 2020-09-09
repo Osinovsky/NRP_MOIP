@@ -1,7 +1,7 @@
 # ################################## #
 # DONG Shi, dongshi@mail.ustc.edu.cn #
 # loaders.py, created: 2020.08.31    #
-# Last Modified: 2020.09.07          #
+# Last Modified: 2020.09.08          #
 # ################################## #
 
 from typing import *
@@ -292,7 +292,7 @@ class NextReleaseProblem:
         # prepare variables
         variables = list(neo_profit.keys()) + list(neo_cost.keys())
         # prepare objective coefs
-        objectives : List[Dict[int, int]] = [neo_profit]
+        objectives : List[Dict[int, int]] = [{k:-v for k, v in neo_profit.items()}]
         # prepare the atrribute matrix
         inequations : List[Dict[int, int]] = []
         inequations_operators : List[str] = []
@@ -314,10 +314,12 @@ class NextReleaseProblem:
         tmp_inequation[constant_id] = int(cost_sum * b)
         inequations.append(tmp_inequation)
         inequations_operators.append('L')
-        # TODO: need 0 <= x, y <= 1 constraints?
+        # NOTE no need for 0 <= x, y <= 1 it's provided in imported files
         # construct Problem 
         return NextReleaseProblem.to_MOIP(variables, objectives, inequations, inequations_operators)
     
+    # TODO: I need a basic stackholder based 'to_MOIP' for 
+
     # to MOIP, construct from some already content
     @staticmethod
     def to_MOIP(variables : List[int], \
@@ -328,16 +330,19 @@ class NextReleaseProblem:
         # use objectives make attribute matrix
         attribute_matrix = []
         for objective in objectives:
-            line = [0] * (len(variables)+1)
+            line = [0] * (len(variables))
             for key, value in objective.items():
                 line[key] = value
-            # now the constant, constant id is MAX_VARIABLE_ID + 1
-            if len(variables) in objective:
-                line[len(variables)] = objective[len(variables)]
+            # there was a constant_id = max_id + 1, then api do not work
+            # so I assume there's no constant in objective 
             attribute_matrix.append(line)
         # load into the MOIP
         # construct MOIP
         MOIP = MOIPProblem(len(objectives), len(variables), 0)
+        # make some dummy name
+        # MOIP.objectNames = ['#OBJECT_{0}'.format(i) for i in range(len(objectives))]
+        # MOIP.attributeNames = ['OBJECT_{0}'.format(i) for i in range(len(objectives))]
+        # MOIP.featureNames = {variables[i]:'VAR_{0}'.format(i) for i in range(len(variables))}
         # call load
         MOIP.load(objectives, inequations, dict(), False, None)
         # ...load manually
@@ -417,6 +422,5 @@ if __name__ == '__main__':
         nrp = NextReleaseProblem()
         nrp.construct_from_XuanLoader(loader)
         nrp.unique_and_compact_reenconde(True)
-        nrp.to_general_MOIP(0.5)
         # NextReleaseProblem.show_problem_attribute(prob)
         # break

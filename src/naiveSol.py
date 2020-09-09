@@ -66,9 +66,9 @@ class NaiveSol(BaseSol):
             self.constrIndexList.append(indices)
         
         #start to solving
-        print ("Before the epsilon constraint, the adjusted UBs of the objective 2 to k: ", self.getSolverObjConstraintUBs())
-        self.travelAllObjConstr(1)
-        print ("After the epsilon constraint, the adjusted UBs of the objective 2 to k: ", self.getSolverObjConstraintUBs())
+        # print ("Before the epsilon constraint, the adjusted UBs of the objective 2 to k: ", self.getSolverObjConstraintUBs())
+        # self.travelAllObjConstr(1)
+        # print ("After the epsilon constraint, the adjusted UBs of the objective 2 to k: ", self.getSolverObjConstraintUBs())
         #debugging purpose
         #print (self.solveCounter)
         self.buildCplexPareto()
