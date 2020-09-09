@@ -78,32 +78,42 @@ class Runner:
         # save to file 
         self.__solver.outputCplexParetoMap(file_name)
 
+    # display the solutions
+    def __display(self) -> None:
+        for solution in self.__solver.cplexParetoSet:
+            print(str(solution) + ', ')
+
     # run! no bullshit just run
     def run(self) -> None:
-        print('Project \"' + self.__project + '\" starting')
+        # print('Project \"' + self.__project + '\" starting')
         # load the project file
         # At first, get the file name
         assert self.__project in ALL_FILES_DICT
         project_filename = ALL_FILES_DICT[self.__project]
         # then load: file -> loader -> NRP -> MOIPProblem
-        print('loading data...')
+        # print('loading data...')
         self.__load()
         # use base sol, TODO: generalize
-        print('solver: ' + 'baseSol')
+        # print('solver: ' + 'baseSol')
         self.__solver = BaseSol(self.__problem)
         # NextReleaseProblem.show_problem_attribute(self.__problem)
         # prepare and execute
-        print('excuting...')
+        # print('excuting...')
         self.__solver.prepare()
         self.__solver.execute()
-        print('done')
+        # print('done')
         # write result
-        print('saving result...')
-        self.__save()
-        print('Project \"' + self.__project + '\" finished')
+        # print('saving result...')
+        # self.__save()
+        self.__display()
+        # print('Project \"' + self.__project + '\" finished')
 
 
 # main function
 if __name__ == '__main__':
-    runner = Runner('classic_1', {'b':0.3})
-    runner.run()
+    for project in ALL_FILES_DICT.keys():
+        if project.startswith('classic_'):
+            for b in [0.3, 0.5, 0.7]:
+                print(project + '\t' + str(b))
+                runner = Runner(project, {'b':b})
+                runner.run()

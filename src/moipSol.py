@@ -42,7 +42,7 @@ class BaseSol:
         
         
     def execute(self):
-        print("%s" % ("Starting solving the problem with BaseSol execution!"))
+        # print("%s" % ("Starting solving the problem with BaseSol execution!"))
         self.solver.solve()
         #debugging purpose
         #print ("Solution value  = ", self.solver.solution.get_objective_value())
