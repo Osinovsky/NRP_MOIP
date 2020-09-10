@@ -53,6 +53,10 @@ class NextReleaseProblem:
     # content access
     def content(self) -> NRPContent:
         return (self.__cost, self.__profit, self.__dependencies, self.__requirements)
+
+    # if depdencies is empty
+    def empty_denpendencies(self) -> bool :
+        return not bool(self.__dependencies)
     
     # convert from XuanLoader
     def construct_from_XuanLoader(self, loader : XuanLoader) -> None:
@@ -283,7 +287,7 @@ class NextReleaseProblem:
         return neo_content
 
     # convert to MOIPProbelm general Format
-    def to_general_MOIP(self, b : float) -> MOIPProblem:
+    def to_general_form(self, b : float) -> MOIPProblem:
         # requirement dependencies should be eliminated
         assert not self.__dependencies
         # prepare the "variables"
@@ -318,7 +322,93 @@ class NextReleaseProblem:
         # construct Problem 
         return NextReleaseProblem.to_MOIP(variables, objectives, inequations, inequations_operators)
     
-    # TODO: I need a basic stackholder based 'to_MOIP' for 
+    # demand check
+    def __demands_check(self, requirements : List[Tuple[int, int]], demands : Dict[int, List[int]]) -> bool:
+        # requirement => demands
+        for customer_id, requirement_id in requirements:
+            if requirement_id not in demands:
+                print('requirement id losts in demands')
+                return False
+            if customer_id not in demands[requirement_id]:
+                print('requirement losts in demands')
+                return False
+        # demands => requirements
+        for requirement_id, demand_list in demands.items():
+            for customer_id in demand_list:
+                if (customer_id, requirement_id) not in requirements:
+                    print('invalid demands')
+                    return False
+        return True
+
+    # make demand mapping from requirements 
+    def __find_demands(self, requirements : List[Tuple[int, int]]) -> Dict[int, List[int]]:
+        # prepare a dict
+        tmp_demands : Dict[int, Set[int]] = dict()
+        # iterate the requirements
+        for customer_id, requirement_id in requirements:
+            if requirement_id not in tmp_demands:
+                tmp_demands[requirement_id] = set()
+            # add into the set
+            tmp_demands[requirement_id].add(customer_id)
+        # turn sets into list
+        demands : Dict[int, List[int]] = dict()
+        for key, value in tmp_demands.items():
+            demands[key] = list(value)
+        # check demands
+        assert self.__demands_check(requirements, demands)
+        # return the demands
+        return demands
+
+    # convert to basic stakeholder form 
+    def to_basic_stakeholder_form(self, b : float) -> MOIPProblem:
+        # requirement dependencies should not appear
+        assert not self.__dependencies
+        # prepare the "variables"
+        neo_content = self.unique_and_compact_reenconde(True) # customer + requirement
+        neo_cost, neo_profit, neo_dependencies, neo_requirements = neo_content
+        # prepare variables, in this form we only use customers
+        variables = list(neo_profit.keys()) + list(neo_cost.keys())
+        # prepare objective coefs
+        objectives : List[Dict[int, int]] = [{k:-v for k, v in neo_profit.items()}]
+        # prepare inequations
+        inequations : List[Dict[int, int]] = []
+        inequations_operators : List[str] = []
+        # don't forget encode the constant, it always be MAX_CODE + 1
+        constant_id = len(variables)
+        assert constant_id not in neo_cost.keys()
+        assert constant_id not in neo_profit.keys()
+        # find set Si which consists of customers who need requirement xi
+        # ...or we can name it demand 'list', dict[requirement_id:list[customer_id]]
+        demands : Dict[int, List[int]] = self.__find_demands(neo_requirements)
+        # use OR method to convert or-logic into linear planning
+        # we assume requirement are (y, x), note that y is customer and x a requirement
+        # there should be constraints: OR_j(yi) where yi requires xj
+        # they could be converted into: each yi - xj <= 0
+        # ... and Sum yi - xj >= 0  <=> xj - Sum yi <= 0
+        # first, each yi <= xj in requirements
+        for req in neo_requirements:
+            # custom req[0] need requirement req[1]
+            # req[0] <= req[1] <=> req[0] - req[1] <= 0
+            inequations.append({req[0]:1, req[1]:-1, constant_id:0})
+            # 'L' for <= and 'G' for >=, we can just convert every inequations into <= format
+            inequations_operators.append('L')
+        # second, xj - Sum yi <= 0
+        for req, demand_list in demands.items():
+            tmp_inequation = {req : 1}
+            for customer_id in demand_list:
+                tmp_inequation[customer_id] = -1
+            tmp_inequation[constant_id] = 0
+            inequations.append(tmp_inequation)
+            inequations_operators.append('L')
+        # finialy, use sum cost_i x_i < b sum(cost) of course
+        cost_sum = sum(neo_cost.values())
+        tmp_inequation = neo_cost
+        tmp_inequation[constant_id] = int(cost_sum * b)
+        inequations.append(tmp_inequation)
+        inequations_operators.append('L')
+        # NOTE no need for 0 <= x, y <= 1 it's provided in imported files
+        # construct Problem 
+        return NextReleaseProblem.to_MOIP(variables, objectives, inequations, inequations_operators)
 
     # to MOIP, construct from some already content
     @staticmethod
@@ -409,7 +499,7 @@ if __name__ == '__main__':
         nrp.construct_from_XuanLoader(loader)
         nrp.flatten()
         nrp.unique_and_compact_reenconde(True)
-        prob = nrp.to_general_MOIP(0.5)
+        prob = nrp.to_general_form(0.5)
         # NextReleaseProblem.show_problem_attribute(prob)
         # break
     print('=========================')

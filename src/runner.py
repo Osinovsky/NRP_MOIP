@@ -51,12 +51,23 @@ class Runner:
         self.__NRP.unique_and_compact_reenconde(True)
         # convert to MOIPProblem
         assert 'b' in self.__options
-        self.__problem = self.__NRP.to_general_MOIP(self.__options['b'])
+        self.__problem = self.__NRP.to_general_form(self.__options['b'])
     
     # realistic loader script
     def __realistic_load(self) -> None:
-        # TODO: after basic stackholder to MOIP implemented
-        pass
+        #  employe a XuanLoader
+        self.__loader = XuanLoader()
+        self.__loader.load(ALL_FILES_DICT[self.__project])
+        # load into NRP
+        self.__NRP = NextReleaseProblem()
+        self.__NRP.construct_from_XuanLoader(self.__loader)
+        # there shouldn't be any dependencies in NRP
+        assert self.__NRP.empty_denpendencies()
+        # reencode the NRP
+        self.__NRP.unique_and_compact_reenconde(True)
+        # convert to MOIPProblem
+        assert 'b' in self.__options
+        self.__problem = self.__NRP.to_basic_stakeholder_form(self.__options['b'])
 
     # choose a loader from the project name
     # and load it into NRP and convert to MOIPProblem
@@ -83,30 +94,43 @@ class Runner:
         for solution in self.__solver.cplexParetoSet:
             print(str(solution) + ', ')
 
-    # run! no bullshit just run
-    def run(self) -> None:
-        # print('Project \"' + self.__project + '\" starting')
+    # classic nrp runner
+    def __classic_runner(self) -> None:
         # load the project file
         # At first, get the file name
         assert self.__project in ALL_FILES_DICT
-        project_filename = ALL_FILES_DICT[self.__project]
         # then load: file -> loader -> NRP -> MOIPProblem
-        # print('loading data...')
         self.__load()
-        # use base sol, TODO: generalize
-        # print('solver: ' + 'baseSol')
+        # use base sol
         self.__solver = BaseSol(self.__problem)
-        # NextReleaseProblem.show_problem_attribute(self.__problem)
         # prepare and execute
-        # print('excuting...')
         self.__solver.prepare()
         self.__solver.execute()
-        # print('done')
-        # write result
-        # print('saving result...')
         # self.__save()
         self.__display()
-        # print('Project \"' + self.__project + '\" finished')
+
+    # realistic nrp runner
+    def __realistic_runner(self) -> None:
+        # load the project file
+        # At first, get the file name
+        assert self.__project in ALL_FILES_DICT
+        # then load: file -> loader -> NRP -> MOIPProblem
+        self.__load()
+        # use base sol
+        self.__solver = BaseSol(self.__problem)
+        # prepare and execute
+        self.__solver.prepare()
+        self.__solver.execute()
+        # self.__save()
+        self.__display()
+
+    # run! no bullshit just run
+    def run(self) -> None:
+        # branch runner
+        if self.__project.startswith('classic_'):
+            self.__classic_runner()
+        elif self.__project.startswith('realistic_'):
+            self.__realistic_runner()
 
 
 # main function
@@ -114,6 +138,11 @@ if __name__ == '__main__':
     for project in ALL_FILES_DICT.keys():
         if project.startswith('classic_'):
             for b in [0.3, 0.5, 0.7]:
+                print(project + '\t' + str(b))
+                runner = Runner(project, {'b':b})
+                runner.run()
+        elif project.startswith('realistic_'):
+            for b in [0.3, 0.5]:
                 print(project + '\t' + str(b))
                 runner = Runner(project, {'b':b})
                 runner.run()
