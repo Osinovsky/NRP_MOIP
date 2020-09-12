@@ -121,9 +121,11 @@ class Runner:
         self.__solver.outputCplexParetoMap(file_name)
 
     # display the solutions
-    def __display(self) -> None:
-        for solution in self.__solver.cplexParetoSet:
-            print(str(solution) + ', ')
+    def __display(self, mode=True) -> None:
+        print('number of solutions found: ' + str(len(self.__solver.cplexParetoSet)))
+        if mode:
+            for solution in self.__solver.cplexParetoSet:
+                print(str(solution) + ', ')
 
     # classic nrp runner
     def __classic_runner(self) -> None:
@@ -168,7 +170,7 @@ class Runner:
         self.__solver.prepare()
         self.__solver.execute()
         # self.__save()
-        self.__display()
+        self.__display(False)
 
     # run! no bullshit just run
     def run(self) -> None:
@@ -184,6 +186,7 @@ class Runner:
 
 # main function
 if __name__ == '__main__':
+    # single-objective
     # for project in ALL_FILES_DICT.keys():
     #     if project.startswith('classic_'):
     #         for b in [0.3, 0.5, 0.7]:
@@ -195,5 +198,8 @@ if __name__ == '__main__':
     #             print(project + '\t' + str(b))
     #             runner = Runner(project, options={'b':b})
     #             runner.run()
-    runner = Runner('classic_1', method='epsilon')
-    runner.run()
+    # bi-objective with epsilon constraint
+    for project in ALL_FILES_DICT.keys():
+        print(project)
+        runner = Runner(project, method='epsilon')
+        runner.run()
