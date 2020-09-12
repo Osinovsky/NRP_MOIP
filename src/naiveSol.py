@@ -23,7 +23,7 @@ class NaiveSol(BaseSol):
        
     #overload father method
     def execute(self):  
-        print("%s" % ("Starting solving the problem with epsilon-constraint!")) 
+        # print("%s" % ("Starting solving the problem with epsilon-constraint!")) 
         constCounter = self.solver.linear_constraints.get_num()
         self.objConstrIndexList =[]
         
@@ -67,7 +67,7 @@ class NaiveSol(BaseSol):
         
         #start to solving
         # print ("Before the epsilon constraint, the adjusted UBs of the objective 2 to k: ", self.getSolverObjConstraintUBs())
-        # self.travelAllObjConstr(1)
+        self.travelAllObjConstr(1)
         # print ("After the epsilon constraint, the adjusted UBs of the objective 2 to k: ", self.getSolverObjConstraintUBs())
         #debugging purpose
         #print (self.solveCounter)

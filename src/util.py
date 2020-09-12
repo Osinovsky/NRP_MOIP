@@ -1,7 +1,7 @@
 # ################################## #
 # DONG Shi, dongshi@mail.ustc.edu.cn #
 # loaders.py, created: 2020.08.31    #
-# Last Modified: 2020.09.08          #
+# Last Modified: 2020.09.12          #
 # ################################## #
 
 from typing import *
@@ -406,6 +406,39 @@ class NextReleaseProblem:
         tmp_inequation[constant_id] = int(cost_sum * b)
         inequations.append(tmp_inequation)
         inequations_operators.append('L')
+        # NOTE no need for 0 <= x, y <= 1 it's provided in imported files
+        # construct Problem 
+        return NextReleaseProblem.to_MOIP(variables, objectives, inequations, inequations_operators)
+
+    # to basic bi-objective MOIPProblem
+    # max profit and min cost
+    def to_basic_bi_objective_form(self) -> MOIPProblem:
+        # requirement dependencies should be eliminated
+        assert not self.__dependencies
+        # prepare the "variables"
+        neo_content = self.unique_and_compact_reenconde(True) # customer + requirement
+        neo_cost, neo_profit, neo_dependencies, neo_requirements = neo_content
+        # prepare variables
+        variables = list(neo_profit.keys()) + list(neo_cost.keys())
+        # prepare objective coefs
+        max_profit = {k:-v for k, v in neo_profit.items()}
+        min_cost = {k:v for k, v in neo_cost.items()}
+        objectives : List[Dict[int, int]] = [max_profit, min_cost]
+        # prepare the atrribute matrix
+        inequations : List[Dict[int, int]] = []
+        inequations_operators : List[str] = []
+        # don't forget encode the constant, it always be MAX_CODE + 1
+        constant_id = len(variables)
+        assert constant_id not in neo_cost.keys()
+        assert constant_id not in neo_profit.keys()
+        # convert requirements
+        # use requirements, y <= x
+        for req in neo_requirements:
+            # custom req[0] need requirement req[1]
+            # req[0] <= req[1] <=> req[0] - req[1] <= 0
+            inequations.append({req[0]:1, req[1]:-1, constant_id:0})
+            # 'L' for <= and 'G' for >=, we can just convert every inequations into <= format
+            inequations_operators.append('L')
         # NOTE no need for 0 <= x, y <= 1 it's provided in imported files
         # construct Problem 
         return NextReleaseProblem.to_MOIP(variables, objectives, inequations, inequations_operators)
