@@ -13,6 +13,7 @@ from naiveSol import NaiveSol
 from moipSol import BaseSol
 from util import NextReleaseProblem
 from dimacsMoipProb import DimacsMOIPProblem 
+import time
 
 # construct a wrapper of everything, and name it as runner
 class Runner:
@@ -121,7 +122,7 @@ class Runner:
         self.__solver.outputCplexParetoMap(file_name)
 
     # display the solutions
-    def __display(self, mode=True) -> None:
+    def display(self, mode=True) -> None:
         print('number of solutions found: ' + str(len(self.__solver.cplexParetoSet)))
         if mode:
             for solution in self.__solver.cplexParetoSet:
@@ -139,8 +140,6 @@ class Runner:
         # prepare and execute
         self.__solver.prepare()
         self.__solver.execute()
-        # self.__save()
-        self.__display()
 
     # realistic nrp runner
     def __realistic_runner(self) -> None:
@@ -154,8 +153,6 @@ class Runner:
         # prepare and execute
         self.__solver.prepare()
         self.__solver.execute()
-        # self.__save()
-        self.__display()
     
     # bi-objetive optimization using epsilon constraints 
     def __epsilon_constraint_runner(self) -> None:
@@ -169,8 +166,6 @@ class Runner:
         # prepare and execute
         self.__solver.prepare()
         self.__solver.execute()
-        # self.__save()
-        self.__display(False)
 
     # run! no bullshit just run
     def run(self) -> None:
@@ -202,4 +197,8 @@ if __name__ == '__main__':
     for project in ALL_FILES_DICT.keys():
         print(project)
         runner = Runner(project, method='epsilon')
+        start = time.clock()
         runner.run()
+        end = time.clock()
+        runner.display(False)
+        print("%.2gs" % (end-start))
