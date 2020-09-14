@@ -1,7 +1,7 @@
 # ################################## #
 # DONG Shi, dongshi@mail.ustc.edu.cn #
 # config.py, created: 2020.08.25     #
-# Last Modified: 2020.09.08          #
+# Last Modified: 2020.09.14          #
 # ################################## #
 
 from os import path
@@ -22,6 +22,8 @@ RALIC_PATH = '../datasets/RALIC/'
 RATEP_OBJ_FILE = 'RateP-Obj.txt'
 RATEP_REQ_FILE = 'RateP-Req.txt'
 RATEP_SREQ_FILE = 'RateP-SReq.txt'
+# Baan Dataset
+BAAN_FILE_NAME = '../datasets/Baan/Baan.xls'
 
 # make the file path more friendly, code them into a big dict
 ALL_FILES_DICT = { \

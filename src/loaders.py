@@ -1,12 +1,13 @@
 # ################################## #
 # DONG Shi, dongshi@mail.ustc.edu.cn #
 # loaders.py, created: 2020.08.25    #
-# Last Modified: 2020.08.31          #
+# Last Modified: 2020.09.14          #
 # ################################## #
 
 import os
 from typing import *
 from config import *
+import xlrd
 
 # type defining
 # costs of requirements, level x [(requirement id, cost)]
@@ -154,6 +155,74 @@ class RALICLoader:
     # content 
     def content(self) -> List[List[Tuple[str, str, str]]]:
         return self.__levels
+
+# read from Baan dataset
+class BaanLoader:
+    # initialize
+    def __init__(self) -> None:
+        # store (requirement, team) -> int 
+        # which means manday need for team to develop on requirement
+        self.__cost : Dict[Tuple[int, int], int] = {}
+        # profit
+        self.__profit : Dict[int, int] = {}
+
+    # return content
+    def content(self) -> Tuple[Dict[Tuple[int, int], int], Dict[int, int]]:
+        return (self.__cost, self.__profit)
+
+    # load
+    def load(self) -> Tuple[Dict[Tuple[int, int], int], Dict[int, int]]:
+        # load from Baarn file, 1, 4  ... 1, 21
+        #                       100,4 ... 100, 21
+        table = self.__load_xls((1, 4), (101, 22))
+        # tranverse all cell
+        for requirements_id in range(1, 101):
+            requirements_id -= 1
+            # cost
+            for team_id in range(4, 21):
+                team_id -= 4
+                num_str = table[requirements_id][team_id]
+                # filter cell not empty and not zero
+                if num_str != '' and int(num_str) != 0:
+                    self.__cost[(requirements_id, team_id)] = int(table[requirements_id][team_id])
+            # profit
+            self.__profit[requirements_id] = table[requirements_id][-1]    
+        # return content
+        return self.content()      
+        
+    # load xls file into list[list](2d string table)
+    def __load_xls(self, \
+        left_up : Tuple[int, int], \
+        right_down : Tuple[int, int], \
+        file_name : str = BAAN_FILE_NAME, \
+        sheet_name : str = 'all requirements' \
+        ) -> List[List[str]]:
+        # read xls file
+        data = xlrd.open_workbook(BAAN_FILE_NAME)
+        table = data.sheet_by_name(sheet_name)
+        # check for left_up and right_down
+        assert left_up[0] < right_down[0] and left_up[1] < right_down[1] \
+           and left_up[0] >= 0 and left_up[1] >= 0
+        # prepare the cell translator, it will give out a solution on 
+        # which type the cell is and transfer it into str 
+        translator = {
+            0 : lambda x : '', # empty -> '' 
+            1 : lambda x : x.value,  # str -> str
+            2 : lambda x : str(int(x.value)), # int -> str, actually it's float but what we need is only int
+            # others should not appear
+        }
+        # load each cell in sheet
+        lines : List[List[str]] = []
+        for i in range(left_up[0], right_down[0]):
+            line : List[str] = []
+            for j in range(left_up[1], right_down[1]):
+                cell = table.cell(i, j)
+                # we assert there only empty, str and number in sheet
+                assert cell.ctype <= 2 and cell.ctype >= 0
+                line.append(translator[cell.ctype](cell))
+            lines.append(line)
+        # return result
+        return lines
         
 # just a main for testing
 if __name__ == "__main__":
@@ -180,3 +249,8 @@ if __name__ == "__main__":
     # try to load RALIC nrps
     # r_l = RALICLoader()
     # print(r_l.load_triple(RALIC_PATH, RATEP_OBJ_FILE, RATEP_REQ_FILE, RATEP_SREQ_FILE))
+    # try to load Baan nrp
+    # b_l = BaanLoader()
+    # cost, profit = b_l.load()
+    # print(cost)
+    # print(profit)
