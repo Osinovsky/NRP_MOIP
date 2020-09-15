@@ -1,7 +1,7 @@
 # ################################## #
 # DONG Shi, dongshi@mail.ustc.edu.cn #
 # loaders.py, created: 2020.09.08    #
-# Last Modified: 2020.09.12          #
+# Last Modified: 2020.09.14          #
 # ################################## #
 
 from typing import *
@@ -97,6 +97,10 @@ class Runner:
         self.__NRP.unique_and_compact_reenconde(True)
         # convert to MOIPProblem
         self.__problem = self.__NRP.to_basic_bi_objective_form()
+
+    # Baan Dataset load
+    def __Baan_load(self) -> None:
+        pass
 
     # choose a loader from the project name
     # and load it into NRP and convert to MOIPProblem

@@ -1,13 +1,13 @@
 # ################################## #
 # DONG Shi, dongshi@mail.ustc.edu.cn #
 # loaders.py, created: 2020.08.31    #
-# Last Modified: 2020.09.12          #
+# Last Modified: 2020.09.14          #
 # ################################## #
 
 from typing import *
 from config import *
 from functools import reduce
-from loaders import XuanLoader, MotorolaLoader, RALICLoader
+from loaders import XuanLoader, MotorolaLoader, RALICLoader, BaanLoader
 from copy import deepcopy
 import os
 from moipProb import MOIPProblem 
@@ -28,6 +28,8 @@ class NextReleaseProblem:
         self.__dependencies : List[Tuple[int, int]] = []
         # requirements (customer, requirement)
         self.__requirements : List[Tuple[int, int]] = []
+        # team specific cost, requirement, team -> cost
+        self.__specific_cost : Dict[Tuple[int, int]] = dict()
 
     # self check 
     def __check(self) -> bool :
@@ -86,6 +88,11 @@ class NextReleaseProblem:
         self.__dependencies = deepcopy(dependencies)
         # don't forget have a check of all member
         # assert self.__check()
+
+    # construct from BaanLoader
+    def construct_from_BaanLoader(self, loader : BaanLoader) -> None:
+        # get content from loader
+        self.__specific_cost, self.__profit = loader.load()
 
     # find all dependened requirement
     def __all_precursors(self, req_id : int) -> Set[int]:
@@ -249,7 +256,7 @@ class NextReleaseProblem:
         # rename map record
         customer_rename : Dict[int, int] = {}
         requirement_rename : Dict[int, int] = {}
-        # prepare an encoder first, from 1
+        # prepare an encoder first, from 0
         encoder = 0
         # clearify the order
         if customer_first:
@@ -443,6 +450,93 @@ class NextReleaseProblem:
         # construct Problem 
         return NextReleaseProblem.to_MOIP(variables, objectives, inequations, inequations_operators)
 
+    # check tuple list cluster
+    @staticmethod
+    def __tuple_list_cluster_check(tuple_list : List[Any], index : int, clusters : Dict[int, List[Any]]) -> bool:
+        # tuple_list => clusters
+        for tpl in tuple_list:
+            if tpl not in clusters[tpl[index]]:
+                print('tuple lost in clusters')
+                return False
+        # clusters => tuple_list
+        for key, cluster in clusters.items():
+            for tpl in cluster:
+                if tpl[index] != key:
+                    print('tuple not match with index')
+                    return False
+                if tpl not in tuple_list:
+                    print('illegal tuple')
+                    return False
+        # all pass
+        return True
+
+    # cluster tuple list with a certain tuple element
+    @staticmethod
+    def __tuple_list_cluster(tuple_list : List[Any], index : int) -> Dict[int, List[Any]]:
+        # prepare result
+        clusters = dict()
+        for tpl in tuple_list:
+            if tpl[index] in clusters:
+                clusters[tpl[index]].append(tpl)
+            else:
+                clusters[tpl[index]] = [tpl]
+        # check before return
+        assert NextReleaseProblem.__tuple_list_cluster_check(tuple_list, index, clusters)
+        return clusters
+
+    # specific cost NRP to bi objective problem
+    def to_specific_cost_bi_objective_form(self) -> MOIPProblem :
+        # prepare encoding map
+        encoding : Dict[Tuple[int, int], int] = dict()
+        # encoding each (requirement, team) pair, from 0
+        encoder = 0
+        for key in self.__specific_cost.keys():
+            encoding[key] = encoder
+            encoder += 1
+        # prepare variables
+        variables : List[int] = list(encoding.values())
+        # max profit and min cost
+        max_profit : Dict[int, int] = dict()
+        min_cost : Dict[int, int] = dict()
+        for key, cost in self.__specific_cost.items():
+            # use requirement construct profit objective
+            max_profit[encoding[key]] = -self.__profit[key[0]]
+            # use (requirement, team) construct cost
+            min_cost[encoding[key]] = cost
+        # construct objectives
+        objectives = [max_profit, min_cost]
+        # prepare inequations 
+        inequations : List[Dict[int, int]] = []
+        inequations_operators : List[str] = []
+        # don't forget encode the constant, it always be MAX_CODE + 1
+        constant_id = len(variables)
+        assert constant_id not in variables
+        # prepare clusters with keyword requirement
+        requirement_clusters = self.__tuple_list_cluster(self.__specific_cost.keys(), 0)
+        for tuples in requirement_clusters.values():
+            # employ a dict to record one inequation Sum (ri, ..) <= 1
+            tmp_inequation = dict()
+            for tpl in tuples:
+                tmp_inequation[encoding[tpl]] = 1
+            tmp_inequation[constant_id] = 1
+            # append to inequations
+            inequations.append(tmp_inequation)
+            inequations_operators.append('L')
+        # constuct from cluster with keyword team
+        team_clusters = self.__tuple_list_cluster(self.__specific_cost.keys(), 1)
+        for tuples in team_clusters.values():
+            # employ a dict to record one inequation Sum (.., tj) <= 1
+            tmp_inequation = dict()
+            for tpl in tuples:
+                tmp_inequation[encoding[tpl]] = 1
+            tmp_inequation[constant_id] = 1
+            # append to inequations
+            inequations.append(tmp_inequation)
+            inequations_operators.append('L')
+        # NOTE no need for 0 <= v <= 1 it's provided in imported files
+        # construct Problem 
+        return NextReleaseProblem.to_MOIP(variables, objectives, inequations, inequations_operators)
+
     # to MOIP, construct from some already content
     @staticmethod
     def to_MOIP(variables : List[int], \
@@ -523,27 +617,34 @@ if __name__ == '__main__':
     # print(res[3])
     # lets run all Xuan datasets
     # classic instances
-    for classic_nrp in CLASSIC_NRPS:
-        print("start " + classic_nrp)
-        loader = XuanLoader()
-        file_name = os.path.join(CLASSIC_NRP_PATH, classic_nrp)
-        loader.load(file_name)
-        nrp = NextReleaseProblem()
-        nrp.construct_from_XuanLoader(loader)
-        nrp.flatten()
-        nrp.unique_and_compact_reenconde(True)
-        prob = nrp.to_general_form(0.5)
-        # NextReleaseProblem.show_problem_attribute(prob)
-        # break
-    print('=========================')
+    # for classic_nrp in CLASSIC_NRPS:
+    #     print("start " + classic_nrp)
+    #     loader = XuanLoader()
+    #     file_name = os.path.join(CLASSIC_NRP_PATH, classic_nrp)
+    #     loader.load(file_name)
+    #     nrp = NextReleaseProblem()
+    #     nrp.construct_from_XuanLoader(loader)
+    #     nrp.flatten()
+    #     nrp.unique_and_compact_reenconde(True)
+    #     prob = nrp.to_general_form(0.5)
+    #     # NextReleaseProblem.show_problem_attribute(prob)
+    #     # break
+    # print('=========================')
     # realistic instances
-    for realistic_nrp in REALISTIC_NRPS:
-        print("start " + realistic_nrp)
-        loader = XuanLoader()
-        file_name = os.path.join(REALISTIC_NRP_PATH, realistic_nrp)
-        loader.load(file_name)
-        nrp = NextReleaseProblem()
-        nrp.construct_from_XuanLoader(loader)
-        nrp.unique_and_compact_reenconde(True)
-        # NextReleaseProblem.show_problem_attribute(prob)
-        # break
+    # for realistic_nrp in REALISTIC_NRPS:
+    #     print("start " + realistic_nrp)
+    #     loader = XuanLoader()
+    #     file_name = os.path.join(REALISTIC_NRP_PATH, realistic_nrp)
+    #     loader.load(file_name)
+    #     nrp = NextReleaseProblem()
+    #     nrp.construct_from_XuanLoader(loader)
+    #     nrp.unique_and_compact_reenconde(True)
+    #     # NextReleaseProblem.show_problem_attribute(prob)
+    #     # break
+    # Baan Dataset
+    loader = BaanLoader()
+    loader.load()
+    nrp = NextReleaseProblem()
+    nrp.construct_from_BaanLoader(loader)
+    prob = nrp.to_specific_cost_bi_objective_form()
+    NextReleaseProblem.show_problem_attribute(prob)

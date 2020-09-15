@@ -186,7 +186,7 @@ class BaanLoader:
                 if num_str != '' and int(num_str) != 0:
                     self.__cost[(requirements_id, team_id)] = int(table[requirements_id][team_id])
             # profit
-            self.__profit[requirements_id] = table[requirements_id][-1]    
+            self.__profit[requirements_id] = int(table[requirements_id][-1])
         # return content
         return self.content()      
         
