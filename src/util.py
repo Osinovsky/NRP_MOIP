@@ -293,6 +293,76 @@ class NextReleaseProblem:
         # assert self.__unique_and_compact_reenconde_check(neo_content, customer_rename, requirement_rename)
         return neo_content
 
+    # check to specific
+    def __to_specific_cost_check(self) -> bool:
+        # cost => specific cost
+        for requirement, cost in self.__cost.items():
+            for (customer, tmp_requirement) in self.__requirements:
+                if requirement == tmp_requirement:
+                    if (requirement, customer) not in self.__specific_cost \
+                        or self.__specific_cost[(requirement, customer)] != self.__cost[requirement]:
+                        print('cost => specific cost fail')
+                        return False
+        # specific cost => cost
+        for (requirement, customer), cost in self.__specific_cost.items():
+            if self.__cost[requirement] != cost:
+                print('cost not match')
+                return False
+            if (customer, requirement) not in self.__requirements:
+                print('requirement relation not found')
+                return False
+        # all pass
+        return True
+
+    # convert cost to specific cost, vij = 1 if customer_j -> requirement_i, cost_ij = cost_i
+    def __to_specific_cost(self) -> None:
+        for requirement, cost in self.__cost.items():
+            for (customer, tmp_requirement) in self.__requirements:
+                if requirement != tmp_requirement:
+                    continue
+                # with same requirement
+                self.__specific_cost[(requirement, customer)] = self.__cost[requirement]
+        # check
+        assert self.__to_specific_cost_check()
+
+    # to pseudo specific cost bi-objective, Xuan -> Baan-like -> MOIPProblem
+    def to_pseudo_specific_cost_bi_objective_form(self) -> MOIPProblem:
+        # faltten if there are dependencies
+        if self.__dependencies:
+            self.flatten()
+        # convert cost to specific cost
+        self.__to_specific_cost()
+        # NOTE below codes are copied from to_specific_cost_bi_objective_form
+        # prepare encoding map
+        encoding : Dict[Tuple[int, int], int] = dict()
+        # encoding each (requirement, team) pair, from 0
+        encoder = 0
+        for key in self.__specific_cost.keys():
+            encoding[key] = encoder
+            encoder += 1
+        # prepare variables
+        variables : List[int] = list(encoding.values())
+        # don't forget encode the constant, it always be MAX_CODE + 1
+        constant_id = len(variables)
+        # max profit and min cost
+        max_profit : Dict[int, int] = dict()
+        min_cost : Dict[int, int] = dict()
+        for key, cost in self.__specific_cost.items():
+            # use customer construct profit objective
+            max_profit[encoding[key]] = -self.__profit[key[1]]
+            # use (requirement, custor) construct cost
+            min_cost[encoding[key]] = cost
+        # construct objectives
+        objectives = [max_profit, min_cost]
+        # prepare inequations 
+        # NOTE no constraints in this method
+        # put a topology in case we cannot let them empty
+        inequations : List[Dict[int, int]] = [{0:1, constant_id:1}]
+        inequations_operators : List[str] = ['L']
+        # NOTE no need for 0 <= v <= 1 it's provided in imported files
+        # construct Problem 
+        return NextReleaseProblem.to_MOIP(variables, objectives, inequations, inequations_operators)
+
     # convert to MOIPProbelm general Format
     def to_general_form(self, b : float) -> MOIPProblem:
         # requirement dependencies should be eliminated
@@ -642,9 +712,36 @@ if __name__ == '__main__':
     #     # NextReleaseProblem.show_problem_attribute(prob)
     #     # break
     # Baan Dataset
-    loader = BaanLoader()
-    loader.load()
-    nrp = NextReleaseProblem()
-    nrp.construct_from_BaanLoader(loader)
-    prob = nrp.to_specific_cost_bi_objective_form()
-    NextReleaseProblem.show_problem_attribute(prob)
+    # loader = BaanLoader()
+    # loader.load()
+    # nrp = NextReleaseProblem()
+    # nrp.construct_from_BaanLoader(loader)
+    # prob = nrp.to_specific_cost_bi_objective_form()
+    # NextReleaseProblem.show_problem_attribute(prob)
+    # Baan-like Xuan datasets
+    # classic instances
+    # for classic_nrp in CLASSIC_NRPS:
+    #     print("start " + classic_nrp)
+    #     loader = XuanLoader()
+    #     file_name = os.path.join(CLASSIC_NRP_PATH, classic_nrp)
+    #     loader.load(file_name)
+    #     nrp = NextReleaseProblem()
+    #     nrp.construct_from_XuanLoader(loader)
+    #     nrp.flatten()
+    #     nrp.unique_and_compact_reenconde(True)
+    #     prob = nrp.to_pseudo_specific_cost_bi_objective_form()
+    #     # NextReleaseProblem.show_problem_attribute(prob)
+    #     # break
+    # print('=========================')
+    # # realistic instances
+    # for realistic_nrp in REALISTIC_NRPS:
+    #     print("start " + realistic_nrp)
+    #     loader = XuanLoader()
+    #     file_name = os.path.join(REALISTIC_NRP_PATH, realistic_nrp)
+    #     loader.load(file_name)
+    #     nrp = NextReleaseProblem()
+    #     nrp.construct_from_XuanLoader(loader)
+    #     nrp.unique_and_compact_reenconde(True)
+    #     prob = nrp.to_pseudo_specific_cost_bi_objective_form()
+    #     # NextReleaseProblem.show_problem_attribute(prob)
+    #     # break
