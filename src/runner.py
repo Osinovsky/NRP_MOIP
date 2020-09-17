@@ -1,7 +1,7 @@
 # ################################## #
 # DONG Shi, dongshi@mail.ustc.edu.cn #
 # loaders.py, created: 2020.09.08    #
-# Last Modified: 2020.09.14          #
+# Last Modified: 2020.09.16          #
 # ################################## #
 
 from typing import *
@@ -13,6 +13,7 @@ from naiveSol import NaiveSol
 from moipSol import BaseSol
 from util import NextReleaseProblem
 from dimacsMoipProb import DimacsMOIPProblem 
+import matplotlib.pyplot as plt
 import time
 
 # construct a wrapper of everything, and name it as runner
@@ -20,7 +21,7 @@ class Runner:
     # list of solving methods
     __solvers = ['basic', 'epsilon', ]
     # initialize
-    def __init__(self, project_name : str, method : str = 'basic', options : Dict[str, Any] = None):
+    def __init__(self, project_name : str, form : str = 'auto', method : str = 'basic', options : Dict[str, Any] = None):
         # project file(name)
         if project_name in ALL_FILES_DICT:
             self.__project : str = project_name
@@ -43,6 +44,8 @@ class Runner:
         self.__NRP = None
         # define the problem (for input in solver)
         self.__problem = None
+        # method of converting problem form
+        self.__form = form
         # options
         self.__options = options
         # define a solver
@@ -97,6 +100,22 @@ class Runner:
         self.__NRP.unique_and_compact_reenconde(True)
         # convert to MOIPProblem
         self.__problem = self.__NRP.to_basic_bi_objective_form()
+    
+    # pseudo Baan-like load
+    def __pseudo_Baan_like_Xuan_load(self) -> None:
+        # employe a XuanLoader
+        self.__loader = XuanLoader()
+        self.__loader.load(ALL_FILES_DICT[self.__project])
+        # load into NRP
+        self.__NRP = NextReleaseProblem()
+        self.__NRP.construct_from_XuanLoader(self.__loader)
+        # if dependencies exist, eliminate them
+        if not self.__NRP.empty_denpendencies():
+            self.__NRP.flatten()
+        # there shouldn't be any dependencies in NRP
+        assert self.__NRP.empty_denpendencies()
+        # convert to specific cost
+        self.__problem = self.__NRP.to_pseudo_specific_cost_bi_objective_form()
 
     # Baan Dataset load
     def __Baan_load(self) -> None:
@@ -107,14 +126,17 @@ class Runner:
     def __load(self) -> None:
         # check first
         assert self.__project in ALL_FILES_DICT
-        if self.__method == 'basic':
-            # prepare loader
-            if self.__project.startswith('classic_'):
-                self.__classic_load()
-            elif self.__project.startswith('realistic_'):
-                self.__realistic_load()
-        elif self.__method == 'epsilon':
-            self.__bi_objective_load()
+        if self.__form == 'auto':
+            if self.__method == 'basic':
+                # prepare loader
+                if self.__project.startswith('classic_'):
+                    self.__classic_load()
+                elif self.__project.startswith('realistic_'):
+                    self.__realistic_load()
+            elif self.__method == 'epsilon':
+                self.__bi_objective_load()
+        elif self.__form == 'Baan-like':
+            self.__pseudo_Baan_like_Xuan_load()
     
     # save result into file, choosing by the project name
     def __save(self) -> None:
@@ -131,6 +153,10 @@ class Runner:
         if mode:
             for solution in self.__solver.cplexParetoSet:
                 print(str(solution) + ', ')
+
+    # get all solutions
+    def solutions(self) -> Set[Any]:
+        return self.__solver.cplexParetoSet
 
     # classic nrp runner
     def __classic_runner(self) -> None:
@@ -182,6 +208,10 @@ class Runner:
         elif self.__method == 'epsilon':
             self.__epsilon_constraint_runner()
 
+def prepare_data(solutions):
+    x = [k[0] for k in list(solutions)]
+    y = [k[1] for k in list(solutions)]
+    return x, y
 
 # main function
 if __name__ == '__main__':
@@ -198,11 +228,30 @@ if __name__ == '__main__':
     #             runner = Runner(project, options={'b':b})
     #             runner.run()
     # bi-objective with epsilon constraint
+    # for project in ALL_FILES_DICT.keys():
+    #     print(project)
+    #     runner = Runner(project, method='epsilon')
+    #     start = time.clock()
+    #     runner.run()
+    #     end = time.clock()
+    #     runner.display(False)
+    #     print("%.2gs" % (end-start))
+        # bi-objective with epsilon constraint
+    # bi-objective with epsilon constraint
     for project in ALL_FILES_DICT.keys():
         print(project)
-        runner = Runner(project, method='epsilon')
-        start = time.clock()
+        
+        runner = Runner(project, form='Baan-like', method='epsilon')
         runner.run()
-        end = time.clock()
         runner.display(False)
-        print("%.2gs" % (end-start))
+        x2, y2 = prepare_data(runner.solutions())
+
+        runner = Runner(project, method='epsilon')
+        runner.run()
+        runner.display(False)
+        x1, y1 = prepare_data(runner.solutions())
+
+        # compare in ploted figue
+        plt.plot(x1, y1, 'r*', x2, y2, 'g^')
+        plt.show()
+        break

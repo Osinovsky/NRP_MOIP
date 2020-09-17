@@ -1,7 +1,7 @@
 # ################################## #
 # DONG Shi, dongshi@mail.ustc.edu.cn #
 # loaders.py, created: 2020.08.31    #
-# Last Modified: 2020.09.14          #
+# Last Modified: 2020.09.16          #
 # ################################## #
 
 from typing import *
@@ -321,11 +321,12 @@ class NextReleaseProblem:
                 if requirement != tmp_requirement:
                     continue
                 # with same requirement
-                self.__specific_cost[(requirement, customer)] = self.__cost[requirement]
+                self.__specific_cost[(requirement, customer)] = cost
         # check
         assert self.__to_specific_cost_check()
 
     # to pseudo specific cost bi-objective, Xuan -> Baan-like -> MOIPProblem
+    # NOTE: DO NOT USE THIS, IT JUST USED TO REMIND ME ABOUT THE MODELLING
     def to_pseudo_specific_cost_bi_objective_form(self) -> MOIPProblem:
         # faltten if there are dependencies
         if self.__dependencies:
@@ -340,28 +341,95 @@ class NextReleaseProblem:
         for key in self.__specific_cost.keys():
             encoding[key] = encoder
             encoder += 1
+        
+        # add some customer variables
+        customer_encoding = dict()
+        for customer in self.__profit.keys():
+            customer_encoding[customer] = encoder
+            encoder += 1
+
+        # add some requirement variables
+        requirement_encoding = dict()
+        for requirement in self.__cost.keys():
+            requirement_encoding[requirement] = encoder
+            encoder += 1
+
         # prepare variables
-        variables : List[int] = list(encoding.values())
+        variables : List[int] = list(encoding.values()) + list(customer_encoding.values()) + list(requirement_encoding.values())
         # don't forget encode the constant, it always be MAX_CODE + 1
         constant_id = len(variables)
         # max profit and min cost
         max_profit : Dict[int, int] = dict()
         min_cost : Dict[int, int] = dict()
-        for key, cost in self.__specific_cost.items():
-            # use customer construct profit objective
-            max_profit[encoding[key]] = -self.__profit[key[1]]
-            # use (requirement, custor) construct cost
-            min_cost[encoding[key]] = cost
+        requirement_clusters = self.__tuple_list_cluster(self.__specific_cost, 0)
+        customer_clusters = self.__tuple_list_cluster(self.__specific_cost, 1)
+        for customer, profit in self.__profit.items():
+            if customer in customer_clusters:
+                max_profit[customer_encoding[customer]] = -profit
+        for requirement, cost in self.__cost.items():
+            if requirement in requirement_clusters:
+                min_cost[requirement_encoding[requirement]] = cost
+        # for key, cost in self.__specific_cost.items():
+        #     # use customer construct profit objective
+        #     max_profit[encoding[key]] = -self.__profit[key[1]]
+        #     # use (requirement, custor) construct cost
+        #     min_cost[encoding[key]] = cost
         # construct objectives
         objectives = [max_profit, min_cost]
         # prepare inequations 
-        # NOTE no constraints in this method
         # put a topology in case we cannot let them empty
-        inequations : List[Dict[int, int]] = [{0:1, constant_id:1}]
-        inequations_operators : List[str] = ['L']
+        inequations : List[Dict[int, int]] = []
+        inequations_operators : List[str] = []
+        # requirement
+        # for req in self.__requirements:
+        #     inequations.append({customer_encoding[req[0]]:1, requirement_encoding[req[1]]:-1, constant_id:0})
+        #     inequations_operators.append('L')
+        # if Sum_j vij >= 1 then cj = 1 else cj = 0
+        # <=> cj - Sum_j vij <= 0 AND vij - cj <= 0
+        for customer, cluster in customer_clusters.items():
+            tmp_inequations = {customer_encoding[customer]:1, constant_id:0}
+            for tpl in cluster:
+                tmp_inequations[encoding[tpl]] = -1
+                inequations.append({encoding[tpl]:1, customer_encoding[customer]:-1, constant_id:0})
+                inequations_operators.append('L')
+            inequations.append(tmp_inequations)
+            inequations_operators.append('L')
+        # also for cost
+        # for requirement, cluster in requirement_clusters.items():
+        #     tmp_inequations = {requirement_encoding[requirement]:1, constant_id:0}
+        #     for tpl in cluster:
+        #         tmp_inequations[encoding[tpl]] = -1
+        #         inequations.append({encoding[tpl]:1, requirement_encoding[requirement]:-1, constant_id:0})
+        #         inequations_operators.append('L')
+        #     inequations.append(tmp_inequations)
+        #     inequations_operators.append('L')
+        # for j, vij is same, vsj <= vtj and vtj <= vsj
+        # requirement_clusters = self.__tuple_list_cluster(self.__specific_cost, 0)
+        # for requirement, cluster in requirement_clusters.items():
+        #     for left in cluster:
+        #         inequations.append({encoding[left]:1, requirement_encoding[requirement]:-1, constant_id:0})
+        #         inequations_operators.append('L')
+        #         inequations.append({encoding[left]:-1, requirement_encoding[requirement]:1, constant_id:0})
+        #         inequations_operators.append('L')
+        #         for right in cluster:
+        #             if left == right:
+        #                 continue
+        #             inequations.append({encoding[left]:1, encoding[right]:-1, constant_id:0})
+        #             inequations_operators.append('L')
+        #             inequations.append({encoding[left]:-1, encoding[right]:1, constant_id:0})
+        #             inequations_operators.append('L')
+        # # make equations, for j, vij is same
+        equations : List[Dict[int, int]] = []
+        requirement_clusters = self.__tuple_list_cluster(self.__specific_cost, 0)
+        for requirement, cluster in requirement_clusters.items():
+            for left in cluster:
+                equations.append({encoding[left]:1, requirement_encoding[left[1]]:-1, constant_id:0})
         # NOTE no need for 0 <= v <= 1 it's provided in imported files
         # construct Problem 
-        return NextReleaseProblem.to_MOIP(variables, objectives, inequations, inequations_operators)
+        # return NextReleaseProblem.to_MOIP(variables, objectives, inequations, inequations_operators)
+        moip = NextReleaseProblem.to_MOIP(variables, objectives, inequations, inequations_operators)
+        moip.sparseEquationsMapList = equations
+        return moip
 
     # convert to MOIPProbelm general Format
     def to_general_form(self, b : float) -> MOIPProblem:
