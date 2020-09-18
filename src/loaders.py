@@ -140,11 +140,7 @@ class RALICLoader:
         return results
 
     # load from there files
-    def load_triple(self, file_path : str, obj_file : str, req_file : str, sreq_file : str) -> List[List[Tuple[str, str, str]]]:
-        # first of all, prepare the exact file names
-        obj_file = os.path.join(file_path, obj_file)
-        req_file = os.path.join(file_path, req_file)
-        sreq_file = os.path.join(file_path, sreq_file)
+    def load_triple(self, obj_file : str, req_file : str, sreq_file : str) -> List[List[Tuple[str, str, str]]]:
         # load datas
         self.__levels.append(self.table_separated_file_loader(obj_file))
         self.__levels.append(self.table_separated_file_loader(req_file))
@@ -227,36 +223,49 @@ class BaanLoader:
 # Interface for loading files
 class Loader:
     # initialization
-    def __init__(self, project_name):
-        pass
+    @classmethod
+    def __init__(self, project_name : str):
+        # check project name is in ALL_FILES_DICT
+        assert project_name in ALL_FILES_DICT
+        self.__project = project_name
+        # construct a dict to choose loader
+        self.__loaders = { \
+            'classic' : Loader.__XuanLoader,\
+            'realistic' : Loader.__XuanLoader, \
+            'Motorola' : Loader.__MotorolaLoader, \
+            'RALIC' : Loader.__RALICLoader, \
+            'Baan' : Loader.__BaanLoader, \
+        }
+    
+    # load
+    @classmethod
+    def load(self):
+        for key, loader in self.__loaders.items():
+            if self.__project.startswith(key):
+                return loader(self.__project)
 
-# just a main for testing
-if __name__ == "__main__":
-    pass
-    # try to load motorola
-    # m_l = MotorolaLoader()
-    # print(m_l.load(MOTOROLA_FILE_NAME))
-    # try to load classic nrps
-    # for file_name in CLASSIC_NRPS:
-    #     file_name = os.path.join(CLASSIC_NRP_PATH, file_name)
-    #     print(file_name)
-    #     print('--------------------------------\n')
-    #     c_l = XuanLoader()
-    #     print(c_l.load(file_name))
-    #     print('================================\n')
-    # try to load realistic nrps
-    # for file_name in REALISTIC_NRPS:
-    #     file_name = os.path.join(REALISTIC_NRP_PATH, file_name)
-    #     print(file_name)
-    #     print('--------------------------------\n')
-    #     c_l = XuanLoader()
-    #     print(c_l.load(file_name))
-    #     print('================================\n')
-    # try to load RALIC nrps
-    # r_l = RALICLoader()
-    # print(r_l.load_triple(RALIC_PATH, RATEP_OBJ_FILE, RATEP_REQ_FILE, RATEP_SREQ_FILE))
-    # try to load Baan nrp
-    # b_l = BaanLoader()
-    # cost, profit = b_l.load()
-    # print(cost)
-    # print(profit)
+    # load from XuanLoader
+    @staticmethod
+    def __XuanLoader(project : str):
+        loader = XuanLoader()
+        return loader.load(ALL_FILES_DICT[project])
+
+    # load from MotorolaLoader
+    @staticmethod
+    def __MotorolaLoader(project : str):
+        loader = MotorolaLoader()
+        return loader.load(ALL_FILES_DICT[project])
+    
+    # load from RALICLoader
+    @staticmethod
+    def __RALICLoader(project : str):
+        loader = RALICLoader()
+        # note that RALIC need 3 files
+        files = ALL_FILES_DICT[project]
+        return loader.load_triple(files['obj'], files['req'], files['sreq'])
+    
+    # load from BaanLoader
+    @staticmethod
+    def __BaanLoader(project : str):
+        loader = BaanLoader()
+        return loader.load()

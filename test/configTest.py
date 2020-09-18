@@ -7,15 +7,28 @@
 import unittest
 import os
 import sys
-sys.path.append("..")
-from src.config import *
+sys.path.append("C:\\Users\\osino\\Desktop\\dev\\prototype\\NRP_MOIP\\src")
+from config import *
 
 # test config.py
 class configTest(unittest.TestCase):
     # files exist check
     def test_file_exist(self):
         for file_name in ALL_FILES_DICT.values():
-            assert os.path.exists(file_name)
+            if isinstance(file_name, str):
+                # other files
+                assert os.path.exists(file_name)
+            else:
+                # RALIC files
+                assert isinstance(file_name, dict)
+                assert len(file_name) == 3
+                # files inside the dict
+                assert 'obj' in file_name
+                assert os.path.exists(file_name['obj'])
+                assert 'req' in file_name
+                assert os.path.exists(file_name['req'])
+                assert 'sreq' in file_name
+                assert os.path.exists(file_name['sreq'])
 
 # run the test
 if __name__ == '__main__':
