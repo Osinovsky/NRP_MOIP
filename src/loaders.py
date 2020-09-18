@@ -1,7 +1,7 @@
 # ################################## #
 # DONG Shi, dongshi@mail.ustc.edu.cn #
 # loaders.py, created: 2020.08.25    #
-# Last Modified: 2020.09.14          #
+# Last Modified: 2020.09.18          #
 # ################################## #
 
 import os
@@ -224,6 +224,12 @@ class BaanLoader:
         # return result
         return lines
         
+# Interface for loading files
+class Loader:
+    # initialization
+    def __init__(self, project_name):
+        pass
+
 # just a main for testing
 if __name__ == "__main__":
     pass

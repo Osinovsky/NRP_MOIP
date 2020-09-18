@@ -1,7 +1,7 @@
 # ################################## #
 # DONG Shi, dongshi@mail.ustc.edu.cn #
 # config.py, created: 2020.08.25     #
-# Last Modified: 2020.09.14          #
+# Last Modified: 2020.09.18          #
 # ################################## #
 
 from os import path
@@ -19,9 +19,8 @@ REALISTIC_NRPS = ['nrp-e1.txt', 'nrp-e2.txt', 'nrp-e3.txt', 'nrp-e4.txt', 'nrp-g
 MOTOROLA_FILE_NAME = '../datasets/motorola/motorola.txt'
 # RALIC Dataset(s), RateP
 RALIC_PATH = '../datasets/RALIC/'
-RATEP_OBJ_FILE = 'RateP-Obj.txt'
-RATEP_REQ_FILE = 'RateP-Req.txt'
-RATEP_SREQ_FILE = 'RateP-SReq.txt'
+RALIC_PREFIX = ['Point', 'Rank', 'Rate']
+RALIC_FILE = {'obj' : '{0}P-Obj.txt', 'req' : '{0}P-Req.txt', 'sreq' : '{0}P-SReq.txt'}
 # Baan Dataset
 BAAN_FILE_NAME = '../datasets/Baan/Baan.xls'
 
@@ -44,4 +43,15 @@ ALL_FILES_DICT = { \
     'realistic_m2' : path.join(REALISTIC_NRP_PATH , REALISTIC_NRPS[9]), \
     'realistic_m3' : path.join(REALISTIC_NRP_PATH , REALISTIC_NRPS[10]), \
     'realistic_m4' : path.join(REALISTIC_NRP_PATH , REALISTIC_NRPS[11]), \
+    'Motorola' : MOTOROLA_FILE_NAME, \
+    'RALIC_Point' : {'obj' : path.join(RALIC_PATH, RALIC_FILE['obj'].format('Point')), \
+                     'req' : path.join(RALIC_PATH, RALIC_FILE['req'].format('Point')), \
+                     'sreq' : path.join(RALIC_PATH, RALIC_FILE['sreq'].format('Point'))}, \
+    'RALIC_Rank' : {'obj' : path.join(RALIC_PATH, RALIC_FILE['obj'].format('Rank')), \
+                    'req' : path.join(RALIC_PATH, RALIC_FILE['req'].format('Rank')), \
+                    'sreq' : path.join(RALIC_PATH, RALIC_FILE['sreq'].format('Rank'))}, \
+    'RALIC_Rate' : {'obj' : path.join(RALIC_PATH, RALIC_FILE['obj'].format('Rate')), \
+                    'req' : path.join(RALIC_PATH, RALIC_FILE['req'].format('Rate')), \
+                    'sreq' : path.join(RALIC_PATH, RALIC_FILE['sreq'].format('Rate'))},\
+    'Baan' : BAAN_FILE_NAME, \
 }
