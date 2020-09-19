@@ -247,8 +247,38 @@ class Loader:
     # load from XuanLoader
     @staticmethod
     def __XuanLoader(project : str):
+        # get content from XuanLoader
         loader = XuanLoader()
-        return loader.load(ALL_FILES_DICT[project])
+        cost, dependencies, customers = loader.load(ALL_FILES_DICT[project])
+        # prepare results
+        neo_cost = dict()
+        neo_profit = dict()
+        neo_dependencies = []
+        neo_requests = []
+        # there are many level in cost, we should collect them up
+        for cost_line in cost:
+            # iterate each element in this line
+            for cost_pair in cost_line:
+                # the key should be unique
+                assert cost_pair[0] not in neo_cost
+                # we convert cost as a int for generalizing
+                neo_cost[cost_pair[0]] = int(cost_pair[1])
+        # then, the customers' profit and the requirement pair list
+        for customer in customers:
+            # parse the tuple
+            customer_id = customer[0]
+            customer_requirement = customer[2]
+            # add profit into self profit
+            assert customer_id not in neo_profit
+            neo_profit[customer_id] = int(customer[1])
+            # construct (requirer, requiree) pairs and store
+            assert customer_requirement # non-empty check
+            for req in customer_requirement:
+                neo_requests.append(tuple((customer_id, req)))
+        # now we copy the dependencies
+        neo_dependencies = list(set(dependencies))
+        # return content
+        return neo_cost, neo_profit, neo_dependencies, neo_requests
 
     # load from MotorolaLoader
     @staticmethod
