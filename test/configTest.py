@@ -21,7 +21,7 @@ class configTest(unittest.TestCase):
             else:
                 # RALIC files
                 assert isinstance(file_name, dict)
-                assert len(file_name) == 3
+                assert len(file_name) == 4
                 # files inside the dict
                 assert 'obj' in file_name
                 assert os.path.exists(file_name['obj'])
@@ -29,6 +29,8 @@ class configTest(unittest.TestCase):
                 assert os.path.exists(file_name['req'])
                 assert 'sreq' in file_name
                 assert os.path.exists(file_name['sreq'])
+                assert 'cost' in file_name
+                assert os.path.exists(file_name['cost'])
 
 # run the test
 if __name__ == '__main__':

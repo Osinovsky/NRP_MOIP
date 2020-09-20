@@ -1,12 +1,13 @@
 # ################################## #
 # DONG Shi, dongshi@mail.ustc.edu.cn #
 # loaders.py, created: 2020.08.25    #
-# Last Modified: 2020.09.18          #
+# Last Modified: 2020.09.20          #
 # ################################## #
 
 import os
 from typing import *
 from config import *
+import codecs
 from functools import reduce
 import xlrd
 
@@ -117,13 +118,15 @@ class RALICLoader:
     def __init__(self):
         # preprocess data file
         # There are three data file per dataset, but named as obj/req/sreq
-        # actually they are three level of requirements
-        self.__levels = []
+        # actually they are three level of requirements, we just need sreq
+        self.__level = []
+        # requriement cost, (id, name, cost(person hours))
+        self.__cost = []
     
     # load file with format tab separted
-    def table_separated_file_loader(self, file_name : str) -> List[Tuple[str, str, str]]:
+    def tab_separated_file_loader(self, file_name : str, allow : bool) -> List[Tuple[str, str, str]]:
         results = []
-        with open(file_name, 'r') as fin:
+        with codecs.open(file_name, 'r', encoding='UTF-8', errors='ignore') as fin:
             # let us read all lines in file, because we don't know how many lines
             raw_file = fin.readlines()
             for line in raw_file:
@@ -132,26 +135,40 @@ class RALICLoader:
                 if line == '':
                     continue
                 # parse the line as tab separated, triple-tuple
-                tmp = tuple([x for x in line.split('\t')])
-                # it should contain three elements per line
-                assert len(tmp) == 3
+                tmp = tuple([x for x in line.split('\t') if x != ''])
+                if not allow:
+                    # it should contain three elements per line
+                    assert len(tmp) == 3
+                else:
+                    # could be 2 or three
+                    assert len(tmp) == 2 or len(tmp) == 3
                 # append to result
                 results.append(tmp)
             fin.close()
         return results
 
-    # load from there files
-    def load_triple(self, obj_file : str, req_file : str, sreq_file : str) -> List[List[Tuple[str, str, str]]]:
-        # load datas
-        self.__levels.append(self.table_separated_file_loader(obj_file))
-        self.__levels.append(self.table_separated_file_loader(req_file))
-        self.__levels.append(self.table_separated_file_loader(sreq_file))
+    # # load from RALIC files
+    # def load_files(self, obj_file : str, req_file : str, sreq_file : str, cost_file : str) -> Tuple[List[List[Tuple[str, str, str]]], List[Tuple[str, str, str]]]:
+    #     # load data
+    #     self.__levels.append(self.tab_separated_file_loader(obj_file, False))
+    #     self.__levels.append(self.tab_separated_file_loader(req_file, False))
+    #     self.__levels.append(self.tab_separated_file_loader(sreq_file, False))
+    #     # load cost
+    #     self.__cost = self.tab_separated_file_loader(cost_file, True)[1:] # get rid of header
+    #     # return the content
+    #     return self.content()
+    
+    # load sreq and cost
+    def load(self, sreq_file : str, cost_file : str) -> Tuple[List[List[Tuple[str, str, str]]], List[Tuple[str, str, str]]]:
+        # load data
+        self.__level = self.tab_separated_file_loader(sreq_file, False)
+        self.__cost = self.tab_separated_file_loader(cost_file, True)[1:] # get rid of header
         # return the content
         return self.content()
     
     # content 
-    def content(self) -> List[List[Tuple[str, str, str]]]:
-        return self.__levels
+    def content(self) -> Tuple[List[List[Tuple[str, str, str]]], List[Tuple[str, str, str]]]:
+        return self.__level, self.__cost
 
 # read from Baan dataset
 class BaanLoader:
@@ -304,7 +321,41 @@ class Loader:
         loader = RALICLoader()
         # note that RALIC need 3 files
         files = ALL_FILES_DICT[project]
-        return loader.load_triple(files['obj'], files['req'], files['sreq'])
+        level, cost = loader.load(files['sreq'], files['cost'])
+        # process the cost first
+        # all requirement with a cost value seem to be a leaf, collect them all
+        neo_cost = dict()
+        # employ a dict for encoding
+        req_encoding = dict()
+        encoder = 0
+        for line in cost:
+            if len(line) != 3:
+                continue # ignore
+            # line[0] is id, should appear for first time
+            assert line[0] not in req_encoding
+            req_encoding[line[0]] = encoder
+            # and insert in cost
+            neo_cost[encoder] = float(line[2])
+            # never forget ++
+            encoder += 1
+        # then to levels, we will collect all stakeholders and their ranks/points/rates
+        neo_profit = dict()
+        # still prepare a encoding first
+        sh_encoding = dict()
+        encoder = 0
+        for line in level:
+            # encode stakeholder
+            if line[0] not in sh_encoding:
+                sh_encoding[line[0]] = encoder
+                encoder += 1
+            # only record leaf cost
+            if line[1] in req_encoding:
+                if (req_encoding[line[1]], sh_encoding[line[0]]) in neo_profit:
+                    print(line)
+                    print()
+                neo_profit[(req_encoding[line[1]], sh_encoding[line[0]])] = float(line[2])
+        # return cost and profit, without dependencies request
+        return neo_cost, neo_profit, [], []
     
     # load from BaanLoader
     @staticmethod

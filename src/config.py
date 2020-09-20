@@ -1,7 +1,7 @@
 # ################################## #
 # DONG Shi, dongshi@mail.ustc.edu.cn #
 # config.py, created: 2020.08.25     #
-# Last Modified: 2020.09.18          #
+# Last Modified: 2020.09.20          #
 # ################################## #
 
 from os import path
@@ -19,6 +19,7 @@ REALISTIC_NRPS = ['nrp-e1.txt', 'nrp-e2.txt', 'nrp-e3.txt', 'nrp-e4.txt', 'nrp-g
 MOTOROLA_FILE_NAME = '../datasets/motorola/motorola.txt'
 # RALIC Dataset(s), RateP
 RALIC_PATH = '../datasets/RALIC/'
+RALIC_COST_FILE = 'RALIC_requirements_and_cost.txt'
 RALIC_PREFIX = ['Point', 'Rank', 'Rate']
 RALIC_FILE = {'obj' : '{0}P-Obj.txt', 'req' : '{0}P-Req.txt', 'sreq' : '{0}P-SReq.txt'}
 # Baan Dataset
@@ -46,12 +47,15 @@ ALL_FILES_DICT = { \
     'Motorola' : MOTOROLA_FILE_NAME, \
     'RALIC_Point' : {'obj' : path.join(RALIC_PATH, RALIC_FILE['obj'].format('Point')), \
                      'req' : path.join(RALIC_PATH, RALIC_FILE['req'].format('Point')), \
-                     'sreq' : path.join(RALIC_PATH, RALIC_FILE['sreq'].format('Point'))}, \
+                     'sreq' : path.join(RALIC_PATH, RALIC_FILE['sreq'].format('Point')), \
+                     'cost' : path.join(RALIC_PATH, RALIC_COST_FILE)}, \
     'RALIC_Rank' : {'obj' : path.join(RALIC_PATH, RALIC_FILE['obj'].format('Rank')), \
                     'req' : path.join(RALIC_PATH, RALIC_FILE['req'].format('Rank')), \
-                    'sreq' : path.join(RALIC_PATH, RALIC_FILE['sreq'].format('Rank'))}, \
+                    'sreq' : path.join(RALIC_PATH, RALIC_FILE['sreq'].format('Rank')), \
+                    'cost' : path.join(RALIC_PATH, RALIC_COST_FILE)}, \
     'RALIC_Rate' : {'obj' : path.join(RALIC_PATH, RALIC_FILE['obj'].format('Rate')), \
                     'req' : path.join(RALIC_PATH, RALIC_FILE['req'].format('Rate')), \
-                    'sreq' : path.join(RALIC_PATH, RALIC_FILE['sreq'].format('Rate'))},\
+                    'sreq' : path.join(RALIC_PATH, RALIC_FILE['sreq'].format('Rate')), \
+                    'cost' : path.join(RALIC_PATH, RALIC_COST_FILE)}, \
     'Baan' : BAAN_FILE_NAME, \
 }

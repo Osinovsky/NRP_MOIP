@@ -1,45 +1,20 @@
 # ################################## #
 # DONG Shi, dongshi@mail.ustc.edu.cn #
 # config.py, created: 2020.09.18     #
-# Last Modified: 2020.09.19          #
+# Last Modified: 2020.09.20          #
 # ################################## #
 
+from functools import reduce
 import unittest
 import os
 import sys
 sys.path.append("C:\\Users\\osino\\Desktop\\dev\\prototype\\NRP_MOIP\\src")
-from loaders import Loader, XuanLoader, MotorolaLoader
+from loaders import Loader, XuanLoader, MotorolaLoader, RALICLoader
 from config import *
 
-class loadersTest(unittest.TestCase):
-    # # test if all files are correct
-    # def test_load(self):
-    #     for project_name in ALL_FILES_DICT.keys():
-    #         loader = Loader(project_name)
-    #         content = loader.load()
-    #         if project_name.startswith('classic') or project_name.startswith('realistic'):
-                
-    #             # should not empty, excluding dependencies
-    #             assert content[0] and content[1] and content[2]
-    #         elif project_name.startswith('Motorola'):
-    #             # content should be cost&revenue
-    #             assert isinstance(content, list)
-    #             # should not empty
-    #             assert content
-    #         elif project_name.startswith('RALIC'):
-    #             # content should be levels
-    #             assert content
-    #         elif project_name.startswith('Baan'):
-    #             # content should be (cost, profit)
-    #             assert len(content) == 2
-    #             # shoule not be empty
-    #             assert content[0] and content[1]
-    #         else:
-    #             # shoule not be here
-    #             assert False
-    
-    # test if XuanLoader content is equal after convertion
-    def test_XuanLoader_convertion(self):
+class loadersTest(unittest.TestCase): 
+    # test if XuanLoader content is equal after conversion
+    def _test_XuanLoader_conversion(self):
         for project_name, file_name in ALL_FILES_DICT.items():
             if not project_name.startswith('classic') and not project_name.startswith('realistic'):
                 continue # only test classic* and realistic* NRPs
@@ -82,8 +57,8 @@ class loadersTest(unittest.TestCase):
                 for req in req_list:
                     assert (cus, req) in requests
 
-    # test Motorola dataset convertion
-    def test_Motorola_convertion(self):
+    # test Motorola dataset conversion
+    def test_Motorola_conversion(self):
         for project_name, file_name in ALL_FILES_DICT.items():
             if not project_name.startswith('Motorola'):
                 continue
@@ -101,6 +76,25 @@ class loadersTest(unittest.TestCase):
             for ite in cost.keys():
                 cost_profit.append((cost[ite], profit[ite]))
             assert cost_profit == cost_revenue
+
+    # test RALICLoader conversion
+    def test_RALICLoader_conversion(self):
+        for project_name, file_name in ALL_FILES_DICT.items():
+            if not project_name.startswith('RALIC'):
+                continue
+            # get content
+            loader = Loader(project_name)
+            neo_cost, neo_profit, _, _ = loader.load()
+            # employ a RALICLoader to load original dataset
+            loader = RALICLoader()
+            level, cost = loader.load(file_name['sreq'], file_name['cost'])
+            cost = {x[0]:x[2] for x in cost if len(x) == 3}
+            # neo_cost and cost compare length
+            assert len(neo_cost) == len(cost)
+            # preprocess level
+            profit = [x for x in level if x[1] in cost]
+            # length
+            assert len(profit) == len(neo_profit)
 
 if __name__ == '__main__':
     unittest.main()
