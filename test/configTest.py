@@ -1,6 +1,6 @@
 # ################################## #
 # DONG Shi, dongshi@mail.ustc.edu.cn #
-# config.py, created: 2020.09.18     #
+# configTest.py, created: 2020.09.18 #
 # Last Modified: 2020.09.18          #
 # ################################## #
 
