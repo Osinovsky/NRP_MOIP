@@ -37,11 +37,12 @@ class NextReleaseProblem:
         self.__dependencies : DependenciesType = []
         # request, customer -> requirement or team -> requirement
         self.__requests : RequestsType = []
-        # load from file, TODO:
+        # load from file
+        self.__load(project_name)
 
     # load from file
-    @staticmethod
     def __load(self, project_name : str):
-        # TODO:
-        pass
+        # employ a loader
+        loader = Loader(project_name)
+        self.__cost, self.__profit, self.__dependencies, self.__requests = loader.load()
         
