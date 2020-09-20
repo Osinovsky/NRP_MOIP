@@ -1,14 +1,14 @@
 # ################################## #
 # DONG Shi, dongshi@mail.ustc.edu.cn #
 # config.py, created: 2020.09.18     #
-# Last Modified: 2020.09.18          #
+# Last Modified: 2020.09.19          #
 # ################################## #
 
 import unittest
 import os
 import sys
 sys.path.append("C:\\Users\\osino\\Desktop\\dev\\prototype\\NRP_MOIP\\src")
-from loaders import Loader, XuanLoader
+from loaders import Loader, XuanLoader, MotorolaLoader
 from config import *
 
 class loadersTest(unittest.TestCase):
@@ -80,7 +80,27 @@ class loadersTest(unittest.TestCase):
             # customers => requests
             for cus, req_list in xuan_requests.items():
                 for req in req_list:
-                    assert (cus, req) in requests         
+                    assert (cus, req) in requests
+
+    # test Motorola dataset convertion
+    def test_Motorola_convertion(self):
+        for project_name, file_name in ALL_FILES_DICT.items():
+            if not project_name.startswith('Motorola'):
+                continue
+            # get content
+            loader = Loader(project_name)
+            cost, profit, _, _ = loader.load()
+            # get content directly from MotorolaLoader
+            loader = MotorolaLoader()
+            cost_revenue = loader.load(file_name)
+            # should not be empty
+            assert cost_revenue
+            assert cost.keys() == profit.keys()
+            # cost and profit <=> cost_revenue
+            cost_profit = []
+            for ite in cost.keys():
+                cost_profit.append((cost[ite], profit[ite]))
+            assert cost_profit == cost_revenue
 
 if __name__ == '__main__':
     unittest.main()

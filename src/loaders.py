@@ -7,6 +7,7 @@
 import os
 from typing import *
 from config import *
+from functools import reduce
 import xlrd
 
 # type defining
@@ -88,9 +89,9 @@ class XuanLoader:
 class MotorolaLoader:
     # initialize
     def __init__(self):
-        self.__cost_revenue : List[Tuple[float, float]] = []
+        self.__cost_revenue : List[Tuple[int, int]] = []
     # load data
-    def load(self, file_name : str) -> List[Tuple[float, float]]:
+    def load(self, file_name : str) -> List[Tuple[int, int]]:
         with open(file_name, 'r') as fin:
             # read into lines
             lines = fin.readlines()
@@ -107,7 +108,7 @@ class MotorolaLoader:
             return self.content()
 
     # read data
-    def content(self) -> List[Tuple[float, float]]:
+    def content(self) -> List[Tuple[int, int]]:
         return self.__cost_revenue
 
 # RALIC loader
@@ -284,8 +285,19 @@ class Loader:
     @staticmethod
     def __MotorolaLoader(project : str):
         loader = MotorolaLoader()
-        return loader.load(ALL_FILES_DICT[project])
-    
+        cost_revenue = loader.load(ALL_FILES_DICT[project])
+        # should not empty and each len(tuple) == 2
+        assert reduce(lambda x, y : x and y, [len(x) == 2 for x in cost_revenue])
+        # convert them into cost/profit, not dependencies or requests
+        # encode first
+        cost_revenue = {i:cost_revenue[i] for i in range(len(cost_revenue))}
+        # cost
+        cost = {i:cost_revenue[i][0] for i in cost_revenue.keys()}
+        # profit(revenue)
+        profit = {i:cost_revenue[i][1] for i in cost_revenue.keys()}
+        # return with empty dependencies and requests
+        return cost, profit, [], [] 
+
     # load from RALICLoader
     @staticmethod
     def __RALICLoader(project : str):
