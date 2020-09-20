@@ -24,6 +24,8 @@ RALIC_PREFIX = ['Point', 'Rank', 'Rate']
 RALIC_FILE = {'obj' : '{0}P-Obj.txt', 'req' : '{0}P-Req.txt', 'sreq' : '{0}P-SReq.txt'}
 # Baan Dataset
 BAAN_FILE_NAME = '../datasets/Baan/Baan.xls'
+BAAN_SHEET_NAME = 'all requirements'
+BAAN_BOUNDARY = {'left': 4, 'right': 22, 'up' : 1, 'down' : 101}
 
 # make the file path more friendly, code them into a big dict
 ALL_FILES_DICT = { \

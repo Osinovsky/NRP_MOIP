@@ -14,7 +14,7 @@ from config import *
 
 class loadersTest(unittest.TestCase): 
     # test if XuanLoader content is equal after conversion
-    def _test_XuanLoader_conversion(self):
+    def test_XuanLoader_conversion(self):
         for project_name, file_name in ALL_FILES_DICT.items():
             if not project_name.startswith('classic') and not project_name.startswith('realistic'):
                 continue # only test classic* and realistic* NRPs
@@ -95,6 +95,17 @@ class loadersTest(unittest.TestCase):
             profit = [x for x in level if x[1] in cost]
             # length
             assert len(profit) == len(neo_profit)
+    
+    # test BaanLoader
+    def test_BAANLoader(self):
+        for project_name, file_name in ALL_FILES_DICT.items():
+            if not project_name.startswith('Baan'):
+                continue
+            # load from Loader
+            loader = Loader(project_name)
+            cost, profit, _, _ = loader.load()
+            # should not be empty
+            assert cost and profit
 
 if __name__ == '__main__':
     unittest.main()

@@ -186,15 +186,18 @@ class BaanLoader:
 
     # load
     def load(self) -> Tuple[Dict[Tuple[int, int], int], Dict[int, int]]:
-        # load from Baarn file, 1, 4  ... 1, 21
-        #                       100,4 ... 100, 21
-        table = self.__load_xls((1, 4), (101, 22))
+        # get boundary
+        left = BAAN_BOUNDARY['left']
+        right = BAAN_BOUNDARY['right']
+        up = BAAN_BOUNDARY['up']
+        down = BAAN_BOUNDARY['down']
+        table = self.__load_xls(left, right, up, down, BAAN_FILE_NAME, BAAN_SHEET_NAME)
         # tranverse all cell
-        for requirements_id in range(1, 101):
-            requirements_id -= 1
+        for requirements_id in range(up, down):
+            requirements_id -= up
             # cost
-            for team_id in range(4, 21):
-                team_id -= 4
+            for team_id in range(left, right):
+                team_id -= left
                 num_str = table[requirements_id][team_id]
                 # filter cell not empty and not zero
                 if num_str != '' and int(num_str) != 0:
@@ -205,18 +208,13 @@ class BaanLoader:
         return self.content()      
         
     # load xls file into list[list](2d string table)
-    def __load_xls(self, \
-        left_up : Tuple[int, int], \
-        right_down : Tuple[int, int], \
-        file_name : str = BAAN_FILE_NAME, \
-        sheet_name : str = 'all requirements' \
-        ) -> List[List[str]]:
+    def __load_xls(self, left : int, right : int, up : int, down : int, \
+        file_name : str, sheet_name : str) -> List[List[str]]:
         # read xls file
         data = xlrd.open_workbook(BAAN_FILE_NAME)
         table = data.sheet_by_name(sheet_name)
         # check for left_up and right_down
-        assert left_up[0] < right_down[0] and left_up[1] < right_down[1] \
-           and left_up[0] >= 0 and left_up[1] >= 0
+        assert left < right and left >= 0 and up < down and up >= 0
         # prepare the cell translator, it will give out a solution on 
         # which type the cell is and transfer it into str 
         translator = {
@@ -227,9 +225,9 @@ class BaanLoader:
         }
         # load each cell in sheet
         lines : List[List[str]] = []
-        for i in range(left_up[0], right_down[0]):
+        for i in range(up, down):
             line : List[str] = []
-            for j in range(left_up[1], right_down[1]):
+            for j in range(left, right):
                 cell = table.cell(i, j)
                 # we assert there only empty, str and number in sheet
                 assert cell.ctype <= 2 and cell.ctype >= 0
@@ -360,5 +358,8 @@ class Loader:
     # load from BaanLoader
     @staticmethod
     def __BaanLoader(project : str):
+        # load from BaanLoader
         loader = BaanLoader()
-        return loader.load()
+        cost, profit = loader.load()
+        # return without dependencies and requests
+        return cost, profit, [], []
