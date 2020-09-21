@@ -139,7 +139,208 @@ class NextReleaseProblem:
         self.__requests = neo_requests
         self.__dependencies.clear()
 
-    # moudling, convert NRP to certain MOIPProblem
-    def mould(self, form : str) -> MOIPProblem:
+    # check if this NRP could be modelled as given form
+    def modelable(self, form : str) -> bool:
+        # TODO: not sure how to do that yet
+        return True
+
+    # reencode with requirements, customers/teams and maybe (requirement, customers/teams)
+    # encoding will be compact and from 0
+    def reencode(self, pairwise : bool) -> Tuple[Dict[int, int], Dict[int, int]]:
         pass
-        
+
+    # classic and realistic reencoding, single objective
+    # encoding will be compact and from 0
+    def xuan_reencoding(self) -> Tuple[Dict[int, int], Dict[int, int]]:
+        # assume that dependencies is empty
+        assert not self.__dependencies
+        # employ an encoder
+        encoder = 0
+        # prepare a requirement encoder
+        req_encoder = dict()
+        neo_cost = dict()
+        for req, cost in self.__cost.items():
+            assert req not in req_encoder
+            req_encoder[req] = encoder
+            neo_cost[encoder] = cost
+            encoder += 1
+        # prepare a customer encoder
+        cus_encoder = dict()
+        neo_profit = dict()
+        for cus, profit in self.__profit.items():
+            assert cus not in cus_encoder
+            cus_encoder[cus] = encoder
+            neo_profit[encoder] = profit
+            encoder += 1
+        # apply them on requests
+        neo_requests = []
+        for cus, req in self.__requests:
+            neo_requests.append((cus_encoder[cus], req_encoder[req]))
+        # change them all
+        self.__cost = neo_cost
+        self.__profit = neo_profit
+        self.__requests = neo_requests
+        # return dicts
+        return req_encoder, cus_encoder
+
+    # make demand mapping from requests 
+    @staticmethod
+    def find_demands(requests : List[Tuple[int, int]]) -> Dict[int, List[int]]:
+        # prepare a dict
+        tmp_demands : Dict[int, Set[int]] = dict()
+        # iterate the requirements
+        for customer_id, requirement_id in requests:
+            if requirement_id not in tmp_demands:
+                tmp_demands[requirement_id] = set()
+            # add into the set
+            tmp_demands[requirement_id].add(customer_id)
+        # turn sets into list
+        demands : Dict[int, List[int]] = dict()
+        for key, value in tmp_demands.items():
+            demands[key] = list(value)
+        # return the demands
+        return demands
+
+    # to general form for classic nrps to singel objective
+    def __to_single_general_form(self, b : float) -> MOIPProblem:
+        # check project name and flatten
+        assert self.__project.startswith('classic')
+        assert not self.__dependencies
+        # prepare the "variables"
+        variables = list(self.__cost.keys()) + list(self.__profit.keys())
+        # prepare objective coefs
+        objectives = [{k:-v for k, v in self.__profit.items()}]
+        # prepare the atrribute matrix
+        inequations : List[Dict[int, int]] = []
+        inequations_operators : List[str] = []
+        # don't forget encode the constant, it always be MAX_CODE + 1
+        constant_id = len(variables)
+        assert constant_id not in self.__cost.keys()
+        assert constant_id not in self.__profit.keys()
+        # convert requirements
+        # use requirements, y <= x
+        for req in self.__requests:
+            # custom req[0] need requirement req[1]
+            # req[0] <= req[1] <=> req[0] - req[1] <= 0
+            inequations.append({req[0]:1, req[1]:-1, constant_id:0})
+            # 'L' for <= and 'G' for >=, we can just convert every inequations into <= format
+            inequations_operators.append('L')
+        # use sum cost_i x_i < b sum(cost)
+        cost_sum = sum(self.__cost.values())
+        tmp_inequation = deepcopy(self.__cost)
+        tmp_inequation[constant_id] = float(cost_sum * b)
+        inequations.append(tmp_inequation)
+        inequations_operators.append('L')
+        # NOTE no need for 0 <= x, y <= 1 it's provided in imported files
+        # construct Problem without equations
+        return NextReleaseProblem.MOIP(variables, objectives, inequations, inequations_operators, [dict()])
+
+    # to single objective basic stakeholder form
+    def __to_single_stakeholder_form(self, b : float) -> MOIPProblem:
+        # check project name and flatten
+        assert self.__project.startswith('realistic')
+        assert not self.__dependencies
+        # prepare the "variables"
+        variables = list(self.__cost.keys()) + list(self.__profit.keys())
+        # prepare objective coefs
+        objectives = [{k:-v for k, v in self.__profit.items()}]
+        # prepare the atrribute matrix
+        inequations : List[Dict[int, int]] = []
+        inequations_operators : List[str] = []
+        # don't forget encode the constant, it always be MAX_CODE + 1
+        constant_id = len(variables)
+        assert constant_id not in self.__cost.keys()
+        assert constant_id not in self.__profit.keys()
+        # find set Si which consists of customers who need requirement xi
+        # ...or we can name it demand 'list', dict[requirement_id:list[customer_id]]
+        demands = self.find_demands(self.__requests)
+        # use OR method to convert or-logic into linear planning
+        # we assume requirement are (y, x), note that y is customer and x a requirement
+        # there should be constraints: OR_j(yi) where yi requires xj
+        # they could be converted into: each yi - xj <= 0
+        # ... and Sum yi - xj >= 0  <=> xj - Sum yi <= 0
+        # first, each yi <= xj in requirements
+        for req in self.__requests:
+            # custom req[0] need requirement req[1]
+            # req[0] <= req[1] <=> req[0] - req[1] <= 0
+            inequations.append({req[0]:1, req[1]:-1, constant_id:0})
+            # 'L' for <= and 'G' for >=, we can just convert every inequations into <= format
+            inequations_operators.append('L')
+        # second, xj - Sum yi <= 0
+        for req, demand_list in demands.items():
+            tmp_inequation = {req : 1}
+            for customer_id in demand_list:
+                tmp_inequation[customer_id] = -1
+            tmp_inequation[constant_id] = 0
+            inequations.append(tmp_inequation)
+            inequations_operators.append('L')
+        # finialy, use sum cost_i x_i < b sum(cost) of course
+        cost_sum = sum(self.__cost.values())
+        tmp_inequation = deepcopy(self.__cost)
+        tmp_inequation[constant_id] = float(cost_sum * b)
+        inequations.append(tmp_inequation)
+        inequations_operators.append('L')
+        # NOTE no need for 0 <= x, y <= 1 it's provided in imported files
+        # construct Problem 
+        return NextReleaseProblem.MOIP(variables, objectives, inequations, inequations_operators, [dict()])
+
+
+    # model to single objective
+    # different dataset using different form (according to the IST-2015)
+    def single_form(self, b : float) -> MOIPProblem:
+        # only Xuan Dataset used in single objective
+        if not self.__project.startswith('classic') and not self.__project.startswith('realistic'):
+            assert False
+        if self.__project.startswith('classic'):
+            # flatten, only classic dataset need this
+            self.flatten()
+        # reencode
+        self.xuan_reencoding()
+        # convert to MOIPProblem
+        if self.__project.startswith('classic'):
+            # for classic nrps, to general form
+            return self.__to_single_general_form(b)
+        else:
+            # for realistic nrps, to basic stakeholder form
+            return self.__to_single_stakeholder_form(b)
+
+    # construct MOIPProblem
+    @staticmethod
+    def MOIP(
+        variables : List[int], \
+        objectives : List[Dict[int, int]], \
+        inequations : List[Dict[int, int]], \
+        inequations_operators : List[str], \
+        equations : List[Dict[int, int]]
+    ) -> MOIPProblem:
+        # use objectives make attribute matrix
+        attribute_matrix = []
+        for objective in objectives:
+            line = [0] * (len(variables))
+            for key, value in objective.items():
+                line[key] = value
+            # there was a constant_id = max_id + 1, then api do not work
+            # so I assume there's no constant in objective 
+            attribute_matrix.append(line)
+        # load into the MOIP
+        # construct MOIP
+        MOIP = MOIPProblem(len(objectives), len(variables), 0)
+        # call load
+        MOIP.load(objectives, inequations, equations, False, None)
+        # ...load manually
+        MOIP.sparseInequationSensesList = inequations_operators
+        MOIP.attributeMatrix = attribute_matrix
+        # return
+        return MOIP
+
+    # moudling, convert NRP to certain MOIPProblem
+    def model(self, form : str, option : Dict[str, Any] = None) -> MOIPProblem:
+        # check if in NRP FORMS
+        assert self.modelable(form)
+        # single objective 
+        if form == 'single':
+            # only allow classic and realistic datasets
+            assert self.__project.startswith('classic') or self.__project.startswith('realistic')
+            # should be a argument 'b' in option
+            assert 'b' in option
+            return self.single_form(option['b'])

@@ -63,7 +63,7 @@ ALL_FILES_DICT = { \
     'Baan' : BAAN_FILE_NAME, \
 }
 
-# NRP MOULDING FROMS
+# NRP MODELLING FROMS
 NRP_FORMS = ['single_general', 'single_stakeholder', 'single_requirement', 'bi_general']
 
 # SOLVERS
