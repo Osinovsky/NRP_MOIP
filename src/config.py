@@ -6,6 +6,7 @@
 
 from os import path
 
+# FILES PATH AND NAMES
 # output path
 RESULT_PATH = '../result/'
 
@@ -61,3 +62,9 @@ ALL_FILES_DICT = { \
                     'cost' : path.join(RALIC_PATH, RALIC_COST_FILE)}, \
     'Baan' : BAAN_FILE_NAME, \
 }
+
+# NRP MOULDING FROMS
+NRP_FORMS = ['single_general', 'single_stakeholder', 'single_requirement', 'bi_general']
+
+# SOLVERS
+RUNNER_SOLVER = ['single', 'epsilon_constraint', 'CWMOIP', 'ncgol']

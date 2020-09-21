@@ -4,9 +4,7 @@
 # Last Modified: 2020.09.20          #
 # ################################## #
 
-from functools import reduce
 import unittest
-import os
 import sys
 sys.path.append("C:\\Users\\osino\\Desktop\\dev\\prototype\\NRP_MOIP\\src")
 from loaders import Loader, XuanLoader, MotorolaLoader, RALICLoader
