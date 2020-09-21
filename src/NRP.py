@@ -7,7 +7,9 @@
 from typing import *
 from config import *
 from loaders import Loader
-from moipProb import MOIPProblem 
+from moipProb import MOIPProblem
+from copy import deepcopy
+from functools import reduce
 
 # Type 
 CostType = Union[Dict[int, int], Dict[Tuple[int, int], int]]
@@ -103,9 +105,39 @@ class NextReleaseProblem:
         else:
             return None
 
+    # get the content of NRP
+    def content(self) -> NRPType:
+        return self.__cost, self.__profit, self.__dependencies, self.__requests
+
+    # find one requirement all precursors
+    def __precursors(self, req_id : int) -> Set[int]:
+        # find all depdency with right value as requst id input
+        last_level = set([x[0] for x in self.__dependencies if x[1] == req_id])
+        # check result
+        if len(last_level) == 0:
+            return last_level
+        else:
+            # find their dependecies each and merge their result
+            # then convert then into set for dupicate elimination
+            return last_level.union(set(reduce(lambda x, y: list(x)+list(y), map(self.__precursors, last_level))))
+
     # flatten dependencies, eliminate all dependencies between requirements
     def flatten(self) -> None:
-        pass
+        # of course depdencies should not be empty
+        assert self.__dependencies
+        # copy a new requests from self.requests
+        neo_requests = deepcopy(self.__requests)
+        # traverse requests
+        for req in self.__requests:
+            # find all real requests
+            dependencies = list(self.__precursors(req[1]))
+            # add into new requests
+            for dep in dependencies:
+                if (req[0], dep) not in neo_requests:
+                    neo_requests.append((req[0], dep))
+        # change requests and clear dependencies
+        self.__requests = neo_requests
+        self.__dependencies.clear()
 
     # moudling, convert NRP to certain MOIPProblem
     def mould(self, form : str) -> MOIPProblem:
