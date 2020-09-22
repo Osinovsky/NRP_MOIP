@@ -233,7 +233,7 @@ class NextReleaseProblem:
         inequations_operators.append('L')
         # NOTE no need for 0 <= x, y <= 1 it's provided in imported files
         # construct Problem without equations
-        return NextReleaseProblem.MOIP(variables, objectives, inequations, inequations_operators, [dict()])
+        return NextReleaseProblem.MOIP(variables, objectives, inequations, inequations_operators, dict())
 
     # to single objective basic stakeholder form
     def __to_single_stakeholder_form(self, b : float) -> MOIPProblem:
@@ -282,7 +282,7 @@ class NextReleaseProblem:
         inequations_operators.append('L')
         # NOTE no need for 0 <= x, y <= 1 it's provided in imported files
         # construct Problem 
-        return NextReleaseProblem.MOIP(variables, objectives, inequations, inequations_operators, [dict()])
+        return NextReleaseProblem.MOIP(variables, objectives, inequations, inequations_operators, dict())
 
     # model to bi-objective for classic and realistic nrps
     def __to_bi_general_form(self) -> MOIPProblem:
@@ -313,7 +313,7 @@ class NextReleaseProblem:
             inequations_operators.append('L')
         # NOTE no need for 0 <= x, y <= 1 it's provided in imported files
         # construct Problem
-        return NextReleaseProblem.MOIP(variables, objectives, inequations, inequations_operators, [dict()])
+        return NextReleaseProblem.MOIP(variables, objectives, inequations, inequations_operators, dict())
 
     # model to single objective
     # different dataset using different form (according to the IST-2015)

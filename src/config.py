@@ -64,7 +64,7 @@ ALL_FILES_DICT = { \
 }
 
 # NRP MODELLING FROMS
-NRP_FORMS = ['single_general', 'single_stakeholder', 'single_requirement', 'bi_general']
+NRP_FORMS = ['single', 'binary']
 
 # SOLVERS
-RUNNER_SOLVER = ['single', 'epsilon_constraint', 'CWMOIP', 'ncgol']
+SOLVING_METHOD = ['single', 'epsilon', 'CWMOIP', 'ncgol']
