@@ -1,7 +1,7 @@
 # ################################## #
 # DONG Shi, dongshi@mail.ustc.edu.cn #
 # NRPTest.py, created: 2020.09.21    #
-# Last Modified: 2020.09.21          #
+# Last Modified: 2020.09.22          #
 # ################################## #
 
 import unittest
@@ -96,7 +96,7 @@ class NRPTest(unittest.TestCase):
                 nrp.flatten()
             cost, profit, dependencies, requests = deepcopy(nrp.content())
             # encoding
-            req_encoder, cus_encoder = nrp.xuan_reencoding()
+            req_encoder, cus_encoder = nrp.xuan_reencode()
             # get content again
             neo_cost, neo_profit, neo_dependencies, neo_requests = nrp.content()
             # check if encoding is one-one mapping
@@ -211,7 +211,7 @@ class NRPTest(unittest.TestCase):
                 else:
                     assert not cost_inequation
                     cost_inequation = inequation
-            assert neo_requests == requests
+            assert set(neo_requests) == set(requests)
             # check for cost_inequation
             assert not cost_inequation[constant_id] - sum(cost.values())*0.5 > 10e-6
             assert not cost_inequation[constant_id] - sum(cost.values())*0.5 < -10e-6
@@ -272,12 +272,46 @@ class NRPTest(unittest.TestCase):
                     else:
                         assert False
             assert neo_demands == demands
-            assert neo_requests == requests
+            assert set(neo_requests) == set(requests)
             # check for cost_inequation
             assert not cost_inequation[constant_id] - sum(cost.values())*0.5 > 10e-6
             assert not cost_inequation[constant_id] - sum(cost.values())*0.5 < -10e-6
             del cost_inequation[constant_id]
             assert cost_inequation == cost
+
+    # test for bi-objective for classic and realistic nrps
+    def test_bi_general(self):
+        for project_name in ALL_FILES_DICT.keys():
+            if not project_name.startswith('classic') and not project_name.startswith('realistic'):
+                continue
+            # get content
+            nrp = NextReleaseProblem(project_name)
+            # modelling
+            moip = nrp.model('binary')
+            cost, profit, _, requests = nrp.content()
+            # check for counts
+            assert moip.objectiveCount == 2
+            assert moip.featureCount == len(cost) + len(profit)
+            constant_id = moip.featureCount
+            # check for objective
+            assert len(moip.objectiveSparseMapList) == 2
+            neo_profit = {k:-v for k, v in moip.objectiveSparseMapList[0].items()}
+            assert neo_profit == profit
+            neo_cost = {k:v for k, v in moip.objectiveSparseMapList[1].items()}
+            assert neo_cost == cost
+            # check for inequations
+            assert len(moip.sparseInequationsMapList) == len(moip.sparseInequationSensesList)
+            assert moip.sparseInequationSensesList == ['L']*len(moip.sparseInequationSensesList)
+            # construct new requests from inequations
+            neo_requests = []
+            for inequation in moip.sparseInequationsMapList:
+                # length == 3
+                assert len(inequation) == 3
+                # constant == 0
+                assert inequation[constant_id] == 0
+                # request
+                neo_requests.append(self.unzip_inequation(inequation))
+            assert set(neo_requests) == set(requests)
 
 if __name__ == '__main__':
     unittest.main()

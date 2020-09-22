@@ -1,7 +1,7 @@
 # ################################## #
 # DONG Shi, dongshi@mail.ustc.edu.cn #
 # NRP.py, created: 2020.09.19        #
-# Last Modified: 2020.09.21          #
+# Last Modified: 2020.09.22          #
 # ################################## #
 
 from typing import *
@@ -149,9 +149,9 @@ class NextReleaseProblem:
     def reencode(self, pairwise : bool) -> Tuple[Dict[int, int], Dict[int, int]]:
         pass
 
-    # classic and realistic reencoding, single objective
+    # classic and realistic reencode, single objective
     # encoding will be compact and from 0
-    def xuan_reencoding(self) -> Tuple[Dict[int, int], Dict[int, int]]:
+    def xuan_reencode(self) -> Tuple[Dict[int, int], Dict[int, int]]:
         # assume that dependencies is empty
         assert not self.__dependencies
         # employ an encoder
@@ -284,6 +284,36 @@ class NextReleaseProblem:
         # construct Problem 
         return NextReleaseProblem.MOIP(variables, objectives, inequations, inequations_operators, [dict()])
 
+    # model to bi-objective for classic and realistic nrps
+    def __to_bi_general_form(self) -> MOIPProblem:
+        # only for classic and realistic
+        assert self.__project.startswith('classic') or self.__project.startswith('realistic')
+        # requirement dependencies should be eliminated
+        assert not self.__dependencies
+        # prepare the "variables"
+        variables = list(self.__profit.keys()) + list(self.__cost.keys())
+        # prepare objective coefs
+        max_profit = {k:-v for k, v in self.__profit.items()}
+        min_cost = {k:v for k, v in self.__cost.items()}
+        objectives = [max_profit, min_cost]
+        # prepare the atrribute matrix
+        inequations : List[Dict[int, int]] = []
+        inequations_operators : List[str] = []
+        # don't forget encode the constant, it always be MAX_CODE + 1
+        constant_id = len(variables)
+        assert constant_id not in self.__cost.keys()
+        assert constant_id not in self.__profit.keys()
+        # convert requirements
+        # use requirements, y <= x
+        for req in self.__requests:
+            # custom req[0] need requirement req[1]
+            # req[0] <= req[1] <=> req[0] - req[1] <= 0
+            inequations.append({req[0]:1, req[1]:-1, constant_id:0})
+            # 'L' for <= and 'G' for >=, we can just convert every inequations into <= format
+            inequations_operators.append('L')
+        # NOTE no need for 0 <= x, y <= 1 it's provided in imported files
+        # construct Problem
+        return NextReleaseProblem.MOIP(variables, objectives, inequations, inequations_operators, [dict()])
 
     # model to single objective
     # different dataset using different form (according to the IST-2015)
@@ -295,7 +325,7 @@ class NextReleaseProblem:
             # flatten, only classic dataset need this
             self.flatten()
         # reencode
-        self.xuan_reencoding()
+        self.xuan_reencode()
         # convert to MOIPProblem
         if self.__project.startswith('classic'):
             # for classic nrps, to general form
@@ -303,6 +333,27 @@ class NextReleaseProblem:
         else:
             # for realistic nrps, to basic stakeholder form
             return self.__to_single_stakeholder_form(b)
+
+    # model to bi-objective form
+    def bi_form(self) -> MOIPProblem:
+        if self.__project.startswith('classic') or self.__project.startswith('realistic'):
+            # classic and realistic nrps
+            if self.__project.startswith('classic'):
+                # flatten, only classic dataset need this
+                self.flatten()
+            # reencode
+            self.xuan_reencode()
+            # to bi-objective form
+            return self.__to_bi_general_form()
+        elif self.__project.startswith('Motorola'):
+            pass
+        elif self.__project.startswith('RALIC'):
+            pass
+        elif self.__project.startswith('Baan'):
+            pass
+        else:
+            # not found
+            assert False
 
     # construct MOIPProblem
     @staticmethod
@@ -344,3 +395,5 @@ class NextReleaseProblem:
             # should be a argument 'b' in option
             assert 'b' in option
             return self.single_form(option['b'])
+        elif form == 'binary':
+            return self.bi_form()
