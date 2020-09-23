@@ -19,11 +19,13 @@ class Analyzer:
     # and find the results you want to compare inside this folder
     def __init__(self, out_path : str, names : List[str], ite_num : int = 1):
         # load the checklist
-        self.__results = self.load_checklist(out_path, names)
+        self.__results = self.load_checklist(out_path, names, ite_num)
         # load results files
         for name in names:
-            file_name = os.path.join(out_path, name+'.txt')
-            self.__results[name]['solutions'] = self.load_solutions(file_name)
+            exact_path = os.path.join(out_path, name)
+            for ind in range(ite_num):
+                file_name = os.path.join(exact_path, str(ind)+'.txt')
+                self.__results[name][str(ind)]['solutions'] = self.load_solutions(file_name)
 
     # get results
     def content(self):
@@ -31,7 +33,7 @@ class Analyzer:
 
     # check if files are available and return checklist
     @staticmethod
-    def load_checklist(out_path : str, names : List[str]) -> Dict[str, Any]:
+    def load_checklist(out_path : str, names : List[str], ite_num : int) -> Dict[str, Any]:
         # check if files are available
         assert os.path.exists(out_path)
         assert os.path.exists(os.path.join(out_path, 'checklist.json'))
@@ -42,7 +44,10 @@ class Analyzer:
         # check files
         for name in names:
             assert name in checklist
-            assert os.path.exists(os.path.join(out_path, name+'.txt'))
+            exact_path = os.path.join(out_path, name)
+            assert os.path.exists(exact_path)
+            for ind in range(ite_num):
+                assert os.path.exists(os.path.join(exact_path, str(ind)+'.txt'))
         # return the checklist
         return checklist
 
@@ -58,5 +63,5 @@ class Analyzer:
         return results
 
 # Just for DEBUG
-analyzer = Analyzer(RESULT_PATH, ['classic_1_binary_epsilon', 'realistic_g4_single_single_b0.3'])
+analyzer = Analyzer(RESULT_PATH, ['classic_1_binary_epsilon', 'realistic_g4_binary_epsilon'])
 print(analyzer.content())

@@ -97,21 +97,21 @@ class Runner:
         # prepare_config
         self.prepare_once(*config)
         # run
-        # elapsed_time = self.run()
+        elapsed_time = self.run()
         # collect results
         if ind == 0:
             # first round, initialize
             self.__result[name] = dict()
         # record
-        # self.__result[name][ind] = dict()
-        # self.__result[name][ind]['runtime'] = elapsed_time
-        # self.__result[name][ind]['solution number'] = len(self.__solutions)
-        # self.__result[name][ind]['solutions'] = self.__solutions
+        self.__result[name][str(ind)] = dict()
+        self.__result[name][str(ind)]['runtime'] = elapsed_time
+        self.__result[name][str(ind)]['solution number'] = len(self.__solutions)
+        self.__result[name][str(ind)]['solutions'] = self.__solutions
         # just for debug
-        self.__result[name][ind]  = dict()
-        self.__result[name][ind] ['runtime'] = 3.33
-        self.__result[name][ind] ['solution number'] = 100
-        self.__result[name][ind] ['solutions'] = set([(1,2), (3,4), (5,6), (7,8), (9,0)])
+        # self.__result[name][str(ind)]  = dict()
+        # self.__result[name][str(ind)] ['runtime'] = 3.33
+        # self.__result[name][str(ind)] ['solution number'] = 100
+        # self.__result[name][str(ind)] ['solutions'] = set([(1,2), (3,4), (5,6), (7,8), (9,0)])
 
     # prepare once
     def prepare_once(self, project_name : str, form : str, method : str, option : Dict[str, Any] = None) -> None:
@@ -135,14 +135,14 @@ class Runner:
         # prepare the solution file
         file_name = os.path.join(exact_path, str(ind)+'.txt')
         assert name in self.__result
-        assert ind in self.__result[name]
-        assert 'solutions' in self.__result[name][ind]
+        assert str(ind) in self.__result[name]
+        assert 'solutions' in self.__result[name][str(ind)]
         # write to file
         with open(file_name, 'w') as file_out:
-            for solution in list(self.__result[name][ind]['solutions']):
+            for solution in list(self.__result[name][str(ind)]['solutions']):
                 file_out.write(str(solution)+'\n')
         # delete it in checklist for saving memory
-        del self.__result[name][ind]['solutions']
+        del self.__result[name][str(ind)]['solutions']
     
     # run! just run!
     def run(self) -> float:
@@ -188,10 +188,10 @@ class Runner:
                     # prepare file
                     solution_file = open(os.path.join(exact_path, str(ind)+'.txt'), "w+")
                     # write into file
-                    for solution in list(content[ind]['solutions']):
+                    for solution in list(content[str(ind)]['solutions']):
                         solution_file.write(str(solution) + '\n')
                     solution_file.close()
-                    del content[ind]['solutions']
+                    del content[str(ind)]['solutions']
         # write checklist
         checklist_file = open(os.path.join(out_path, 'checklist.json'), 'w+')
         json_object = json.dumps(self.__result, indent = 4)
