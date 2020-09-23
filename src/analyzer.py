@@ -234,7 +234,7 @@ class Analyzer:
         comparison_file.close()
 
 # Just for DEBUG
-analyzer = Analyzer(RESULT_PATH, ['classic_1_binary_epsilon', 'realistic_g4_binary_epsilon'], 10)
-result, comparison = analyzer.content()
+# analyzer = Analyzer(RESULT_PATH, ['classic_1_binary_epsilon', 'realistic_g4_binary_epsilon'], 10)
+# result, comparison = analyzer.content()
 # print(result)
 # print(comparison)
