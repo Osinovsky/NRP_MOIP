@@ -1,7 +1,7 @@
 # ################################## #
 # DONG Shi, dongshi@mail.ustc.edu.cn #
 # analyzer.py, created: 2020.09.22   #
-# Last Modified: 2020.09.22          #
+# Last Modified: 2020.09.23          #
 # ################################## #
 
 from typing import *
@@ -17,7 +17,7 @@ class Analyzer:
     # initialize
     # Analyzer will read out_path/checklist.json automaticly
     # and find the results you want to compare inside this folder
-    def __init__(self, out_path : str, names : List[str]):
+    def __init__(self, out_path : str, names : List[str], ite_num : int = 1):
         # load the checklist
         self.__results = self.load_checklist(out_path, names)
         # load results files
@@ -58,5 +58,5 @@ class Analyzer:
         return results
 
 # Just for DEBUG
-# analyzer = Analyzer(RESULT_PATH, ['classic_1_binary_epsilon', 'realistic_g4_single_single_b0.3'])
-# print(analyzer.content())
+analyzer = Analyzer(RESULT_PATH, ['classic_1_binary_epsilon', 'realistic_g4_single_single_b0.3'])
+print(analyzer.content())
