@@ -188,16 +188,16 @@ class ResultHandler:
         return self.content
 
     # dump content
-    def dump(self) -> None:
-        content_file = open(os.path.join(self.out_path, 'content.json'), 'w+')
+    def dump(self, file_name : str = 'content.json') -> None:
+        content_file = open(os.path.join(self.out_path, file_name), 'w+')
         json_object = json.dumps(self.content, indent = 4)
         content_file.write(json_object)
         content_file.close()
 
     # read content, do not store in self.content but return
     @staticmethod
-    def load(path_name : str) -> Dict[str, Any]:
-        content_file = open(os.path.join(path_name, 'content.json'), 'r')
+    def load(path_name : str, file_name : str = 'content.json') -> Dict[str, Any]:
+        content_file = open(os.path.join(path_name, file_name), 'r')
         json_object = json.load(content_file)
         content_file.close()
         return json_object
@@ -230,7 +230,7 @@ class Analyzer(ResultHandler):
             self.content[name]['all']['evenness'] = \
                 self.evenness(self.__true_front[name], self.__pareto[name])
             # dump
-            self.dump()
+            self.dump('analysis.json')
 
     # build true front for each name
     def build_each_true_front(self, name : str) -> None:
@@ -263,7 +263,7 @@ class Analyzer(ResultHandler):
 # comparator, used to compare multipule solutions sets
 # calculate non-dominated solutions, and some indicators scores
 # such as IGD, HV, Evenness
-class Comparator:
+class Comparator(ResultHandler):
     # initialize
     # Comparator will read out_path/checklist.json automaticly
     # and find the results you want to compare inside this folder
@@ -272,4 +272,51 @@ class Comparator:
         # and load solutions as jmetal solution list in self.result
         # and load runtime, solution number to content
         # in this class, we see content as our comparison result
-        super().__init__(result_path, names, ite_num)
+        super().__init__(out_path, names, ite_num)
+        # prepare true front 
+        self.__true_front = NonDominatedSolutionsArchive()
+        self.__true_front_map = dict()
+        self.__pareto = dict()
+        # build true front
+        self.build_all_true_front()
+        # sort all non dominated solutions
+        self.sort_all_non_dominated_solutions()
+        # calculate scores
+        for name in names:
+            # caculate indicators
+            self.content[name]['all']['igd'] = \
+                self.igd(self.__true_front, self.__pareto[name])
+            self.content[name]['all']['hv'] = \
+                self.hv(self.__true_front, self.__pareto[name])
+            self.content[name]['all']['evenness'] = \
+                self.evenness(self.__true_front, self.__pareto[name])
+            # dump
+            self.dump('comparison.json')
+
+    # build front using each sets of solutions
+    def build_all_true_front(self) -> None:
+        for name in self.names:
+            for ite in range(self.ite_num):
+                solutions = self.result[name][str(ite)]['solutions']
+                self.__true_front, self.__true_front_map = \
+                    self.build_true_front(self.__true_front, self.__true_front_map, solutions)
+    
+    # sort non dominated solutions
+    def sort_all_non_dominated_solutions(self) -> None:
+        for name in self.names:
+            contained = set()
+            self.__pareto[name] = []
+            for ite in range(self.ite_num):
+                self.content[name][str(ite)]['nd'] = 0
+                solution_list = self.result[name][str(ite)]['solutions']
+                for slt in solution_list:
+                    slt_key = str(slt.objectives)
+                    if slt_key in self.__true_front_map:
+                        self.content[name][str(ite)]['nd'] += 1
+                        if slt_key not in contained:
+                            self.__pareto[name].append(slt)
+                            contained.add(slt_key)
+                        # indicate no else statement here
+                    else:
+                        assert not self.__true_front.add(slt)
+            self.content[name]['all']['nd'] = len(self.__pareto[name])
