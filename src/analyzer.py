@@ -24,6 +24,14 @@ class ResultHandler:
         self.out_path = result_path
         self.names = names
         self.ite_num = ite_num
+        # prepare content, whether be analysis or comparison
+        self.content = dict()
+        # store result(checklist)
+        self.result = ResultHandler.load_checklist(result_path)
+        # load solutions to self.result
+        self.load_solutions()
+        # load_result_to_content
+        self.load_result_to_content()
     
     # load result(result_path/checklist.json)
     @staticmethod
@@ -45,28 +53,29 @@ class ResultHandler:
         # check file exist
         assert os.path.isfile(file_name)
         # prepare an empty set
-        results = set()
+        solution_set = set()
         # read file
         file_in = open(file_name, 'r')
         for line in file_in.readlines():
             line = line.strip('\n\r')
             tmp_tuple = to_tuple(line)
-            results.add(tmp_tuple)
+            solution_set.add(tmp_tuple)
         file_in.close()
         # return it
-        return results
-    
-    # load solutions sets for iterations
+        return solution_set
+
+    # load a solution as jmetal solution list
     @staticmethod
-    def load_solution_sets(file_path : str, ite_num : int) -> Dict[int, Set[Any]]:
-        # check path exist
-        assert os.path.exists(file_path)
-        # prepare a dict
-        sets = dict()
-        for ite in range(ite_num):
-            sets[ite] = ResultHandler.load_solution_set(os.path.join(file_path, str(ite)+'.txt'))
+    def load_jmetal_solution_list(file_name : str) -> List[Solution]:
+        # load result set
+        solution_set = ResultHandler.load_solution_set(file_name)
+        # convert them to jmetal solution
+        solutions = []
+        for solution in list(solution_set):
+            jmetal_solution = ResultHandler.to_jmetal_solution(solution)
+            solutions.append(jmetal_solution)
         # return it
-        return sets
+        return solutions
 
     # convert tuple solution to jmetal Solution
     @staticmethod
@@ -89,12 +98,11 @@ class ResultHandler:
     def build_true_front(\
         true_front : NonDominatedSolutionsArchive, \
         true_front_map : Dict[str, Solution], \
-        solution_list : List[Any]) -> Tuple[NonDominatedSolutionsArchive, Dict[str, Solution]]:
+        solution_list : List[Solution]) -> Tuple[NonDominatedSolutionsArchive, Dict[str, Solution]]:
         # make true front
         for solution in solution_list:
-            jmetal_solution = ResultHandler.to_jmetal_solution(solution)
-            true_front.add(jmetal_solution)
-            true_front_map[str(solution)] = jmetal_solution
+            true_front.add(solution)
+            true_front_map[str(solution.objectives)] = solution
         # return them
         return true_front, true_front_map
 
@@ -146,6 +154,45 @@ class ResultHandler:
         # calculate
         return indicator.compute(solution_list)
 
+    # load solutions into self result
+    def load_solutions(self) -> None:
+        for name in self.names:
+            # prepare path
+            file_path = os.path.join(self.out_path, name)
+            for ite in range(self.ite_num):
+                file_name = os.path.join(file_path, str(ite)+'.txt')
+                self.result[name][str(ite)]['solutions'] = ResultHandler.load_jmetal_solution_list(file_name)
+
+    # load things from results to content
+    def load_result_to_content(self) -> None:
+        for name in self.names:
+            self.content[name] = dict()
+            self.content[name]['all'] = dict()
+            # count runtime and solution number
+            runtime = .0
+            solution_number = 0
+            for ite in range(self.ite_num):
+                self.content[name][str(ite)] = dict()
+                solution_number += self.result[name][str(ite)]['solution number']
+                runtime += self.result[name][str(ite)]['runtime']
+                self.content[name][str(ite)]['solution number'] = \
+                    self.result[name][str(ite)]['solution number']
+                self.content[name][str(ite)]['runtime'] = \
+                    self.result[name][str(ite)]['runtime']
+            # assign to 'all'
+            self.content[name]['all']['solution number'] = solution_number
+            self.content[name]['all']['runtime'] = runtime
+
+    # get content
+    def get_content(self) -> Dict[str, Any]:
+        return self.content
+
+    # dump content
+    def dump(self) -> None:
+        content_file = open(os.path.join(self.out_path, 'content.json'), 'w+')
+        json_object = json.dumps(self.content, indent = 4)
+        content_file.write(json_object)
+        content_file.close()
 
 # analyzer, used to calculate non-dominated solutions, and some indicators scores
 # such as IGD, HV, Evenness
