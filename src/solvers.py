@@ -1,7 +1,7 @@
 # ################################## #
 # DONG Shi, dongshi@mail.ustc.edu.cn #
 # solvers.py, created: 2020.09.22    #
-# Last Modified: 2020.09.22          #
+# Last Modified: 2020.09.24          #
 # ################################## #
 
 from typing import *
@@ -10,6 +10,8 @@ from NRP import NextReleaseProblem
 from moipProb import MOIPProblem
 from naiveSol import NaiveSol
 from moipSol import BaseSol
+from cwmoipSol import CwmoipSol
+from ncgopSol import NcgopSol
 from config import *
 
 SolverType = Union[BaseSol, NaiveSol]
@@ -37,6 +39,10 @@ class Solver:
             self.__BaseSol()
         elif self.__method == 'epsilon':
             self.__NaiveSol()
+        elif self.__method == 'cwmoip':
+            self.__CwmoipSol()
+        elif self.__method == 'ncgop':
+            self.__NcgopSol()
 
     # execute
     def execute(self) -> Set[Any]:
@@ -46,6 +52,12 @@ class Solver:
         elif self.__method == 'epsilon':
             self.__NaiveSol_prepare()
             self.__NaiveSol_execute()
+        elif self.__method == 'cwmoip':
+            self.__CwmoipSol_prepare()
+            self.__CwmoipSol_execute() 
+        elif self.__method == 'ncgop':
+            self.__NcgopSol_prepare()
+            self.__NcgopSol_execute()  
         return self.solutions()
     
     # get results
@@ -72,4 +84,24 @@ class Solver:
         self.__solver.prepare()
     # execute
     def __NaiveSol_execute(self) -> None:
+        self.__solver.execute()
+
+    # wrap CwmoipSol Solver
+    def __CwmoipSol(self) -> None:
+        self.__solver = CwmoipSol(self.__problem)
+    # prepare
+    def __CwmoipSol_prepare(self) -> None:
+        self.__solver.prepare()
+    # execute
+    def __CwmoipSol_execute(self) -> None:
+        self.__solver.execute()
+    
+    # wrap NcgopSol Solver
+    def __NcgopSol(self) -> None:
+        self.__solver = NcgopSol(self.__problem)
+    # prepare
+    def __NcgopSol_prepare(self) -> None:
+        self.__solver.prepare()
+    # execute
+    def __NcgopSol_execute(self) -> None:
         self.__solver.execute()

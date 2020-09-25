@@ -1,7 +1,7 @@
 # ################################## #
 # DONG Shi, dongshi@mail.ustc.edu.cn #
 # config.py, created: 2020.08.25     #
-# Last Modified: 2020.09.20          #
+# Last Modified: 2020.09.24          #
 # ################################## #
 
 from os import path
@@ -67,4 +67,4 @@ ALL_FILES_DICT = { \
 NRP_FORMS = ['single', 'binary']
 
 # SOLVERS
-SOLVING_METHOD = ['single', 'epsilon', 'CWMOIP', 'ncgol']
+SOLVING_METHOD = ['single', 'epsilon', 'cwmoip', 'ncgop']
