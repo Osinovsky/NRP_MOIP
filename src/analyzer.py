@@ -1,7 +1,7 @@
 # ################################## #
 # DONG Shi, dongshi@mail.ustc.edu.cn #
 # analyzer.py, created: 2020.09.24   #
-# Last Modified: 2020.09.24          #
+# Last Modified: 2020.09.25          #
 # ################################## #
 
 from typing import *
@@ -194,110 +194,82 @@ class ResultHandler:
         content_file.write(json_object)
         content_file.close()
 
+    # read content, do not store in self.content but return
+    @staticmethod
+    def load(path_name : str) -> Dict[str, Any]:
+        content_file = open(os.path.join(path_name, 'content.json'), 'r')
+        json_object = json.load(content_file)
+        content_file.close()
+        return json_object
+
 # analyzer, used to calculate non-dominated solutions, and some indicators scores
 # such as IGD, HV, Evenness
 class Analyzer(ResultHandler):
     # initialize
     def __init__(self, result_path : str, names : List[str], ite_num : int = 1):
+        # super initialization will load the checklist as result
+        # and load solutions as jmetal solution list in self.result
+        # and load runtime, solution number to content
+        # in this class, we see content as our analysis result
         super().__init__(result_path, names, ite_num)
-        # load checklist and solutions
-        self.result = self.load_checklist(result_path)
-        for name in names:
-            set_path = os.path.join(result_path, name)
-            assert os.path.exists(set_path)
-            self.result[name]['all'] = dict()
-            self.result[name]['all']['solutions'] = []
-            for ite in range(ite_num):
-                file_name = os.path.join(set_path, str(ite)+'.txt')
-                solution_list = list(self.load_solution_set(file_name))
-                self.result[name][str(ite)]['solutions'] = solution_list
-                self.result[name]['all']['solutions'] += solution_list
-        # prepare analysis
-        self.analysis = dict()
-        for name in names:
-            self.analysis[name] = dict()
-            self.analysis[name]['all'] = dict()
-            self.analysis[name]['all']['nd'] = 0
-            for ite in range(ite_num):
-                self.analysis[name][str(ite)] = dict()
-                self.analysis[name][str(ite)]['nd'] = 0
-        # prepare pareto
-        self.__pareto = dict()
-        # prepare true_front and true_front_map
+        # prepare members
         self.__true_front = dict()
         self.__true_front_map = dict()
-        self.build_true_front_all()
-        # sort nd solutions
-        self.sort_non_dominated_solutions()
-        # record solutions, runtimes and true front size
+        self.__pareto = dict()
+        # build true front
         for name in names:
-            solution_count = 0
-            runtime_count = 0.0
-            for ite in range(ite_num):
-                self.analysis[name][str(ite)]['solution number'] = self.result[name][str(ite)]['solution number']
-                solution_count += self.result[name][str(ite)]['solution number']
-                self.analysis[name][str(ite)]['runtime'] = self.result[name][str(ite)]['runtime']
-                runtime_count += self.result[name][str(ite)]['runtime']
-            self.analysis[name]['all']['solution number'] = solution_count
-            self.analysis[name]['all']['runtime'] = runtime_count
-    
-    # get content
-    def content(self):
-        return self.analysis
+            # build true front
+            self.build_each_true_front(name)
+            # sort non-dominated solutions
+            self.sort_each_non_dominated_solutions(name)
+            # caculate indicators
+            self.content[name]['all']['igd'] = \
+                self.igd(self.__true_front[name], self.__pareto[name])
+            self.content[name]['all']['hv'] = \
+                self.hv(self.__true_front[name], self.__pareto[name])
+            self.content[name]['all']['evenness'] = \
+                self.evenness(self.__true_front[name], self.__pareto[name])
+            # dump
+            self.dump()
 
-    # build true front and record each name
-    def build_true_front_all(self):
-        for name in self.names:
-            self.__true_front[name] = NonDominatedSolutionsArchive()
-            self.__true_front_map[name] = dict()
-            for ite in range(self.ite_num):
-                solutions = self.result[name][str(ite)]['solutions']
-                self.__true_front[name], self.__true_front_map[name] = \
+    # build true front for each name
+    def build_each_true_front(self, name : str) -> None:
+        self.__true_front[name] = NonDominatedSolutionsArchive()
+        self.__true_front_map[name] = dict()
+        for ite in range(self.ite_num):
+            solutions = self.result[name][str(ite)]['solutions']
+            self.__true_front[name], self.__true_front_map[name] = \
                     self.build_true_front(self.__true_front[name], self.__true_front_map[name], solutions)
 
-    # sort non dominated solutions
-    def sort_non_dominated_solutions(self):
-        for name in self.names:
-            contained : Set[str] = set()
-            self.__pareto[name] = []
-            for ite in range(self.ite_num):
-                solution_list = self.to_jmetal_solution_list(self.result[name][str(ite)]['solutions'])
-                for slt in solution_list:
-                    slt_key = str(slt)
-                    if slt_key in self.__true_front_map[name]:
-                        if slt_key not in contained:
-                            self.__pareto[name].append(slt)
-                            contained.add(slt_key)
-                        self.analysis[name][str(ite)]['nd'] += 1
-                    else:
-                        is_nd = self.__true_front[name].add(slt)
-                        assert not is_nd
-            self.analysis[name]['all']['nd'] = len(self.__pareto[name])
-
-    # calculate hv
-    def calculate_hv(self):
-        for name in self.names:
-            solution_list = self.to_jmetal_solution_list(self.result[name]['all']['solutions'])
-            self.analysis[name]['all']['hv'] = self.hv(self.__true_front[name], solution_list)
-
-    # calculate igd
-    def calculate_igd(self):
-        for name in self.names:
-            solution_list = self.to_jmetal_solution_list(self.result[name]['all']['solutions'])
-            self.analysis[name]['all']['igd'] = self.igd(self.__true_front[name], solution_list)
-
-    # calculate evenness
-    def calculate_evenness(self):
-        for name in self.names:
-            solution_list = self.to_jmetal_solution_list(self.result[name]['all']['solutions'])
-            self.analysis[name]['all']['evenness'] = self.evenness(self.__true_front[name], solution_list)
+    # sort non dominated solutions for each name
+    def sort_each_non_dominated_solutions(self, name : str) -> None:
+        contained : Set[str] = set()
+        self.__pareto[name] = []
+        for ite in range(self.ite_num):
+            self.content[name][str(ite)]['nd'] = 0
+            solution_list = self.result[name][str(ite)]['solutions']
+            for slt in solution_list:
+                slt_key = str(slt.objectives)
+                if slt_key in self.__true_front_map[name]:
+                    self.content[name][str(ite)]['nd'] += 1
+                    if slt_key not in contained:
+                        self.__pareto[name].append(slt)
+                        contained.add(slt_key)
+                    # indicate no else statement here
+                else:
+                    assert not self.__true_front[name].add(slt)
+        self.content[name]['all']['nd'] = len(self.__pareto[name])
 
 # comparator, used to compare multipule solutions sets
 # calculate non-dominated solutions, and some indicators scores
 # such as IGD, HV, Evenness
 class Comparator:
     # initialize
-    # Analyzer will read out_path/checklist.json automaticly
+    # Comparator will read out_path/checklist.json automaticly
     # and find the results you want to compare inside this folder
     def __init__(self, out_path : str, names : List[str], ite_num : int = 1):
-        pass
+        # super initialization will load the checklist as result
+        # and load solutions as jmetal solution list in self.result
+        # and load runtime, solution number to content
+        # in this class, we see content as our comparison result
+        super().__init__(result_path, names, ite_num)
