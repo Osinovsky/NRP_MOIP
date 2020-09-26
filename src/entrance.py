@@ -10,7 +10,7 @@ if __name__ == '__main__':
 
     # config
     out_path = '../result_binary_compare'
-    ite_num = 3
+    ite_num = 1
 
     configs = []
     # single
@@ -25,10 +25,9 @@ if __name__ == '__main__':
     # binary, epsilon constraint
     for project, file_name in ALL_FILES_DICT.items():
         if project.startswith('classic') or project.startswith('realistic'):
-            # configs.append((project, 'binary', 'epsilon'))
-            configs.append((project, 'binary', 'cwmoip'))
-            # configs.append((project, 'binary', 'ncgop'))
-            break
+            configs.append((project, 'binary', 'epsilon'))
+            # configs.append((project, 'binary', 'cwmoip'))
+            configs.append((project, 'binary', 'ncgop'))
     # prepare names
     names = []
     for config in configs:

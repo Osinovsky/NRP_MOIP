@@ -72,9 +72,9 @@ class NcgopSol(CwmoipSol):
         
     #override the parent method 
     def execute(self):
-        temp = self.moipProblem.attributeMatrix[2]
-        self.moipProblem.attributeMatrix[2] =  self.moipProblem.attributeMatrix[3] 
-        self.moipProblem.attributeMatrix[3] = temp
+        # temp = self.moipProblem.attributeMatrix[2]
+        # self.moipProblem.attributeMatrix[2] =  self.moipProblem.attributeMatrix[3] 
+        # self.moipProblem.attributeMatrix[3] = temp
         
         self.utopiaPlane = UtopiaPlane(self.moipProblem,self.solver);
         self.utopiaPlane.calculate();
