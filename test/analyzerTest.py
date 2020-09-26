@@ -12,6 +12,7 @@ import numpy
 import sys
 sys.path.append("C:\\Users\\osino\\Desktop\\dev\\prototype\\NRP_MOIP\\src")
 from config import *
+from runner import Runner
 from analyzer import ResultHandler, Analyzer, Comparator
 
 # test analyzer.py
@@ -55,6 +56,21 @@ class analyzerTest(unittest.TestCase):
     # ANALYZER TESTS
 
     # COMPARATOR TESTS
+    # test parse names
+    def test_parse(self):
+        configs = []
+        for project, _ in ALL_FILES_DICT.items():
+            configs.append((project, 'xxxxx', 'yyyyy'))
+        names = []
+        for config in configs:
+            names.append(Runner.name(*config))
+        # get dicts
+        which_names, which_project = Comparator.parse_names(names)
+        # test
+        for name in names:
+            project = Runner.dename(name)['project']
+            assert name in which_names[project]
+            assert which_project[name] == project
 
 # run tests
 if __name__ == '__main__':

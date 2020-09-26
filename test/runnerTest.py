@@ -25,7 +25,7 @@ class runnerTest(unittest.TestCase):
     # test for naming and denaming
     def test_name(self):
         for _ in range(1000): # loop for 1000 times
-            project_name = self.random_string()
+            project_name = list(ALL_FILES_DICT.keys())[random.randint(0, len(ALL_FILES_DICT)-1)]
             form = self.random_string()
             method = self.random_string()
             # prepare a dummy option

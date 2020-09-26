@@ -179,11 +179,18 @@ class Runner:
     def dename(name : str) -> None:
         # name should be a string
         assert isinstance(name, str)
+        # parse the project name first
+        project_name = None
+        for project in ALL_FILES_DICT:
+            if name.startswith(project):
+                project_name = project
+                name = name[len(project)+1:]
+        assert project_name
         # split by '_'
         args = name.split('_')
-        assert len(args) >= 3
-        # note that if length == 3, [3:] will be an empty list
-        return {'project' : args[0], 'form' : args[1], 'method' : args[2], 'option' : args[3:]}
+        assert len(args) >= 2
+        # note that if length == 2, [2:] will be an empty list
+        return {'project' : project_name, 'form' : args[0], 'method' : args[1], 'option' : args[2:]}
 
     # dump all solutions
     def dump(self, out_path : str, ite_num : int, write_solutions : bool = False) -> None:

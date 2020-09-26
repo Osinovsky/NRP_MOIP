@@ -8,6 +8,7 @@ from typing import *
 import json
 import os
 import sys
+from copy import deepcopy
 from ast import literal_eval as to_tuple
 from jmetal.core.solution import FloatSolution, Solution
 from jmetal.util.archive import NonDominatedSolutionsArchive, Archive
@@ -15,6 +16,7 @@ from jmetal.core.quality_indicator import InvertedGenerationalDistance, HyperVol
 import numpy as np
 from config import *
 from evenness_indicator import EvennessIndicator
+from runner import Runner
 
 # result handling class
 class ResultHandler:
@@ -274,49 +276,88 @@ class Comparator(ResultHandler):
         # in this class, we see content as our comparison result
         super().__init__(out_path, names, ite_num)
         # prepare true front 
-        self.__true_front = NonDominatedSolutionsArchive()
+        self.__true_front = dict()
         self.__true_front_map = dict()
         self.__pareto = dict()
+        # parser the names and classify them by project name
+        self.which_names, self.which_project = self.parse_names(names)
+        # convert content to project ordered format
+        self.convert_content()
         # build true front
         self.build_all_true_front()
         # sort all non dominated solutions
         self.sort_all_non_dominated_solutions()
         # calculate scores
+        self.evaluate_all()
+
+    # parse names
+    @staticmethod
+    def parse_names(names : List[str]) -> Tuple[Dict[str, List[str]], Dict[str, str]]:
+        # prepare project order and name order dict
+        which_names = dict()
+        which_project = dict()
+        # parse
         for name in names:
-            # caculate indicators
-            self.content[name]['all']['igd'] = \
-                self.igd(self.__true_front, self.__pareto[name])
-            self.content[name]['all']['hv'] = \
-                self.hv(self.__true_front, self.__pareto[name])
-            self.content[name]['all']['evenness'] = \
-                self.evenness(self.__true_front, self.__pareto[name])
-            # dump
-            self.dump('comparison.json')
+            project_name = Runner.dename(name)['project']
+            if project_name in which_names:
+                which_names[project_name].append(name)
+            else:
+                which_names[project_name] = [name]
+            which_project[name] = project_name
+        return which_names, which_project
+
+    # convert content to project ordered format
+    def convert_content(self) -> None:
+        neo_content = dict()
+        for project_name, name_list in self.which_names.items():
+            neo_content[project_name] = dict()
+            for name in name_list:
+                neo_content[project_name][name] = deepcopy(self.content[name])
+        self.content = neo_content
 
     # build front using each sets of solutions
+    # each project a true_front (and true_front_map)
     def build_all_true_front(self) -> None:
-        for name in self.names:
-            for ite in range(self.ite_num):
-                solutions = self.result[name][str(ite)]['solutions']
-                self.__true_front, self.__true_front_map = \
-                    self.build_true_front(self.__true_front, self.__true_front_map, solutions)
+        for project_name, name_list in self.which_names.items():
+            self.__true_front[project_name] = NonDominatedSolutionsArchive()
+            self.__true_front_map[project_name] = dict()
+            for name in name_list:
+                for ite in range(self.ite_num):
+                    solutions = self.result[name][str(ite)]['solutions']
+                    self.__true_front[project_name], self.__true_front_map[project_name] = \
+                        self.build_true_front(self.__true_front[project_name], self.__true_front_map[project_name], solutions)
     
     # sort non dominated solutions
     def sort_all_non_dominated_solutions(self) -> None:
-        for name in self.names:
-            contained = set()
-            self.__pareto[name] = []
-            for ite in range(self.ite_num):
-                self.content[name][str(ite)]['nd'] = 0
-                solution_list = self.result[name][str(ite)]['solutions']
-                for slt in solution_list:
-                    slt_key = str(slt.objectives)
-                    if slt_key in self.__true_front_map:
-                        self.content[name][str(ite)]['nd'] += 1
-                        if slt_key not in contained:
-                            self.__pareto[name].append(slt)
-                            contained.add(slt_key)
-                        # indicate no else statement here
-                    else:
-                        assert not self.__true_front.add(slt)
-            self.content[name]['all']['nd'] = len(self.__pareto[name])
+        for project_name, name_list in self.which_names.items():
+            for name in name_list:
+                contained = set()
+                self.__pareto[name] = []
+                for ite in range(self.ite_num):
+                    self.content[project_name][name][str(ite)]['nd'] = 0
+                    solution_list = self.result[name][str(ite)]['solutions']
+                    for slt in solution_list:
+                        slt_key = str(slt.objectives)
+                        if slt_key in self.__true_front_map[project_name]:
+                            self.content[project_name][name][str(ite)]['nd'] += 1
+                            if slt_key not in contained:
+                                self.__pareto[name].append(slt)
+                                contained.add(slt_key)
+                            # indicate no else statement here
+                        else:
+                            assert not self.__true_front[project_name].add(slt)
+                self.content[project_name][name]['all']['nd'] = len(self.__pareto[name])
+            
+    # calculate all scores
+    def evaluate_all(self):
+        for project_name, name_list in self.which_names.items():
+            for name in name_list:
+                # caculate indicators
+                self.content[project_name][name]['all']['igd'] = \
+                    self.igd(self.__true_front[project_name], self.__pareto[name])
+                self.content[project_name][name]['all']['hv'] = \
+                    self.hv(self.__true_front[project_name], self.__pareto[name])
+                self.content[project_name][name]['all']['evenness'] = \
+                    self.evenness(self.__true_front[project_name], self.__pareto[name])
+                # dump
+                self.dump('comparison.json')
