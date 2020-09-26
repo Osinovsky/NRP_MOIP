@@ -1,7 +1,7 @@
 # ################################## #
 # DONG Shi, dongshi@mail.ustc.edu.cn #
 # runner.py, created: 2020.09.22     #
-# Last Modified: 2020.09.23          #
+# Last Modified: 2020.09.26          #
 # ################################## #
 
 from typing import *
@@ -171,6 +171,19 @@ class Runner:
             for k, v in option.items():
                 option_str += '_' + str(k) + str(v)
         return name_str + option_str
+
+    # parse name to config
+    # Note that if there are options, it will just return the string
+    # because we cannot know it's structure here
+    @staticmethod
+    def dename(name : str) -> None:
+        # name should be a string
+        assert isinstance(name, str)
+        # split by '_'
+        args = name.split('_')
+        assert len(args) >= 3
+        # note that if length == 3, [3:] will be an empty list
+        return {'project' : args[0], 'form' : args[1], 'method' : args[2], 'option' : args[3:]}
 
     # dump all solutions
     def dump(self, out_path : str, ite_num : int, write_solutions : bool = False) -> None:
