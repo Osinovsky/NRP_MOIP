@@ -48,6 +48,7 @@ class CwmoipSol(NaiveSol):
         #temp = self.moipProblem.attributeMatrix[2]
         #self.moipProblem.attributeMatrix[2] =  self.moipProblem.attributeMatrix[3] 
         #self.moipProblem.attributeMatrix[3] = temp
+        # objMatrix = self.moipProblem.attributeMatrix # DS ADD THIS LINE
         objMatrix = np.array(self.moipProblem.attributeMatrix)
         solutionMap = self.solveBySingleObj(self.sparseInequationsMapList,self.sparseEquationsMapList, objMatrix, objMatrix,k, solutionMap, self.cplexResultMap)
         self.buildCplexPareto()
@@ -159,7 +160,7 @@ class CwmoipSol(NaiveSol):
             for key in ineqlDic: 
                 if key != variableCount:
                     variables.append('x'+str(key))
-                    coefficient.append(ineqlDic[key])
+                    coefficient.append(int(ineqlDic[key])) # NOTE: I change numpy.int32 to int, cause it made cplex panic
                 else: 
                     rs = ineqlDic[key]
             row=[]
@@ -168,7 +169,7 @@ class CwmoipSol(NaiveSol):
             rows.append(row)       
             constCounter= constCounter+1
             constName= 'new_c'+str(constCounter)
-            indices = self.solver.linear_constraints.add(lin_expr = rows, senses = 'L', rhs = [rs], names = [constName] ) #TODO: BUG HERE!
+            indices = self.solver.linear_constraints.add(lin_expr = rows, senses = 'L', rhs = [rs], names = [constName] )
             tempConstrList.append(constName)
         #add the temp equation constraints to the solver
         for eqlDic in equationsMapList:
