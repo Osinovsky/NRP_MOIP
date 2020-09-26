@@ -102,8 +102,8 @@ class NcgopSol(CwmoipSol):
         counter = 0
         for p_k in points:
             counter += 1
-            if counter % 100==0: 
-                print ("using p_k: ", str(counter))
+            # if counter % 100==0: 
+            #     print ("using p_k: ", str(counter))
             self.calculate(p_k, self.utopiaPlane.y_up,self.utopiaPlane.y_ub, self.utopiaPlane.y_lb)
         print ("Find solution num: ", len(self.cplexSolutionSet))   
         self.buildCplexPareto()

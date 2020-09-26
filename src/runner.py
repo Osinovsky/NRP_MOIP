@@ -91,7 +91,8 @@ class Runner:
     # run once
     def run_once(self, config : ConfigType, name : str, ind : int) -> None: 
         # this config name
-        print('\r\t\t\t\t\t\t\t\t\t\t\t\t\r' + name + ' round: ' + str(ind), end='')
+        # print('\r\t\t\t\t\t\t\t\t\t\t\t\t\r' + name + ' round: ' + str(ind), end='')
+        print(name + ' round: ' + str(ind))
         # clear all members
         self.clear()
         # prepare_config
