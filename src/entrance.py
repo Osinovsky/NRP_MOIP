@@ -40,7 +40,9 @@ if __name__ == '__main__':
     # compare
     comparator = Comparator(out_path, names, ite_num)
     comparison = comparator.get_content()
-    for name in names:
-        print(name + '\t\t' + str(comparison[name]['all']['solution number']) \
-            + '\t\t' + str(comparison[name]['all']['nd']) \
-            + '\t\t' + str(comparison[name]['all']['hv']))
+    which_names, which_project = Comparator.parse_names(names)
+    for project, name_list in which_names.items():
+        for name in name_list:
+            print(name + '\t\t' + str(comparison[project][name]['all']['solution number']) \
+                + '\t\t' + str(comparison[project][name]['all']['nd']) \
+                + '\t\t' + str(comparison[project][name]['all']['hv']))
