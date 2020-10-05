@@ -8,6 +8,7 @@ import sys
 import os
 import math
 import numpy as np
+import json
 from dimacsMoipProb import DimacsMOIPProblem 
 from moipSol import BaseSol
 from naiveSol import NaiveSol
@@ -27,6 +28,10 @@ class CwmoipSol(NaiveSol):
         self.sparseEquationsMapList = [] 
         #the variable to record the original objective
         self.oriObj = None
+        # DEBUG VARIABLES
+        self.record = dict()
+        self.record['solve'] = 0
+        self.record['bound solve'] = 0
        
         
     """
@@ -52,6 +57,11 @@ class CwmoipSol(NaiveSol):
         objMatrix = np.array(self.moipProblem.attributeMatrix)
         solutionMap = self.solveBySingleObj(self.sparseInequationsMapList,self.sparseEquationsMapList, objMatrix, objMatrix,k, solutionMap, self.cplexResultMap)
         self.buildCplexPareto()
+        # dump self.record
+        fin = open('cwmoip.json', 'w+')
+        json_object = json.dumps(self.record, indent = 4)
+        fin.write(json_object)
+        fin.close()
         
     def solveBySingleObj(self, inequationsMapList,equationsMapList,  objMatIn, objMatOut,k, solutionMap, resultMap):
         solutionMapOut = {}
@@ -74,10 +84,12 @@ class CwmoipSol(NaiveSol):
             for i in range(0,k):
                 feasibleFlag= True 
                 (rsltObj,rsltXvar,rsltString) = self.intlinprog (objMatOut[i],inequationsMapList,equationsMapList,lbs,ubs)   
+                self.record['bound solve'] += 1
                 if (rsltString.find("optimal")>=0):
                     fGLB[i] = 1.0* MOOUtility.round(rsltObj)
                     objOutNeg =  objMatOut[i] * (-1)
                     rslt2Obj,rslt2Xvar,rslt2String= self.intlinprog(objOutNeg,inequationsMapList,equationsMapList,lbs,ubs)
+                    self.record['bound solve'] += 1
                     fGUB[i] = -1.0 * MOOUtility.round(rslt2Obj)
                     fRange[i] = fGUB[i]-fGLB[i] +1
                     w =  w*  MOOUtility.round(fRange[i])
@@ -115,6 +127,10 @@ class CwmoipSol(NaiveSol):
                         solutionMap= {**solutionMap,**solutions}
                         solutionMapOut = {**solutionMapOut,**solutions}
                         l = self.getMaxForObjKonMe(objMatIn[k-1],solutions)
+                        if str(k) not in self.record:
+                            self.record[str(k)] = [l]
+                        else:
+                            self.record[str(k)].append(l)
                         lastConstr = new_inequationsMapList[len(new_inequationsMapList)-1]
                         lastConstr[self.moipProblem.featureCount]= l
                #end of while
@@ -200,6 +216,7 @@ class CwmoipSol(NaiveSol):
         #solve the problem
         self.solveCounter += 1
         self.solver.solve()
+        self.record['solve'] += 1
       
         rsltXvar = []
         rsltObj = float("+inf")
