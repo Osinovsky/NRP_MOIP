@@ -1,10 +1,18 @@
 # ################################## #
 # DONG Shi, dongshi@mail.ustc.edu.cn #
 # config.py, created: 2020.08.25     #
-# Last Modified: 2020.09.24          #
+# Last Modified: 2020.10.07          #
 # ################################## #
 
 from os import path
+
+# MOEA Parameters
+# max evaluation
+MAX_EVALUATION = 25000
+# population size
+POPULATION_SIZE = 100
+# offspring population size
+OFFSPRING_SIZE = 100
 
 # FILES PATH AND NAMES
 # output path
@@ -67,4 +75,4 @@ ALL_FILES_DICT = { \
 NRP_FORMS = ['single', 'binary']
 
 # SOLVERS
-SOLVING_METHOD = ['single', 'epsilon', 'cwmoip', 'ncgop']
+SOLVING_METHOD = ['single', 'epsilon', 'cwmoip', 'ncgop', 'NSGAII', 'IBEA', 'HYPE', 'SPEA2']
