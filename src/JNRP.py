@@ -72,6 +72,8 @@ class JNRP(BinaryProblem):
                     continue # ignore zero coef variables
                 if value:
                     constraints[cst_ind] += constraint[index]
+                else:
+                    constraints[cst_ind] -= constraint[index]
             # end for
             # for the constant
             constant_id = len(self.my_variables)

@@ -69,13 +69,26 @@ class Solver:
         elif self.__method in ['NSGAII', 'IBEA', 'HYPE', 'SPEA2']:
             self.__solver.run()
     
+    # no negative element in list
+    @staticmethod
+    def forall_ge0(l : List[int]) -> bool:
+        if l:
+            return all([e >= 0 for e in l])
+        else:
+            return True
+
     # get results
     def solutions(self) -> Set[Any]:
         if self.__method in ['single', 'epsilon', 'cwmoip', 'ncgop']:
             return self.__solver.cplexParetoSet
         elif self.__method in ['NSGAII', 'IBEA', 'HYPE', 'SPEA2']:
             results : List[BinarySolution] = self.__solver.get_result()
-            return set([tuple(s.objectives) for s in results])
+            # remove infeasible solution
+            return set([tuple(s.objectives) for s in results if Solver.forall_ge0(s.constraints)])
+
+    # get raw results, for MOEA
+    def moea_solutions(self) -> Any:
+        return self.__solver.get_result()
 
     # wrap BaseSol
     def __BaseSol(self) -> None:
@@ -105,6 +118,7 @@ class Solver:
         )
 
     # wrap IBEA
+    # NOTE: IBEA could hardly handle constraints
     def __IBEA(self) -> None:
         self.__solver = IBEA(
             problem=self.__problem,

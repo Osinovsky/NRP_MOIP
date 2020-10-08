@@ -14,8 +14,8 @@ from NRP import NextReleaseProblem
 from solvers import Solver
 
 class SolverTest(unittest.TestCase):
-    single_solver = ['single', 'NSGAII', 'IBEA', 'HYPE', 'SPEA2']
-    binary_solver = ['epsilon', 'NSGAII', 'IBEA', 'HYPE', 'SPEA2']
+    single_solver = ['single', 'SPEA2']
+    binary_solver = ['epsilon','SPEA2']
 
     # display solutions
     def display_all(self, solutions):
@@ -29,6 +29,10 @@ class SolverTest(unittest.TestCase):
         else:
             choosen = random.sample(list(solutions), num)
             self.display_all(choosen)
+
+    def dpl(self, solutions):
+        for solution in solutions:
+            print(solution.variables, solution.constraints, solution.objectives)
 
     # Test cases are just for running
     # do not check the result, just check wether the code could run
@@ -48,6 +52,7 @@ class SolverTest(unittest.TestCase):
                     dict(), dict() \
                 )
             else:
+                constraints = JNRP.regularize_constraints(constraints, len(variables))
                 problem = JNRP(variables, objectives, constraints)
             solver = Solver(solver_name)
             # prepare and solve
@@ -59,7 +64,6 @@ class SolverTest(unittest.TestCase):
             self.display(solutions, 5)
 
     # constrainted single objective case
-    # NOTE: jMetalPy single objective with constraints may not working
     def test_case_2(self):
         # prepare raw problem
         variables = [0, 1, 2, 3]
@@ -78,6 +82,7 @@ class SolverTest(unittest.TestCase):
                     ['L' for _ in range(len(constraints))], dict() \
                 )
             else:
+                constraints = JNRP.regularize_constraints(constraints, len(variables))
                 problem = JNRP(variables, objectives, constraints)
             solver = Solver(solver_name)
             # prepare and solve
@@ -105,6 +110,7 @@ class SolverTest(unittest.TestCase):
                     dict(), dict() \
                 )
             else:
+                constraints = JNRP.regularize_constraints(constraints, len(variables))
                 problem = JNRP(variables, objectives, constraints)
             solver = Solver(solver_name)
             # prepare and solve
@@ -135,6 +141,7 @@ class SolverTest(unittest.TestCase):
                     ['L' for _ in range(len(constraints))], None \
                 )
             else:
+                constraints = JNRP.regularize_constraints(constraints, len(variables))
                 problem = JNRP(variables, objectives, constraints)
             solver = Solver(solver_name)
             # prepare and solve

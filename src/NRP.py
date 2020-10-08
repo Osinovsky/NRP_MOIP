@@ -231,7 +231,6 @@ class NextReleaseProblem:
         tmp_inequation[constant_id] = float(cost_sum * b)
         inequations.append(tmp_inequation)
         inequations_operators.append('L')
-        # NOTE no need for 0 <= x, y <= 1 it's provided in imported files
         # construct Problem without equations
         return NextReleaseProblem.MOIP(variables, objectives, inequations, inequations_operators, dict())
 
@@ -280,7 +279,6 @@ class NextReleaseProblem:
         tmp_inequation[constant_id] = float(cost_sum * b)
         inequations.append(tmp_inequation)
         inequations_operators.append('L')
-        # NOTE no need for 0 <= x, y <= 1 it's provided in imported files
         # construct Problem 
         return NextReleaseProblem.MOIP(variables, objectives, inequations, inequations_operators, dict())
 
@@ -311,7 +309,6 @@ class NextReleaseProblem:
             inequations.append({req[0]:1, req[1]:-1, constant_id:0})
             # 'L' for <= and 'G' for >=, we can just convert every inequations into <= format
             inequations_operators.append('L')
-        # NOTE no need for 0 <= x, y <= 1 it's provided in imported files
         # construct Problem
         return NextReleaseProblem.MOIP(variables, objectives, inequations, inequations_operators, dict())
 
