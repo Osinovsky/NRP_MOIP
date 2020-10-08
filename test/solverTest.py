@@ -1,7 +1,7 @@
 # #################################### #
 # DONG Shi, dongshi@mail.ustc.edu.cn   #
 # solverTest.py, created: 2020.10.07   #
-# Last Modified: 2020.10.07            #
+# Last Modified: 2020.10.08            #
 # #################################### #
 
 import unittest
@@ -45,7 +45,7 @@ class SolverTest(unittest.TestCase):
             if solver_name == 'single':
                 problem = NextReleaseProblem.MOIP( \
                     variables, objectives, constraints,  \
-                    ['L' for _ in range(len(constraints))], dict() \
+                    dict(), dict() \
                 )
             else:
                 problem = JNRP(variables, objectives, constraints)
@@ -59,7 +59,8 @@ class SolverTest(unittest.TestCase):
             self.display(solutions, 5)
 
     # constrainted single objective case
-    def _test_case_2(self):
+    # NOTE: jMetalPy single objective with constraints may not working
+    def test_case_2(self):
         # prepare raw problem
         variables = [0, 1, 2, 3]
         objectives = [
@@ -67,7 +68,7 @@ class SolverTest(unittest.TestCase):
         ]
         constraints = [
             {2:1, 4:0},
-            {0:1, 3:-1}
+            {0:1, 3:-1, 4:0}
         ]
         # prepare solvers
         for solver_name in self.single_solver:
@@ -88,7 +89,7 @@ class SolverTest(unittest.TestCase):
             self.display(solutions, 5)
 
     # unconstrainted binary objectives case
-    def _test_case_3(self):
+    def test_case_3(self):
         # prepare raw problem
         variables = [0, 1, 2, 3]
         objectives = [
@@ -101,8 +102,10 @@ class SolverTest(unittest.TestCase):
             if solver_name == 'epsilon':
                 problem = NextReleaseProblem.MOIP( \
                     variables, objectives, constraints,  \
-                    ['L' for _ in range(len(constraints))], dict() \
+                    dict(), dict() \
                 )
+            else:
+                problem = JNRP(variables, objectives, constraints)
             solver = Solver(solver_name)
             # prepare and solve
             solver.load(problem)
@@ -113,7 +116,7 @@ class SolverTest(unittest.TestCase):
             self.display(solutions, 5)
 
     # constrainted binary objectives case
-    def _test_case_4(self):
+    def test_case_4(self):
         # prepare raw problem
         variables = [0, 1, 2, 3]
         objectives = [
@@ -122,15 +125,17 @@ class SolverTest(unittest.TestCase):
         ]
         constraints = [
             {2:-1, 4:-1},
-            {0:1, 3:-1}
+            {0:1, 3:-1, 4:0}
         ]
         # prepare solvers
         for solver_name in self.binary_solver:
             if solver_name == 'epsilon':
                 problem = NextReleaseProblem.MOIP( \
                     variables, objectives, constraints,  \
-                    ['L' for _ in range(len(constraints))], dict() \
+                    ['L' for _ in range(len(constraints))], None \
                 )
+            else:
+                problem = JNRP(variables, objectives, constraints)
             solver = Solver(solver_name)
             # prepare and solve
             solver.load(problem)
