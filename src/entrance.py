@@ -26,10 +26,10 @@ if __name__ == '__main__':
     count = 0
     for project, file_name in ALL_FILES_DICT.items():
         if project.startswith('classic') or project.startswith('realistic'):
-            count += 1
-            if count == 3:
-                configs.append((project, 'binary', 'cwmoip'))
-                configs.append((project, 'binary', 'epsilon'))
+            # count += 1
+            # if count == 1:
+            configs.append((project, 'binary', 'cwmoip'))
+            configs.append((project, 'binary', 'epsilon'))
             # configs.append((project, 'binary', 'ncgop'))
     # prepare names
     names = []

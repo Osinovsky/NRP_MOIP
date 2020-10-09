@@ -22,8 +22,8 @@ class NaiveSol(BaseSol):
         self.objConstrIndexList = []
         self.boundsDict = {}
         # DEBUG VARIABLES
-        self.record = dict()
-        self.record['solve'] = 0
+        # self.record = dict()
+        # self.record['solve'] = 0
        
     #overload father method
     def execute(self):  
@@ -46,7 +46,7 @@ class NaiveSol(BaseSol):
                  raise Exception('input not consistent', 'eggs')
             rows = []
             (ub,lb)=  self.boundsDict[k]
-            self.record[str(k)] = (ub, lb)
+            # self.record[str(k)] = (ub, lb)
             rs1 = lb
             rs2 = ub
             variables = []
@@ -78,10 +78,10 @@ class NaiveSol(BaseSol):
         #print (self.solveCounter)
         self.buildCplexPareto()
         # dump self.record
-        fin = open('epsilon.json', 'w+')
-        json_object = json.dumps(self.record, indent = 4)
-        fin.write(json_object)
-        fin.close()
+        # fin = open('epsilon.json', 'w+')
+        # json_object = json.dumps(self.record, indent = 4)
+        # fin.write(json_object)
+        # fin.close()
         
     """
     level:
@@ -99,7 +99,7 @@ class NaiveSol(BaseSol):
                 self.solveCounter += 1
                 #continue
                 self.solver.solve()
-                self.record['solve'] += 1
+                # self.record['solve'] += 1
                 #debugging purpose
                 #print ("Solution value  = ", self.solver.solution.get_objective_value())
                 #debugging purpose

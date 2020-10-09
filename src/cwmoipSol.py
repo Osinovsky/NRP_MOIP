@@ -31,9 +31,9 @@ class CwmoipSol(NaiveSol):
         # record objective index mapping to constraint name
         self.objective_constraint = dict()
         # DEBUG VARIABLES
-        self.record = dict()
-        self.record['solve'] = 0
-        self.record['boundary solve'] = 0
+        # self.record = dict()
+        # self.record['solve'] = 0
+        # self.record['boundary solve'] = 0
        
     """
     model the problem as a single objective problem, and preparation solver for this
@@ -57,11 +57,11 @@ class CwmoipSol(NaiveSol):
         objMatrix = np.array(self.moipProblem.attributeMatrix)
         solutionMap = self.solveBySingleObj(self.sparseInequationsMapList,self.sparseEquationsMapList, objMatrix, objMatrix,k, solutionMap, self.cplexResultMap)
         self.buildCplexPareto()
-        # dump self.record
-        fin = open('cwmoip.json', 'w+')
-        json_object = json.dumps(self.record, indent = 4)
-        fin.write(json_object)
-        fin.close()
+        # # dump self.record
+        # fin = open('cwmoip.json', 'w+')
+        # json_object = json.dumps(self.record, indent = 4)
+        # fin.write(json_object)
+        # fin.close()
         
     def solveBySingleObj(self, inequationsMapList,equationsMapList,  objMatIn, objMatOut,k, solutionMap, resultMap):
         solutionMapOut = {}
@@ -84,12 +84,12 @@ class CwmoipSol(NaiveSol):
             for i in range(0,k):
                 feasibleFlag= True 
                 (rsltObj,rsltXvar,rsltString) = self.intlinprog (objMatOut[i],inequationsMapList,equationsMapList,lbs,ubs)   
-                self.record['bound solve'] += 1
+                # self.record['bound solve'] += 1
                 if (rsltString.find("optimal")>=0):
                     fGLB[i] = 1.0* MOOUtility.round(rsltObj)
                     objOutNeg =  objMatOut[i] * (-1)
                     rslt2Obj,rslt2Xvar,rslt2String= self.intlinprog(objOutNeg,inequationsMapList,equationsMapList,lbs,ubs)
-                    self.record['bound solve'] += 1
+                    # self.record['bound solve'] += 1
                     fGUB[i] = -1.0 * MOOUtility.round(rslt2Obj)
                     fRange[i] = fGUB[i]-fGLB[i] +1
                     w =  w*  MOOUtility.round(fRange[i])
@@ -127,10 +127,10 @@ class CwmoipSol(NaiveSol):
                         solutionMap= {**solutionMap,**solutions}
                         solutionMapOut = {**solutionMapOut,**solutions}
                         l = self.getMaxForObjKonMe(objMatIn[k-1],solutions)
-                        if str(k) not in self.record:
-                            self.record[str(k)] = [l]
-                        else:
-                            self.record[str(k)].append(l)
+                        # if str(k) not in self.record:
+                        #     self.record[str(k)] = [l]
+                        # else:
+                        #     self.record[str(k)].append(l)
                         lastConstr = new_inequationsMapList[len(new_inequationsMapList)-1]
                         lastConstr[self.moipProblem.featureCount]= l
                #end of while
@@ -212,7 +212,7 @@ class CwmoipSol(NaiveSol):
         #solve the problem
         self.solveCounter += 1
         self.solver.solve()
-        self.record['solve'] += 1
+        # self.record['solve'] += 1
       
         rsltXvar = []
         rsltObj = float("+inf")
@@ -236,12 +236,12 @@ class CwmoipSol(NaiveSol):
         # solve lower bound
         self.solver.objective.set_sense(self.solver.objective.sense.minimize)
         self.solver.solve()
-        self.record['boundary solve'] += 1
+        # self.record['boundary solve'] += 1
         low = self.solver.solution.get_objective_value()
         # solve upper bound
         self.solver.objective.set_sense(self.solver.objective.sense.maximize)
         self.solver.solve()
-        self.record['boundary solve'] += 1
+        # self.record['boundary solve'] += 1
         up = self.solver.solution.get_objective_value()
         # return
         return (low, up)
@@ -253,7 +253,7 @@ class CwmoipSol(NaiveSol):
             # touch the bottom
             self.updateSolver(pass_dict)
             self.solver.solve()
-            self.record['solve'] += 1
+            # self.record['solve'] += 1
             # check optimal
             status = self.solver.solution.get_status_string()
             if status.find("optimal") >= 0:
@@ -344,10 +344,10 @@ class CwmoipSol(NaiveSol):
         self.buildCplexPareto()
 
         # record dump
-        fin = open('cwmoip.json', 'w+')
-        json_object = json.dumps(self.record, indent = 4)
-        fin.write(json_object)
-        fin.close()
+        # fin = open('cwmoip.json', 'w+')
+        # json_object = json.dumps(self.record, indent = 4)
+        # fin.write(json_object)
+        # fin.close()
 
 if __name__ == "__main__":
     if len(sys.argv)!=2: 
