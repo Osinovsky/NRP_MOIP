@@ -9,7 +9,7 @@ if __name__ == '__main__':
     # run all classic and realistic nrps in single form and epsilon
 
     # config
-    out_path = '../result_epsilon_cwmoip'
+    out_path = '../result_20201009'
     ite_num = 1
 
     configs = []
@@ -27,11 +27,10 @@ if __name__ == '__main__':
     for project, file_name in ALL_FILES_DICT.items():
         if project.startswith('classic') or project.startswith('realistic'):
             count += 1
-            if count == 2:
-                configs.append((project, 'binary', 'epsilon'))
+            if count <= 3:
                 configs.append((project, 'binary', 'cwmoip'))
-                # configs.append((project, 'binary', 'ncgop'))
-                break
+                configs.append((project, 'binary', 'epsilon'))
+            # configs.append((project, 'binary', 'ncgop'))
     # prepare names
     names = []
     for config in configs:
@@ -39,7 +38,7 @@ if __name__ == '__main__':
         names.append(name)
         print(name)
     # run
-    runner = Runner(configs, out_path, ite_num)
+    # runner = Runner(configs, out_path, ite_num)
 
     # compare
     comparator = Comparator(out_path, names, ite_num)

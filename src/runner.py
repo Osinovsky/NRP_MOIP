@@ -100,6 +100,7 @@ class Runner:
         # run
         elapsed_time = self.run()
         # collect results
+        self.__solutions = self.__solver.solutions()
         if ind == 0:
             # first round, initialize
             self.__result[name] = dict()
@@ -148,7 +149,7 @@ class Runner:
     # run! just run!
     def run(self) -> float:
         start = time.clock()
-        self.__solutions = self.__solver.execute()
+        self.__solver.execute()
         end = time.clock()
         return end - start
 

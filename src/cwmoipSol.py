@@ -28,17 +28,18 @@ class CwmoipSol(NaiveSol):
         self.sparseEquationsMapList = [] 
         #the variable to record the original objective
         self.oriObj = None
+        # record objective index mapping to constraint name
+        self.objective_constraint = dict()
         # DEBUG VARIABLES
         self.record = dict()
         self.record['solve'] = 0
-        self.record['bound solve'] = 0
+        self.record['boundary solve'] = 0
        
-        
     """
     model the problem as a single objective problem, and preparation solver for this
     override the parent method
     """
-    def prepare(self):
+    def _prepare(self):
         BaseSol.prepare(self)
         objName = self.solver.objective.get_name()
         linearCoeff = self.solver.objective.get_linear()
@@ -46,14 +47,13 @@ class CwmoipSol(NaiveSol):
         self.oriObj = (objName,linearCoeff,objSense)
         
     #override the parent method 
-    def execute(self):    
+    def _execute(self):    
         k = len(self.moipProblem.attributeMatrix)
         solutionMap={}
         #swap the 3rd and 4th obj for testing purpose
         #temp = self.moipProblem.attributeMatrix[2]
         #self.moipProblem.attributeMatrix[2] =  self.moipProblem.attributeMatrix[3] 
         #self.moipProblem.attributeMatrix[3] = temp
-        # objMatrix = self.moipProblem.attributeMatrix # DS ADD THIS LINE
         objMatrix = np.array(self.moipProblem.attributeMatrix)
         solutionMap = self.solveBySingleObj(self.sparseInequationsMapList,self.sparseEquationsMapList, objMatrix, objMatrix,k, solutionMap, self.cplexResultMap)
         self.buildCplexPareto()
@@ -229,7 +229,132 @@ class CwmoipSol(NaiveSol):
         #remove the temp constraints
         self.solver.linear_constraints.delete(tempConstrList)
         return (rsltObj,rsltXvar,rsltSolString)
- 
+
+    # solve the boundary
+    def caliper(self, objective, var_len):
+        # assume constraints are all ready
+        # but objective constraints not add yet
+        self.solver.objective.set_name("tempObj")
+        assert var_len == len(objective)
+        self.solver.objective.set_linear(zip(list(range(var_len)), objective))
+        # solve lower bound
+        self.solver.objective.set_sense(self.solver.objective.sense.minimize)
+        self.solver.solve()
+        self.record['boundary solve'] += 1
+        low = self.solver.solution.get_objective_value()
+        # solve upper bound
+        self.solver.objective.set_sense(self.solver.objective.sense.maximize)
+        self.solver.solve()
+        self.record['boundary solve'] += 1
+        up = self.solver.solution.get_objective_value()
+        # return
+        return (low, up)
+
+    # recursive cwmoip
+    def recursive_cwmoip(self, obj_ind, objectives, up, pass_dict, all_solutions):
+        solution_out = {}
+        if obj_ind == 0:
+            # touch the bottom
+            self.updateSolver(pass_dict)
+            self.solver.solve()
+            self.record['solve'] += 1
+            # check optimal
+            status = self.solver.solution.get_status_string()
+            if status.find("optimal") >= 0:
+                result_variables = self.solver.solution.get_values()
+                cplex_result = CplexSolResult(result_variables, status, self.moipProblem)
+                self.addTocplexSolutionSetMap(cplex_result)
+                solution_out[cplex_result.getResultID()] = result_variables
+            return solution_out
+        # end if
+        l = up[obj_ind]
+        while True:
+            # Step 1: Solve the CW(k-1)OIP problem with l 
+            pass_dict[self.objective_constraint[obj_ind]] = l
+            solutions = self.recursive_cwmoip(obj_ind-1, objectives, up, pass_dict, all_solutions)
+            pass_dict[self.objective_constraint[obj_ind]] = None
+            # check if still got new solutions
+            if len(solutions) == 0:
+                break
+            #Step 2: put solutions into all_soltuions, find the new l
+            all_solutions = {**all_solutions, **solutions}
+            solution_out = {**solution_out, **solutions}
+            last_l = l
+            l = self.getMaxForObjKonMe(objectives[obj_ind], solutions)
+            assert l < last_l
+        # end while
+        return solution_out
+
+    # another epsilon-like prepare
+    def prepare(self):
+        BaseSol.prepare(self)
+
+    # another epsilon-like execute
+    def execute(self):
+        # prepare all I need
+        attribute = self.moipProblem.attributeMatrix
+        attribute_np = np.array(attribute)
+        inequations = self.moipProblem.sparseInequationsMapList
+        # objective num
+        k = len(attribute)
+        var_len = len(attribute[0])
+        
+        # calculate true boundary of each objective
+        low = np.zeros(k)
+        up = np.zeros(k)        
+        for obj_ind in range(k):
+            low[obj_ind], up[obj_ind] = self.caliper(attribute[obj_ind], var_len)
+        # TODO: ordering objectives by their range
+        # calculate w
+        interval = up - low + 1
+        w = [Decimal(1.0)/Decimal(MOOUtility.round(itv)) for itv in interval]
+        
+        # convert multi-objective problem into single-objetive one
+        # # finnal objective = foldr l+w[ind]*r zeros(var_len) [o1, o2, ..., ok]
+        # only_objective = attribute_np[k-1]
+        # # obj_ind = k-1, k-2, ..., 1
+        # for obj_ind in range(k-2, 0, -1):
+        #     only_objective = attribute_np[obj_ind] + w[obj_ind+1] * only_objective
+        # foldl try
+        only_objective = attribute_np[0]
+        for obj_ind in range(1, k):
+            only_objective = only_objective + float(w[obj_ind]) * attribute_np[obj_ind]
+        # set objective
+        single_objective = only_objective.tolist()
+        self.solver.objective.set_name("single_obj")
+        self.solver.objective.set_sense(self.solver.objective.sense.minimize)
+        self.solver.objective.set_linear(zip(list(range(var_len)), single_objective))
+
+        # convert each objective into constraint
+        for obj_ind in range(1, k):
+            objective = attribute[obj_ind]
+            assert var_len == len(objective)
+            rows = []
+            variables = []
+            coefficient = []
+            for index in range(var_len):
+                variables.append('x' + str(index))
+                coefficient.append(objective[index])
+            rows.append([variables, coefficient])
+            # name the constraint
+            # obj <= up
+            constraint_name = 'o'+str(k)
+            self.objective_constraint[obj_ind] = constraint_name
+            self.solver.linear_constraints.add(lin_expr = rows, senses = 'L', rhs = [up[obj_ind]], names = [constraint_name])
+        # end for
+
+        # start cwmoip
+        pass_dict = dict()
+        solutions = {}
+        self.recursive_cwmoip(k-1, attribute_np, up, pass_dict, solutions)
+        self.buildCplexPareto()
+
+        # record dump
+        fin = open('cwmoip.json', 'w+')
+        json_object = json.dumps(self.record, indent = 4)
+        fin.write(json_object)
+        fin.close()
+
 if __name__ == "__main__":
     if len(sys.argv)!=2: 
         os._exit(0) 
