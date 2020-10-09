@@ -38,7 +38,7 @@ if __name__ == '__main__':
         names.append(name)
         print(name)
     # run
-    # runner = Runner(configs, out_path, ite_num)
+    runner = Runner(configs, out_path, ite_num)
 
     # compare
     comparator = Comparator(out_path, names, ite_num)
