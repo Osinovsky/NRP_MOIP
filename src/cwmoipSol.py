@@ -147,18 +147,14 @@ class CwmoipSol(NaiveSol):
         return 
     
     def getMaxForObjKonMe(self, objIn,solutions):
-        maxVal = float("-inf")
+        values = [float("-inf")]
+        array1 = np.array(objIn)
         for key in solutions:
             newSol= solutions[key]
-            #newSol= map(int,solutions[key])
-            array1 = np.array(objIn)
             array2 = np.array(newSol)
-            solSum = np.dot(array1,array2) 
-            if(solSum> maxVal):
-               maxVal = solSum;
-        result = MOOUtility.round(maxVal)
-        result = result -1
-        return result
+            values.append(float(np.dot(array1,array2)))
+        result = MOOUtility.round(max(values))
+        return result - 1
     
     """             
     May not use lbs and ubs
@@ -251,7 +247,7 @@ class CwmoipSol(NaiveSol):
         return (low, up)
 
     # recursive cwmoip
-    def recursive_cwmoip(self, obj_ind, objectives, up, pass_dict, all_solutions):
+    def recursive_cwmoip(self, obj_ind, objectives, up, pass_dict):
         solution_out = {}
         if obj_ind == 0:
             # touch the bottom
@@ -271,17 +267,16 @@ class CwmoipSol(NaiveSol):
         while True:
             # Step 1: Solve the CW(k-1)OIP problem with l 
             pass_dict[self.objective_constraint[obj_ind]] = l
-            solutions = self.recursive_cwmoip(obj_ind-1, objectives, up, pass_dict, all_solutions)
-            pass_dict[self.objective_constraint[obj_ind]] = None
+            solutions = self.recursive_cwmoip(obj_ind-1, objectives, up, pass_dict)
+            # pass_dict[self.objective_constraint[obj_ind]] = None
             # check if still got new solutions
             if len(solutions) == 0:
                 break
             #Step 2: put solutions into all_soltuions, find the new l
-            all_solutions = {**all_solutions, **solutions}
             solution_out = {**solution_out, **solutions}
             last_l = l
             l = self.getMaxForObjKonMe(objectives[obj_ind], solutions)
-            assert l < last_l
+            # assert l < last_l
         # end while
         return solution_out
 
@@ -345,8 +340,7 @@ class CwmoipSol(NaiveSol):
 
         # start cwmoip
         pass_dict = dict()
-        solutions = {}
-        self.recursive_cwmoip(k-1, attribute_np, up, pass_dict, solutions)
+        self.recursive_cwmoip(k-1, attribute_np, up, pass_dict)
         self.buildCplexPareto()
 
         # record dump
