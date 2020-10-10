@@ -14,8 +14,8 @@ from NRP import NextReleaseProblem
 from solvers import Solver
 
 class SolverTest(unittest.TestCase):
-    single_solver = ['single', 'SPEA2']
-    binary_solver = ['epsilon','SPEA2']
+    single_solver = ['single', 'NSGAII', 'IBEA', 'HYPE', 'SPEA2']
+    binary_solver = ['epsilon','NSGAII', 'IBEA', 'HYPE', 'SPEA2']
 
     # display solutions
     def display_all(self, solutions):
