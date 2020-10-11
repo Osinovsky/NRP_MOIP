@@ -1,7 +1,7 @@
 # ################################## #
 # DONG Shi, dongshi@mail.ustc.edu.cn #
 # config.py, created: 2020.08.25     #
-# Last Modified: 2020.10.07          #
+# Last Modified: 2020.10.11          #
 # ################################## #
 
 from os import path
@@ -76,3 +76,4 @@ NRP_FORMS = ['single', 'binary']
 
 # SOLVERS
 SOLVING_METHOD = ['single', 'epsilon', 'cwmoip', 'ncgop', 'NSGAII', 'IBEA', 'HYPE', 'SPEA2']
+MOEA_METHOD = ['NSGAII', 'IBEA', 'HYPE', 'SPEA2']

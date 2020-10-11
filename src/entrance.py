@@ -3,13 +3,30 @@
 from runner import Runner
 from analyzer import Comparator
 from config import *
+from copy import deepcopy
+
+# make config(dict)
+def make_config(project_name, form, method, ite_num=1, option = None):
+    the_config = dict()
+    the_config['project_name'] = project_name
+    the_config['form'] = form
+    the_config['method'] = method
+    the_config['ite_num'] = ite_num
+    the_config['option'] = option
+    return the_config
+
+# remove ite_num
+def pure_config(the_config):
+    konfig = deepcopy(the_config)
+    del konfig['ite_num']
+    return konfig
 
 # main function
 if __name__ == '__main__':
     # run all classic and realistic nrps in single form and epsilon
 
     # config
-    out_path = '../result_20201011'
+    out_path = '../result_tmp'
     ite_num = 1
 
     configs = []
@@ -27,21 +44,21 @@ if __name__ == '__main__':
     for project, file_name in ALL_FILES_DICT.items():
         if project.startswith('classic') or project.startswith('realistic'):
             count += 1
-            if count <= 3:
-                # configs.append((project, 'binary', 'cwmoip'))
-                # configs.append((project, 'binary', 'epsilon'))
-            # configs.append((project, 'binary', 'ncgop'))
-                configs.append((project, 'binary', 'NSGAII'))
-                configs.append((project, 'binary', 'HYPE'))
+            if count <= 1:
+                configs.append(make_config(project, 'binary', 'cwmoip'))
+                configs.append(make_config(project, 'binary', 'epsilon'))
+            # configs.append(make_config(project, 'binary', 'ncgop'))
+                # configs.append(make_config(project, 'binary', 'NSGAII'))
+                # configs.append(make_config(project, 'binary', 'HYPE'))
 
     # prepare names
     names = []
-    for config in configs:
-        name = Runner.name(*config)
+    for one_config in configs:
+        name = Runner.name(**pure_config(one_config))
         names.append(name)
         print(name)
     # run
-    runner = Runner(configs, out_path, ite_num)
+    runner = Runner(configs, out_path)
 
     # compare
     comparator = Comparator(out_path, names, ite_num)

@@ -1,7 +1,7 @@
 # ################################## #
 # DONG Shi, dongshi@mail.ustc.edu.cn #
 # NRP.py, created: 2020.09.19        #
-# Last Modified: 2020.10.10          #
+# Last Modified: 2020.10.11          #
 # ################################## #
 
 from typing import *
@@ -18,6 +18,7 @@ ProfitType = Union[Dict[int, int], Dict[Tuple[int, int], int]]
 DependenciesType = List[Tuple[int, int]]
 RequestsType = List[Tuple[int, int]]
 NRPType = Tuple[CostType, ProfitType, DependenciesType, RequestsType]
+ProblemType = Union[MOIPProblem, JNRP]
 
 # describe a class provide an "universal" class 
 # for recording next release problem

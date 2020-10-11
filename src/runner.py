@@ -1,56 +1,59 @@
 # ################################## #
 # DONG Shi, dongshi@mail.ustc.edu.cn #
 # runner.py, created: 2020.09.22     #
-# Last Modified: 2020.09.26          #
+# Last Modified: 2020.10.11          #
 # ################################## #
 
 from typing import *
 import time
 import os
 import json
-from NRP import NextReleaseProblem
-from moipProb import MOIPProblem
+from NRP import NextReleaseProblem, ProblemType
 from solvers import Solver
 from config import *
 
 # config type
-ConfigType = Tuple[str, str, str, Dict[str, Any]]
+ConfigType = Dict[str, Any]
 
 # construct a wrapper of everything, and name it as runner
+# NOTE: config should contain ite_num, project_num, form, method and option
 class Runner:
     # initialize
-    def __init__(self, configs : List[ConfigType], out_path : str, ite_num : str = 1):
+    def __init__(self, configs : List[ConfigType], out_path : str):
         # not changed member
         self.__result = dict()
         # prepare const members
         # jmetal solvers
-        self.jmetal_solvers = ['NSGAII', 'IBEA', 'HYPE', 'SPEA2']
+        self.jmetal_solvers = MOEA_METHOD
         # prepare members
         self.__project : str = None
         self.__method : str = None
         self.__form : str = None
         self.__nrp : NextReleaseProblem = None
-        self.__problem : MOIPProblem = None
+        self.__problem : ProblemType = None
         self.__solver : Solver = None
         self.__solutions : Set[Any] = None
         # config should be a list
         assert isinstance(configs, list)
-        # and ite times should be positive
-        assert ite_num > 0
-        print('All job will run ' + str(ite_num) + ' times')
         # check out_path if exists
         os.makedirs(os.path.dirname(out_path), exist_ok=True)
         # run the configurations
         for one_config in configs:
+            # get the ite_num from config
+            ite_num = one_config['ite_num']
+            del one_config['ite_num']
+            assert ite_num > 0
             # config name
-            config_name = self.name(*one_config)
+            config_name = self.name(**one_config)
+            print(config_name + ' will run ' + str(ite_num) + ' times')
             # check the config
-            if not self.check_config(*one_config):
+            if not self.check_config(**one_config):
                 print('FATAL: illegal config input ' + config_name)
                 continue
             # each config run ite_num times
             for ind in range(ite_num):
                 # run this config
+                print('round: ', ind)
                 self.run_once(one_config, config_name, ind)
                 # dump solutions each round
                 self.dump_once(out_path, config_name, ind)
@@ -99,7 +102,7 @@ class Runner:
         # clear all members
         self.clear()
         # prepare_config
-        self.prepare_once(*config)
+        self.prepare_once(**config)
         # run
         elapsed_time = self.run()
         # collect results
