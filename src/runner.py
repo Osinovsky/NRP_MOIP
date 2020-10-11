@@ -22,6 +22,9 @@ class Runner:
     def __init__(self, configs : List[ConfigType], out_path : str, ite_num : str = 1):
         # not changed member
         self.__result = dict()
+        # prepare const members
+        # jmetal solvers
+        self.jmetal_solvers = ['NSGAII', 'IBEA', 'HYPE', 'SPEA2']
         # prepare members
         self.__project : str = None
         self.__method : str = None
@@ -120,7 +123,7 @@ class Runner:
         self.__project = project_name
         self.__method = method
         self.__form = form
-        self.__nrp = NextReleaseProblem(project_name)
+        self.__nrp = NextReleaseProblem(project_name, method in self.jmetal_solvers)
         self.__problem = self.__nrp.model(form, option)
         self.__solver = Solver(method)
         self.__solver.load(self.__problem)

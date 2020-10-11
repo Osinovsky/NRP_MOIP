@@ -112,7 +112,8 @@ class Solver:
             problem=self.__problem,
             population_size=POPULATION_SIZE,
             offspring_population_size=OFFSPRING_SIZE,
-            mutation=BitFlipMutation(probability=1.0/self.__problem.number_of_variables),
+            # mutation=BitFlipMutation(probability=1.0/self.__problem.number_of_variables),
+            mutation=BitFlipMutation(probability=0.035),
             crossover=SPXCrossover(probability=1.0),
             termination_criterion=StoppingByEvaluations(max_evaluations=MAX_EVALUATION)
         )
@@ -139,7 +140,8 @@ class Solver:
             reference_point=reference_point,
             population_size=POPULATION_SIZE,
             offspring_population_size=OFFSPRING_SIZE,
-            mutation=BitFlipMutation(probability=1.0/self.__problem.number_of_variables),
+            #mutation=BitFlipMutation(probability=1.0/self.__problem.number_of_variables),
+            mutation=BitFlipMutation(probability=0.035),
             crossover=SPXCrossover(probability=1.0),
             termination_criterion=StoppingByEvaluations(max_evaluations=MAX_EVALUATION)
         )

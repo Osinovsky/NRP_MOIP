@@ -1,13 +1,14 @@
 # ################################## #
 # DONG Shi, dongshi@mail.ustc.edu.cn #
 # NRP.py, created: 2020.09.19        #
-# Last Modified: 2020.09.22          #
+# Last Modified: 2020.10.10          #
 # ################################## #
 
 from typing import *
 from config import *
 from loaders import Loader
 from moipProb import MOIPProblem
+from JNRP import JNRP
 from copy import deepcopy
 from functools import reduce
 
@@ -22,7 +23,7 @@ NRPType = Tuple[CostType, ProfitType, DependenciesType, RequestsType]
 # for recording next release problem
 class NextReleaseProblem:
     # initialize
-    def __init__(self, project_name : str):
+    def __init__(self, project_name : str, jmetal_problem : bool = False):
         # prepare member variables
         self.__project : str = project_name;
         # profit, note that could be  requirement -> cost, customer -> cost
@@ -36,6 +37,8 @@ class NextReleaseProblem:
         self.__dependencies : DependenciesType = []
         # request, customer -> requirement or team -> requirement
         self.__requests : RequestsType = []
+        # decide to model as a NRP or JNRP(for jMetalPy Solvers)
+        self.__jmetal = jmetal_problem
         # load from file
         self.__load(project_name)
         # inventory
@@ -283,7 +286,7 @@ class NextReleaseProblem:
         return NextReleaseProblem.MOIP(variables, objectives, inequations, inequations_operators, dict())
 
     # model to bi-objective for classic and realistic nrps
-    def __to_bi_general_form(self) -> MOIPProblem:
+    def __to_bi_general_form(self) -> Union[MOIPProblem, JNRP]:
         # only for classic and realistic
         assert self.__project.startswith('classic') or self.__project.startswith('realistic')
         # requirement dependencies should be eliminated
@@ -310,7 +313,10 @@ class NextReleaseProblem:
             # 'L' for <= and 'G' for >=, we can just convert every inequations into <= format
             inequations_operators.append('L')
         # construct Problem
-        return NextReleaseProblem.MOIP(variables, objectives, inequations, inequations_operators, dict())
+        if self.__jmetal:
+            return JNRP(variables, objectives, inequations)
+        else:
+            return NextReleaseProblem.MOIP(variables, objectives, inequations, inequations_operators, dict())
 
     # model to single objective
     # different dataset using different form (according to the IST-2015)
