@@ -26,7 +26,7 @@ if __name__ == '__main__':
     # run all classic and realistic nrps in single form and epsilon
 
     # config
-    out_path = '../result_tmp'
+    out_path = '../result_20201012'
     ite_num = 1
 
     configs = []
@@ -44,9 +44,9 @@ if __name__ == '__main__':
     for project, file_name in ALL_FILES_DICT.items():
         if project.startswith('classic') or project.startswith('realistic'):
             count += 1
-            if count <= 1:
+            if count == 3:
                 configs.append(make_config(project, 'binary', 'cwmoip'))
-                configs.append(make_config(project, 'binary', 'epsilon'))
+                # configs.append(make_config(project, 'binary', 'epsilon'))
             # configs.append(make_config(project, 'binary', 'ncgop'))
                 # configs.append(make_config(project, 'binary', 'NSGAII'))
                 # configs.append(make_config(project, 'binary', 'HYPE'))
@@ -61,7 +61,7 @@ if __name__ == '__main__':
     runner = Runner(configs, out_path)
 
     # compare
-    comparator = Comparator(out_path, names, ite_num)
+    # comparator = Comparator(out_path, names, ite_num)
     # comparison = comparator.get_content()
     # which_names, which_project = Comparator.parse_names(names)
     # for project, name_list in which_names.items():
@@ -71,17 +71,17 @@ if __name__ == '__main__':
     #             + '\t\t' + str(comparison[project][name]['all']['hv']))
 
     # load and display
-    comparison = Comparator.load(out_path, 'comparison.json')
-    template = '{NAME:32}|{RT:12}|{ND:8}|{IGD:12}|{HV:12}|{E:12}'
-    # header
-    print(template.format(NAME='Name', RT='Runtime', ND='NonD', IGD='IGD', HV='HV', E='Evenness'))
-    for project_name in comparison:
-        print('project name: ' + project_name)
-        for name, value in comparison[project_name].items():
-            print(template.format(
-                NAME=name, SN=str(value['all']['solution number']),
-                RT=str(round(value['all']['runtime'], 2)),
-                ND=str(value['all']['nd']), IGD=str(round(value['all']['igd'], 2)),
-                HV=str(round(value['all']['hv'], 3)), E=str(round(value['all']['evenness'], 3))
-            ))
+    # comparison = Comparator.load(out_path, 'comparison.json')
+    # template = '{NAME:32}|{RT:12}|{ND:8}|{IGD:12}|{HV:12}|{E:12}'
+    # # header
+    # print(template.format(NAME='Name', RT='Runtime', ND='NonD', IGD='IGD', HV='HV', E='Evenness'))
+    # for project_name in comparison:
+    #     print('project name: ' + project_name)
+    #     for name, value in comparison[project_name].items():
+    #         print(template.format(
+    #             NAME=name, SN=str(value['all']['solution number']),
+    #             RT=str(round(value['all']['runtime'], 2)),
+    #             ND=str(value['all']['nd']), IGD=str(round(value['all']['igd'], 2)),
+    #             HV=str(round(value['all']['hv'], 3)), E=str(round(value['all']['evenness'], 3))
+    #         ))
     
