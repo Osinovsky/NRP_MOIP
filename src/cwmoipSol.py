@@ -96,7 +96,7 @@ class CwmoipSol(NaiveSol):
         BaseSol.prepare(self)
 
     # another epsilon-like execute
-    def execute(self):
+    def _execute(self):
         # prepare all I need
         attribute = self.moipProblem.attributeMatrix
         attribute_np = np.array(attribute)
@@ -153,6 +153,54 @@ class CwmoipSol(NaiveSol):
         # json_object = json.dumps(self.record, indent = 4)
         # fin.write(json_object)
         # fin.close()
+
+    def execute(self):
+        # prepare all I need
+        attribute = self.moipProblem.attributeMatrix
+        attribute_np = np.array(attribute)
+        # objective num
+        var_len = len(attribute[0])
+        # calculate true boundary of each objective
+        low = .0
+        up = .0
+        low, up = self.caliper(attribute[1], var_len)
+        # calculate w
+        w = Decimal(1.0)/Decimal(MOOUtility.round(up - low + 1.0))
+        # set objective
+        only_objective = attribute_np[0] +  float(w) * attribute_np[1]
+        single_objective = only_objective.tolist()
+        self.solver.objective.set_linear(zip(list(range(var_len)), single_objective))
+        self.solver.objective.set_name("single_obj")
+        self.solver.objective.set_sense(self.solver.objective.sense.minimize)
+        # add constriants
+        objective = attribute[1]
+        rows = []
+        variables = []
+        coefficient = []
+        for index in range(var_len):
+            variables.append('x' + str(index))
+            coefficient.append(objective[index])
+        rows.append([variables, coefficient])
+        # name the constraint
+        # obj <= up
+        constraint_name = 'second_obj'
+        self.solver.linear_constraints.add(lin_expr = rows, senses = 'L', rhs = [up], names = [constraint_name])
+
+        # solving
+        l = up
+        while True:
+            self.solver.linear_constraints.set_rhs(constraint_name, l)
+            self.solver.solve()
+            status = self.solver.solution.get_status_string()
+            if status.find("optimal") >= 0:
+                result_variables = self.solver.solution.get_values()
+                cplex_result = CplexSolResult(result_variables, status, self.moipProblem)
+                self.addTocplexSolutionSetMap(cplex_result)
+                l = self.getMaxForObjKonMe(objective, {cplex_result.getResultID():result_variables})
+            else:
+                break
+        # end while
+        self.buildCplexPareto()
 
 if __name__ == "__main__":
     if len(sys.argv)!=2: 
