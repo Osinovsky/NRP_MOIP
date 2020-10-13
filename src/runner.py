@@ -128,7 +128,7 @@ class Runner:
         self.__form = form
         self.__nrp = NextReleaseProblem(project_name, method in self.jmetal_solvers)
         self.__problem = self.__nrp.model(form, option)
-        self.__solver = Solver(method)
+        self.__solver = Solver(method, option)
         self.__solver.load(self.__problem)
         # empty solutions
         self.__solutions = None
