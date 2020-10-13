@@ -17,13 +17,13 @@ from mooUtility import MOOUtility
 from decimal import Decimal
  
 
-class CwmoipSol(NaiveSol):  
+class CwmoipSol(BaseSol):  
     'define the CWMOIP solution of a MOBIP'
     def __init__(self, moipProblem):  
         #override parent initializer  
-        NaiveSol.__init__(self,moipProblem)  
+        BaseSol.__init__(self,moipProblem)  
         # record objective index mapping to constraint name
-        self.objective_constraint = dict()
+        # self.objective_constraint = dict()
         # DEBUG VARIABLES
         # self.record = dict()
         # self.record['solve'] = 0
@@ -38,6 +38,16 @@ class CwmoipSol(NaiveSol):
             values.append(float(np.dot(array1,array2)))
         result = MOOUtility.round(max(values))
         return result - 1
+
+    def calculteUBLB(self,obj):
+        ub = 0.0
+        lb = 0.0
+        for value in obj:
+            if value > 0:
+                ub = ub+ value
+            else:
+                lb = lb + value
+        return lb, ub
 
     # solve the boundary
     def caliper(self, objective, var_len):
@@ -161,17 +171,18 @@ class CwmoipSol(NaiveSol):
         # objective num
         var_len = len(attribute[0])
         # calculate true boundary of each objective
-        low = .0
-        up = .0
-        low, up = self.caliper(attribute[1], var_len)
+        # low = .0
+        # up = .0
+        # low, up = self.caliper(attribute[1], var_len)
+        # low, up = self.calculteUBLB(attribute[1])
         # calculate w
-        w = Decimal(1.0)/Decimal(MOOUtility.round(up - low + 1.0))
+        # w = Decimal(1.0)/Decimal(MOOUtility.round(up - low + 1.0))
         # set objective
-        only_objective = attribute_np[0] +  float(w) * attribute_np[1]
-        single_objective = only_objective.tolist()
-        self.solver.objective.set_linear(zip(list(range(var_len)), single_objective))
-        self.solver.objective.set_name("single_obj")
-        self.solver.objective.set_sense(self.solver.objective.sense.minimize)
+        # only_objective = attribute_np[0] +  float(w) * attribute_np[1]
+        # single_objective = only_objective.tolist()
+        # self.solver.objective.set_linear(zip(list(range(var_len)), single_objective))
+        # self.solver.objective.set_name("single_obj")
+        # self.solver.objective.set_sense(self.solver.objective.sense.minimize)
         # add constriants
         objective = attribute[1]
         rows = []
