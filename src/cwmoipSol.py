@@ -174,7 +174,7 @@ class CwmoipSol(BaseSol):
         # low = .0
         # up = .0
         # low, up = self.caliper(attribute[1], var_len)
-        # low, up = self.calculteUBLB(attribute[1])
+        low, up = self.calculteUBLB(attribute[1])
         # calculate w
         # w = Decimal(1.0)/Decimal(MOOUtility.round(up - low + 1.0))
         # set objective
