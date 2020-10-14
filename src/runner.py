@@ -151,6 +151,12 @@ class Runner:
                 file_out.write(str(solution)+'\n')
         # delete it in checklist for saving memory
         del self.__result[name][str(ind)]['solutions']
+        # write a runtime info. file
+        file_name = os.path.join(exact_path, 'info_'+str(ind)+'.txt')
+        with open(file_name, 'w') as info_file:
+            json_object = json.dumps(self.__result[name][str(ind)], indent = 4)
+            info_file.write(json_object)
+            info_file.close()
     
     # run! just run!
     def run(self) -> float:
