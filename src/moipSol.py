@@ -79,8 +79,8 @@ class BaseSol:
         self.solver.set_error_stream(None)
         #self.solver.parameters.timelimit.set(BaseSol.TimeOut)
         #self.solver.parameters.dettimelimit.set(BaseSol.DeterTimeOut)
-        self.solver.parameters.threads.set(0)
-        self.solver.parameters.parallel.set(0)
+        self.solver.parameters.threads.set(1)
+        self.solver.parameters.parallel.set(1)
         self.solver.objective.set_sense(self.solver.objective.sense.minimize)
         self.ub = [1]*self.moipProblem.featureCount
         self.lb = [0]*self.moipProblem.featureCount

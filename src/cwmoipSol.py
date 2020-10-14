@@ -56,15 +56,15 @@ class CwmoipSol:
         self.solver.set_results_stream(None)
         self.solver.set_warning_stream(None)
         self.solver.set_error_stream(None)
-        self.solver.parameters.threads.set(0)
-        self.solver.parameters.parallel.set(0)
+        self.solver.parameters.threads.set(1)
+        self.solver.parameters.parallel.set(1)
         self.solver.objective.set_sense(self.solver.objective.sense.minimize)
         # boundary solver
         self.boundary_solver.set_results_stream(None)
         self.boundary_solver.set_warning_stream(None)
         self.boundary_solver.set_error_stream(None)
-        self.boundary_solver.parameters.threads.set(0)
-        self.boundary_solver.parameters.parallel.set(0)
+        self.boundary_solver.parameters.threads.set(1)
+        self.boundary_solver.parameters.parallel.set(1)
         self.boundary_solver.objective.set_sense(self.boundary_solver.objective.sense.minimize)
         # add variables
         vars_num = self.problem.featureCount
