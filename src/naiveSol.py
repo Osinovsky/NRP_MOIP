@@ -39,10 +39,10 @@ class NaiveSol(BaseSol):
             self.boundsDict[k]= (ub,lb)
         
         # # set objective, add this for fairness
-        # single_objective = self.moipProblem.attributeMatrix[0]
-        # self.solver.objective.set_linear(zip(list(range(len(single_objective))), single_objective))
-        # self.solver.objective.set_name("single_obj")
-        # self.solver.objective.set_sense(self.solver.objective.sense.minimize)
+        single_objective = self.moipProblem.attributeMatrix[0]
+        self.solver.objective.set_linear(zip(list(range(len(single_objective))), single_objective))
+        self.solver.objective.set_name("single_obj")
+        self.solver.objective.set_sense(self.solver.objective.sense.minimize)
             
         #convert the k-th objective as constraint 
         for k in range(1,len(self.moipProblem.attributeMatrix)):
