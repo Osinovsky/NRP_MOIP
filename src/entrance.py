@@ -26,7 +26,7 @@ if __name__ == '__main__':
     # run all classic and realistic nrps in single form and epsilon
 
     # config
-    out_path = '../result_20201014'
+    out_path = '../result_20201015'
     ite_num = 1
 
     configs = []
