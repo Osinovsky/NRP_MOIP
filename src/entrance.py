@@ -26,7 +26,7 @@ if __name__ == '__main__':
     # run all classic and realistic nrps in single form and epsilon
 
     # config
-    out_path = '../result_20201015'
+    out_path = '../result_20201017'
     ite_num = 1
 
     configs = []
@@ -45,11 +45,10 @@ if __name__ == '__main__':
         if project.startswith('classic') or project.startswith('realistic'):
             count += 1
             if count == 1:
-                configs.append(make_config(project, 'binary', 'cwmoip'))
-                configs.append(make_config(project, 'binary', 'epsilon'))
-                
+                # configs.append(make_config(project, 'binary', 'cwmoip'))
+                # configs.append(make_config(project, 'binary', 'epsilon'))
                 # configs.append(make_config(project, 'binary', 'ncgop'))
-                # configs.append(make_config(project, 'binary', 'NSGAII', 1, {'mutation': 0.035, 'crossover':1.0, 'max_evaluation' : MAX_EVALUATION, 'tolerance':10}))
+                configs.append(make_config(project, 'binary', 'NSGAII', 1, {'mutation': 0.035, 'crossover':1.0, 'max_evaluation' : MAX_EVALUATION, 'tolerance':10}))
                 # configs.append(make_config(project, 'binary', 'HYPE'))
 
     # prepare names
@@ -73,7 +72,7 @@ if __name__ == '__main__':
 
     # load and display
     comparison = Comparator.load(out_path, 'comparison.json')
-    template = '{NAME:32}|{RT:12}|{ND:8}|{IGD:12}|{HV:12}|{E:12}'
+    template = '{NAME:100}|{RT:12}|{ND:8}|{IGD:12}|{HV:12}|{E:12}'
     # header
     print(template.format(NAME='Name', RT='Runtime', ND='NonD', IGD='IGD', HV='HV', E='Evenness'))
     for project_name in comparison:
