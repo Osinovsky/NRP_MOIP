@@ -1,7 +1,7 @@
 # ################################## #
 # DONG Shi, dongshi@mail.ustc.edu.cn #
 # NRP.py, created: 2020.09.19        #
-# Last Modified: 2020.10.11          #
+# Last Modified: 2020.10.18         #
 # ################################## #
 
 from typing import *
@@ -18,13 +18,13 @@ ProfitType = Union[Dict[int, int], Dict[Tuple[int, int], int]]
 DependenciesType = List[Tuple[int, int]]
 RequestsType = List[Tuple[int, int]]
 NRPType = Tuple[CostType, ProfitType, DependenciesType, RequestsType]
-ProblemType = Union[MOIPProblem, JNRP]
+ProblemType = Union[MOIPProblem, JNRP, NRPType]
 
 # describe a class provide an "universal" class 
 # for recording next release problem
 class NextReleaseProblem:
     # initialize
-    def __init__(self, project_name : str, jmetal_problem : bool = False):
+    def __init__(self, project_name : str, problem_type : str = 'default'):
         # prepare member variables
         self.__project : str = project_name;
         # profit, note that could be  requirement -> cost, customer -> cost
@@ -38,8 +38,8 @@ class NextReleaseProblem:
         self.__dependencies : DependenciesType = []
         # request, customer -> requirement or team -> requirement
         self.__requests : RequestsType = []
-        # decide to model as a NRP or JNRP(for jMetalPy Solvers)
-        self.__jmetal = jmetal_problem
+        # decide to model as a NRP or JNRP or searchSol form
+        self.__problem_type : str = problem_type
         # load from file
         self.__load(project_name)
         # inventory
@@ -287,11 +287,14 @@ class NextReleaseProblem:
         return NextReleaseProblem.MOIP(variables, objectives, inequations, inequations_operators, dict())
 
     # model to bi-objective for classic and realistic nrps
-    def __to_bi_general_form(self) -> Union[MOIPProblem, JNRP]:
+    def __to_bi_general_form(self) -> ProblemType:
         # only for classic and realistic
         assert self.__project.startswith('classic') or self.__project.startswith('realistic')
         # requirement dependencies should be eliminated
         assert not self.__dependencies
+        # if type == search, we can just return NRP content
+        if self.__problem_type == 'search':
+            return self.content()
         # prepare the "variables"
         variables = list(self.__profit.keys()) + list(self.__cost.keys())
         # prepare objective coefs
@@ -314,10 +317,12 @@ class NextReleaseProblem:
             # 'L' for <= and 'G' for >=, we can just convert every inequations into <= format
             inequations_operators.append('L')
         # construct Problem
-        if self.__jmetal:
+        if self.__problem_type == 'default':
+            return NextReleaseProblem.MOIP(variables, objectives, inequations, inequations_operators, dict())
+        elif self.__problem_type == 'jmetal':
             return JNRP(variables, objectives, inequations)
         else:
-            return NextReleaseProblem.MOIP(variables, objectives, inequations, inequations_operators, dict())
+            assert False
 
     # model to single objective
     # different dataset using different form (according to the IST-2015)

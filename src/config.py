@@ -1,7 +1,7 @@
 # ################################## #
 # DONG Shi, dongshi@mail.ustc.edu.cn #
 # config.py, created: 2020.08.25     #
-# Last Modified: 2020.10.11          #
+# Last Modified: 2020.10.18          #
 # ################################## #
 
 from os import path
@@ -71,9 +71,14 @@ ALL_FILES_DICT = { \
     'Baan' : BAAN_FILE_NAME, \
 }
 
+# NRP modeling type
+PROBLEM_TYPES = ['default', 'jmetal', 'search']
+
 # NRP MODELLING FROMS
 NRP_FORMS = ['single', 'binary']
 
 # SOLVERS
-SOLVING_METHOD = ['single', 'epsilon', 'cwmoip', 'ncgop', 'NSGAII', 'IBEA', 'HYPE', 'SPEA2']
-MOEA_METHOD = ['NSGAII', 'IBEA', 'HYPE', 'SPEA2']
+SOLVING_METHOD = ['single', 'epsilon', 'cwmoip', 'ncgop', 'NSGAII', 'HYPE', 'SPEA2', 'search']
+DEFAULT_METHOD = ['single', 'epsilon', 'cwmoip', 'ncgop']
+MOEA_METHOD = ['NSGAII', 'HYPE', 'SPEA2']
+SEARCH_METHOD = ['search']

@@ -1,18 +1,19 @@
 # ################################## #
 # DONG Shi, dongshi@mail.ustc.edu.cn #
 # solvers.py, created: 2020.09.22    #
-# Last Modified: 2020.10.11          #
+# Last Modified: 2020.10.18          #
 # ################################## #
 
 from typing import *
 import time
-from NRP import NextReleaseProblem
+from NRP import NextReleaseProblem, ProblemType
 from moipProb import MOIPProblem
 from naiveSol import NaiveSol
 from moipSol import BaseSol
 from cwmoipSol import CwmoipSol
 # from altSol import NaiveSol, CwmoipSol
 from ncgopSol import NcgopSol
+from searchSol import SearchSol
 from config import *
 
 from JNRP import JNRP
@@ -24,8 +25,6 @@ from jmetal.algorithm.multiobjective.spea2 import SPEA2
 from jmetal.operator import BitFlipMutation, SPXCrossover
 from jmetal.util.termination_criterion import TerminationCriterion, StoppingByEvaluations
 from jmetal.util.archive import NonDominatedSolutionsArchive
-
-Problem = Union[MOIPProblem, JNRP]
 
 # termination criterion by solution update
 class Terminator(TerminationCriterion):
@@ -105,7 +104,7 @@ class Solver:
         self.__option = option
 
     # load problem
-    def load(self, problem : Problem) -> None:
+    def load(self, problem : ProblemType) -> None:
         # load problem
         assert problem
         self.__problem = problem
@@ -120,20 +119,24 @@ class Solver:
             self.__NcgopSol()
         elif self.__method == 'NSGAII':
             self.__NSGAII()
-        elif self.__method == 'IBEA':
-            self.__IBEA()
+        # elif self.__method == 'IBEA':
+        #     self.__IBEA()
         elif self.__method == 'HYPE':
             self.__HYPE()
         elif self.__method == 'SPEA2':
             self.__SPEA2()
+        elif self.__method == 'search':
+            self.__SearchSol()
 
     # execute
     def execute(self) -> Set[Any]:
-        if self.__method in ['single', 'epsilon', 'cwmoip', 'ncgop']:
+        if self.__method in DEFAULT_METHOD :
             self.__solver.prepare()
             self.__solver.execute()
-        elif self.__method in ['NSGAII', 'IBEA', 'HYPE', 'SPEA2']:
+        elif self.__method in MOEA_METHOD:
             self.__solver.run()
+        elif self.__method in SEARCH_METHOD:
+            pass # TODO:
 
     # no negative element in list
     @staticmethod
@@ -145,12 +148,14 @@ class Solver:
 
     # get results
     def solutions(self) -> Set[Any]:
-        if self.__method in ['single', 'epsilon', 'cwmoip', 'ncgop']:
+        if self.__method in DEFAULT_METHOD:
             return self.__solver.cplexParetoSet
-        elif self.__method in ['NSGAII', 'IBEA', 'HYPE', 'SPEA2']:
+        elif self.__method in MOEA_METHOD:
             results : List[BinarySolution] = self.__solver.get_result()
             # remove infeasible solution
             return set([tuple(s.objectives) for s in results if Solver.forall_ge0(s.constraints)])
+        elif self.__method in SEARCH_METHOD:
+            pass # TODO:
 
     # get raw results, for MOEA
     def moea_solutions(self) -> Any:
@@ -191,16 +196,16 @@ class Solver:
 
     # wrap IBEA
     # NOTE: IBEA could hardly handle constraints
-    def __IBEA(self) -> None:
-        self.__solver = IBEA(
-            problem=self.__problem,
-            kappa=1.,
-            population_size=POPULATION_SIZE,
-            offspring_population_size=OFFSPRING_SIZE,
-            mutation=BitFlipMutation(probability=1.0/self.__problem.number_of_variables),
-            crossover=SPXCrossover(probability=1.0),
-            termination_criterion=StoppingByEvaluations(max_evaluations=MAX_EVALUATION)
-        )
+    # def __IBEA(self) -> None:
+    #     self.__solver = IBEA(
+    #         problem=self.__problem,
+    #         kappa=1.,
+    #         population_size=POPULATION_SIZE,
+    #         offspring_population_size=OFFSPRING_SIZE,
+    #         mutation=BitFlipMutation(probability=1.0/self.__problem.number_of_variables),
+    #         crossover=SPXCrossover(probability=1.0),
+    #         termination_criterion=StoppingByEvaluations(max_evaluations=MAX_EVALUATION)
+    #     )
 
     # wrap HYPE
     def __HYPE(self) -> None:
@@ -227,3 +232,7 @@ class Solver:
             crossover=SPXCrossover(probability=1.0),
             termination_criterion=StoppingByEvaluations(max_evaluations=MAX_EVALUATION)
         )
+
+    # wrap SearchSol
+    def __SearchSol(self) -> None:
+        self.__solver = SearchSol(self.__problem)

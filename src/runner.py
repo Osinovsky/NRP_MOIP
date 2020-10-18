@@ -1,7 +1,7 @@
 # ################################## #
 # DONG Shi, dongshi@mail.ustc.edu.cn #
 # runner.py, created: 2020.09.22     #
-# Last Modified: 2020.10.11          #
+# Last Modified: 2020.10.18          #
 # ################################## #
 
 from typing import *
@@ -25,6 +25,8 @@ class Runner:
         # prepare const members
         # jmetal solvers
         self.jmetal_solvers = MOEA_METHOD
+        # search solvers
+        self.search_solvers = SEARCH_METHOD
         # prepare members
         self.__project : str = None
         self.__method : str = None
@@ -126,7 +128,13 @@ class Runner:
         self.__project = project_name
         self.__method = method
         self.__form = form
-        self.__nrp = NextReleaseProblem(project_name, method in self.jmetal_solvers)
+        if method in self.jmetal_solvers:
+            type = 'jmetal'
+        elif method in self.search_solvers:
+            type = 'search'
+        else:
+            type = 'default'
+        self.__nrp = NextReleaseProblem(project_name, type)
         self.__problem = self.__nrp.model(form, option)
         self.__solver = Solver(method, option)
         self.__solver.load(self.__problem)
@@ -152,7 +160,7 @@ class Runner:
         # delete it in checklist for saving memory
         del self.__result[name][str(ind)]['solutions']
         # write a runtime info. file
-        file_name = os.path.join(exact_path, 'info_'+str(ind)+'.txt')
+        file_name = os.path.join(exact_path, 'info_'+str(ind)+'.json')
         with open(file_name, 'w') as info_file:
             json_object = json.dumps(self.__result[name][str(ind)], indent = 4)
             info_file.write(json_object)

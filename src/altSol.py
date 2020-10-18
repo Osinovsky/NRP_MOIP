@@ -1,6 +1,6 @@
 # ################################## #
 # DONG Shi, dongshi@mail.ustc.edu.cn #
-# cwmoipSol.py, created: 2020.10.15  #
+# altSol.py, created: 2020.10.15     #
 # Last Modified: 2020.10.15          #
 # ################################## #
 
