@@ -9,6 +9,11 @@ from typing import Set, List, Tuple
 from config import *
 from NRP import NextReleaseProblem
 
+NonDominated = 1
+Equal = 0
+Dominate = -1
+Dominated = -2
+
 # state
 class State:
     # define members
@@ -30,25 +35,16 @@ class State:
 # naive search based solver
 class SearchSol:
     # dominate test, return if x dominate y
-    dominate = lambda x, y : x[0] <= y[0] and x[1] <= y[1]
+    # dominate = lambda x, y : x[0] <= y[0] and x[1] <= y[1]
 
     # initialize 
     def __init__(self, problem):
         # load problem
         self.__cost, self.__profit, _, self.__requests = problem
-        # rest y set, manage states as p order
-        self.__rest = dict()
-        self.__rest_min = None
         # history visited state
         self.__history = set()
         # pareto front, ordered by sum profit
         self.__pareto = dict()
-        # current selecting ys
-        self.ys = SortedList()
-        # current profit of all
-        self.yp = 0
-        # current cost of all
-        self.yc = 0
 
         # make y rest set
         self.init_rest()
@@ -81,94 +77,36 @@ class SearchSol:
                 rest[y_profit].add(new_state)
         # ordered y_profit and add to self.rest
         profit_order = sorted(list(profit_set), reverse=True)
-        # add to self.rest with profit from big to small
+        # sort ND and DD
         for y_profit in profit_order:
-            self.__rest[y_profit] = rest[y_profit]
-        # find the max profit min cost state
-        profit_max = profit_order[0]
-        self.__rest_min = min(self.__rest[profit_max], key=lambda x : x.c)
-        # remove it from rest
-        self.__rest[profit_max].remove(self.__rest_min)
-        if not self.__rest[profit_max]:
-            del self.__rest[profit_max]
+            pass
 
-    # pick a state
-    def pick_state(self) -> Tuple[State, Set[State]]:
-        # just pick rest min as choosen one
-        choosen_state = self.__rest_min
-        # update the rest
-        # prepare extendable state set
-        extendable = set()
-        # update rest state c and x
-        remove_xs = choosen_state.x
-        for y_profit in self.__rest:
-            tmp_set = set()
-            # for each state, x \ remove_xs, cost -= sum cost(remove_xs)
-            for state in self.__rest[y_profit]:
-                # remove x and update c
-                for remove_x in remove_xs:
-                    if remove_x in state.x:
-                        state.x.remove(remove_x)
-                        state.c -= self.__cost[remove_x]
-                # end for
-                # add to extendable if empty x
-                if state.x:
-                    extendable.add(state)
-                else:
-                    tmp_set.add(state)
-            # end for
-            if tmp_set:
-                self.__rest = tmp_set
+    # test dominated
+    @staticmethod
+    def dominate(left : State, right : State) -> int:
+        if left.p > right.p:
+            if left.c < right.c:
+                return Dominate # (D, D) -> Dominate
+            elif left.c > right.c:
+                return NonDominated # (D, ND) -> NonDominated
             else:
-                del self.__rest[y_profit]
-        # end for
-        # pick max profit and min cost state
-        profit_max = next(iter(self.__rest))
-        # find new rest min
-        self.__rest_min = min(self.__rest[profit_max], key=lambda x : x.c)
-        # delete from rest
-        self.__rest[profit_max].remove(self.__rest_min)
-        # return choosen state and extendable
-        return (choosen_state, extendable)
+                return Dominate # (D, E) -> Dominate
+        elif left.p < right.p:
+            if left.c < right.c:
+                return NonDominated # (ND, D) -> NonDominated
+            elif left.c > right.c:
+                return Dominated # (ND, ND) -> Dominated
+            else:
+                return Dominated # (ND, E) -> Dominated
+        else:
+            if left.c < right.c:
+                return Dominate # (E, D) -> Dominate
+            elif left.c > right.c:
+                return Dominated # (E, ND) -> Dominated
+            else:
+                return Equal # (E, E) -> Equal
 
-    # next state
-    def next_state(self) -> None:
-        # pick a state as next state
-        pass
-
-    # execute
-    def execute(self) -> None:
-        pass
-
-    # DFS search
-    def DFS(self, ) -> None:
-        pass
-
-    # for test methods
-    # test rest construct
-    def test_rest_init(self) -> None:
-        # rest => problem
-        last_profit = None
-        for y_profit, states in self.__rest.items():
-            for state in states:
-                assert self.__profit[state.y] == state.p and state.p == y_profit
-                assert sum([self.__cost[xx] for xx in state.x]) == state.c
-                assert all([(state.y, xx) in self.__requests for xx in state.x])
-            # check profit order
-            if last_profit:
-                assert last_profit > y_profit
-            last_profit = y_profit
-        # check rest min
-        state = self.__rest_min
-        assert self.__profit[state.y] == state.p
-        assert sum([self.__cost[xx] for xx in state.x]) == state.c
-        assert all([(state.y, xx) in self.__requests for xx in state.x])
-        # check if rest min is min
-        if self.__rest_min.p in self.__rest:
-            for state in self.__rest[self.__rest_min.p]:
-                assert state.y != self.__rest_min.y
-                assert state.c >= self.__rest_min.c
-
-    # test state pick
-    def test_state_pick(self, current_state, choosen_state, extendable):
+    # nd sort, return (ND, DD)
+    @staticmethod
+    def dominated_sort(input_set : Set[State]) -> Tuple[Set[State], Set[State]]:
         pass
