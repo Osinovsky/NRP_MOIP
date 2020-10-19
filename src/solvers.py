@@ -8,10 +8,10 @@ from typing import *
 import time
 from NRP import NextReleaseProblem, ProblemType
 from moipProb import MOIPProblem
-from naiveSol import NaiveSol
+# from naiveSol import NaiveSol
 from moipSol import BaseSol
-from cwmoipSol import CwmoipSol
-# from altSol import NaiveSol, CwmoipSol
+# from cwmoipSol import CwmoipSol
+from altSol import NaiveSol, CwmoipSol
 from ncgopSol import NcgopSol
 from searchSol import SearchSol
 from config import *

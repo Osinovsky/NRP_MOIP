@@ -12,7 +12,7 @@ from moipSol import CplexSolResult
 from mooUtility import MOOUtility
 from decimal import Decimal
 # from time import clock
-# import json
+import json
 
 # re construct cwmoip without any heritage class
 class CwmoipSol:
@@ -31,7 +31,9 @@ class CwmoipSol:
         # boundary solver
         self.boundary_solver = Cplex()
         # record solving time
-        # self.record = dict()
+        self.record = dict()
+        self.record['boundary solve'] = 0
+        self.record['solve'] = 0
 
     # solve the boundary
     def caliper(self, objective, var_len):
@@ -43,7 +45,7 @@ class CwmoipSol:
         # solve lower bound
         self.boundary_solver.objective.set_sense(self.boundary_solver.objective.sense.minimize)
         self.boundary_solver.solve()
-        # self.record['boundary solve'] += 1
+        self.record['boundary solve'] += 1
         low = self.boundary_solver.solution.get_objective_value()
         # solve upper bound
         self.boundary_solver.objective.set_sense(self.boundary_solver.objective.sense.maximize)
@@ -152,6 +154,7 @@ class CwmoipSol:
             self.solver.linear_constraints.set_rhs(constraint_name, l)
             # start_clock = clock()
             self.solver.solve()
+            self.record['solve'] += 1
             # self.record[l] = clock()-start_clock
             status = self.solver.solution.get_status_string()
             if status.find("optimal") >= 0:
@@ -164,10 +167,10 @@ class CwmoipSol:
         # end while
         self.buildCplexPareto()
 
-        # fout = open('cwmoip.json', 'w+')
-        # json_object = json.dumps(self.record, indent=4)
-        # fout.write(json_object)
-        # fout.close()
+        fout = open('cwmoip.json', 'w+')
+        json_object = json.dumps(self.record, indent=4)
+        fout.write(json_object)
+        fout.close()
 
 class NaiveSol:
     # initialize
@@ -183,7 +186,8 @@ class NaiveSol:
         # solver 
         self.solver = Cplex()
         # # record
-        # self.record = dict()
+        self.record = dict()
+        self.record['solve'] = 0
 
     # prepare, put all constraints into solvers
     def prepare(self):
@@ -275,6 +279,7 @@ class NaiveSol:
             self.solver.linear_constraints.set_rhs(constraint_name, l)
             # start_clock = clock()
             self.solver.solve()
+            self.record['solve'] += 1
             # self.record[l] = clock()-start_clock
             status = self.solver.solution.get_status_string()
             if status.find("optimal") >= 0:
@@ -286,7 +291,7 @@ class NaiveSol:
         # end while
         self.buildCplexPareto()
 
-        # fout = open('epsilon.json', 'w+')
-        # json_object = json.dumps(self.record, indent=4)
-        # fout.write(json_object)
-        # fout.close()
+        fout = open('epsilon.json', 'w+')
+        json_object = json.dumps(self.record, indent=4)
+        fout.write(json_object)
+        fout.close()

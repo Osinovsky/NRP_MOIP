@@ -26,7 +26,7 @@ if __name__ == '__main__':
     # run all classic and realistic nrps in single form and epsilon
 
     # config
-    out_path = '../result_20201017'
+    out_path = '../result_profit_cost'
     ite_num = 1
 
     configs = []
@@ -44,13 +44,13 @@ if __name__ == '__main__':
     for project, file_name in ALL_FILES_DICT.items():
         if project.startswith('classic') or project.startswith('realistic'):
             count += 1
-            if count == 1:
-                # configs.append(make_config(project, 'binary', 'cwmoip'))
-                # configs.append(make_config(project, 'binary', 'epsilon'))
+            if count == 3:
+                configs.append(make_config(project, 'binary', 'cwmoip'))
+                configs.append(make_config(project, 'binary', 'epsilon'))
                 # configs.append(make_config(project, 'binary', 'ncgop'))
                 # configs.append(make_config(project, 'binary', 'NSGAII', 1, {'mutation': 0.035, 'crossover':1.0, 'max_evaluation' : MAX_EVALUATION, 'tolerance':10}))
                 # configs.append(make_config(project, 'binary', 'HYPE'))
-                configs.append(make_config(project, 'binary', 'search'))
+                # configs.append(make_config(project, 'binary', 'search'))
 
     # prepare names
     names = []
