@@ -63,15 +63,8 @@ if __name__ == '__main__':
 
     # compare
     # comparator = Comparator(out_path, names, ite_num)
-    # comparison = comparator.get_content()
-    # which_names, which_project = Comparator.parse_names(names)
-    # for project, name_list in which_names.items():
-    #     for name in name_list:
-    #         print(name + '\t\t' + str(comparison[project][name]['all']['solution number']) \
-    #             + '\t\t' + str(comparison[project][name]['all']['nd']) \
-    #             + '\t\t' + str(comparison[project][name]['all']['hv']))
 
-    # # load and display
+    # load and display
     # comparison = Comparator.load(out_path, 'comparison.json')
     # template = '{NAME:100}|{RT:12}|{ND:8}|{IGD:12}|{HV:12}|{E:12}'
     # # header
