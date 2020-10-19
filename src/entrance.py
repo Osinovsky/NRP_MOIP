@@ -26,7 +26,7 @@ if __name__ == '__main__':
     # run all classic and realistic nrps in single form and epsilon
 
     # config
-    out_path = '../result_profit_cost'
+    out_path = '../result_cost_profit'
     ite_num = 1
 
     configs = []
