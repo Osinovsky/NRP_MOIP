@@ -5,7 +5,7 @@
 # ################################## #
 
 from sortedcontainers import SortedList
-from typing import Set, List
+from typing import Set, List, Tuple
 from config import *
 from NRP import NextReleaseProblem
 
@@ -26,13 +26,6 @@ class State:
             and self.p == other.p \
             and self.c == other.c \
             and self.x == other.x
-
-    # remove a x
-    def update(self, xs_remove : List[int], c_diff : int):
-        for x_remove in xs_remove:
-            if x_remove in self.x:
-                self.x.remove(x_remove)
-        self.c -= c_diff
 
 # naive search based solver
 class SearchSol:
@@ -92,18 +85,51 @@ class SearchSol:
         for y_profit in profit_order:
             self.__rest[y_profit] = rest[y_profit]
         # find the max profit min cost state
-        max_profit = profit_order[0]
-        self.__rest_min = min(self.__rest[max_profit], key=lambda x : x.c)
+        profit_max = profit_order[0]
+        self.__rest_min = min(self.__rest[profit_max], key=lambda x : x.c)
         # remove it from rest
-        self.__rest[max_profit].remove(self.__rest_min)
+        self.__rest[profit_max].remove(self.__rest_min)
+        if not self.__rest[profit_max]:
+            del self.__rest[profit_max]
 
     # pick a state
-    def pick_state(self) -> State:
+    def pick_state(self) -> Tuple[State, Set[State]]:
+        # just pick rest min as choosen one
+        choosen_state = self.__rest_min
+        # update the rest
+        # prepare extendable state set
+        extendable = set()
+        # update rest state c and x
+        remove_xs = choosen_state.x
+        for y_profit in self.__rest:
+            tmp_set = set()
+            # for each state, x \ remove_xs, cost -= sum cost(remove_xs)
+            for state in self.__rest[y_profit]:
+                # remove x and update c
+                for remove_x in remove_xs:
+                    if remove_x in state.x:
+                        state.x.remove(remove_x)
+                        state.c -= self.__cost[remove_x]
+                # end for
+                # add to extendable if empty x
+                if state.x:
+                    extendable.add(state)
+                else:
+                    tmp_set.add(state)
+            # end for
+            if tmp_set:
+                self.__rest = tmp_set
+            else:
+                del self.__rest[y_profit]
+        # end for
         # pick max profit and min cost state
-        max_profit = next(iter(self.__rest))
-        choosen = self.__rest_min[max_profit]
-        # update rest and rest min
-
+        profit_max = next(iter(self.__rest))
+        # find new rest min
+        self.__rest_min = min(self.__rest[profit_max], key=lambda x : x.c)
+        # delete from rest
+        self.__rest[profit_max].remove(self.__rest_min)
+        # return choosen state and extendable
+        return (choosen_state, extendable)
 
     # next state
     def next_state(self) -> None:
@@ -116,4 +142,33 @@ class SearchSol:
 
     # DFS search
     def DFS(self, ) -> None:
+        pass
+
+    # for test methods
+    # test rest construct
+    def test_rest_init(self) -> None:
+        # rest => problem
+        last_profit = None
+        for y_profit, states in self.__rest.items():
+            for state in states:
+                assert self.__profit[state.y] == state.p and state.p == y_profit
+                assert sum([self.__cost[xx] for xx in state.x]) == state.c
+                assert all([(state.y, xx) in self.__requests for xx in state.x])
+            # check profit order
+            if last_profit:
+                assert last_profit > y_profit
+            last_profit = y_profit
+        # check rest min
+        state = self.__rest_min
+        assert self.__profit[state.y] == state.p
+        assert sum([self.__cost[xx] for xx in state.x]) == state.c
+        assert all([(state.y, xx) in self.__requests for xx in state.x])
+        # check if rest min is min
+        if self.__rest_min.p in self.__rest:
+            for state in self.__rest[self.__rest_min.p]:
+                assert state.y != self.__rest_min.y
+                assert state.c >= self.__rest_min.c
+
+    # test state pick
+    def test_state_pick(self, current_state, choosen_state, extendable):
         pass
