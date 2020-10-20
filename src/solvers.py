@@ -1,7 +1,7 @@
 # ################################## #
 # DONG Shi, dongshi@mail.ustc.edu.cn #
 # solvers.py, created: 2020.09.22    #
-# Last Modified: 2020.10.18          #
+# Last Modified: 2020.10.20          #
 # ################################## #
 
 from typing import *
@@ -13,7 +13,6 @@ from moipSol import BaseSol
 # from cwmoipSol import CwmoipSol
 from altSol import NaiveSol, CwmoipSol
 from ncgopSol import NcgopSol
-from searchSol import SearchSol
 from config import *
 
 from JNRP import JNRP
@@ -125,8 +124,6 @@ class Solver:
             self.__HYPE()
         elif self.__method == 'SPEA2':
             self.__SPEA2()
-        elif self.__method == 'search':
-            self.__SearchSol()
 
     # execute
     def execute(self) -> Set[Any]:
@@ -135,8 +132,6 @@ class Solver:
             self.__solver.execute()
         elif self.__method in MOEA_METHOD:
             self.__solver.run()
-        elif self.__method in SEARCH_METHOD:
-            pass # TODO:
 
     # no negative element in list
     @staticmethod
@@ -154,8 +149,6 @@ class Solver:
             results : List[BinarySolution] = self.__solver.get_result()
             # remove infeasible solution
             return set([tuple(s.objectives) for s in results if Solver.forall_ge0(s.constraints)])
-        elif self.__method in SEARCH_METHOD:
-            pass # TODO:
 
     # get raw results, for MOEA
     def moea_solutions(self) -> Any:
@@ -232,7 +225,3 @@ class Solver:
             crossover=SPXCrossover(probability=1.0),
             termination_criterion=StoppingByEvaluations(max_evaluations=MAX_EVALUATION)
         )
-
-    # wrap SearchSol
-    def __SearchSol(self) -> None:
-        self.__solver = SearchSol(self.__problem)

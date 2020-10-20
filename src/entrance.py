@@ -45,12 +45,11 @@ if __name__ == '__main__':
         if project.startswith('classic') or project.startswith('realistic'):
             count += 1
             if count == 1:
-                # configs.append(make_config(project, 'binary', 'cwmoip'))
-                # configs.append(make_config(project, 'binary', 'epsilon'))
+                configs.append(make_config(project, 'binary', 'cwmoip'))
+                configs.append(make_config(project, 'binary', 'epsilon'))
                 # configs.append(make_config(project, 'binary', 'ncgop'))
                 # configs.append(make_config(project, 'binary', 'NSGAII', 1, {'mutation': 0.035, 'crossover':1.0, 'max_evaluation' : MAX_EVALUATION, 'tolerance':10}))
                 # configs.append(make_config(project, 'binary', 'HYPE'))
-                configs.append(make_config(project, 'binary', 'search'))
 
     # prepare names
     names = []

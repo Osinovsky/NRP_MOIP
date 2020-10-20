@@ -1,7 +1,7 @@
 # ################################## #
 # DONG Shi, dongshi@mail.ustc.edu.cn #
 # runner.py, created: 2020.09.22     #
-# Last Modified: 2020.10.18          #
+# Last Modified: 2020.10.20          #
 # ################################## #
 
 from typing import *
@@ -25,8 +25,6 @@ class Runner:
         # prepare const members
         # jmetal solvers
         self.jmetal_solvers = MOEA_METHOD
-        # search solvers
-        self.search_solvers = SEARCH_METHOD
         # prepare members
         self.__project : str = None
         self.__method : str = None
@@ -130,8 +128,6 @@ class Runner:
         self.__form = form
         if method in self.jmetal_solvers:
             type = 'jmetal'
-        elif method in self.search_solvers:
-            type = 'search'
         else:
             type = 'default'
         self.__nrp = NextReleaseProblem(project_name, type)

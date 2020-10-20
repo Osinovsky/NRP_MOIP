@@ -1,7 +1,7 @@
 # ################################## #
 # DONG Shi, dongshi@mail.ustc.edu.cn #
 # NRP.py, created: 2020.09.19        #
-# Last Modified: 2020.10.18          #
+# Last Modified: 2020.10.20          #
 # ################################## #
 
 from typing import *
@@ -18,7 +18,7 @@ ProfitType = Union[Dict[int, int], Dict[Tuple[int, int], int]]
 DependenciesType = List[Tuple[int, int]]
 RequestsType = List[Tuple[int, int]]
 NRPType = Tuple[CostType, ProfitType, DependenciesType, RequestsType]
-ProblemType = Union[MOIPProblem, JNRP, NRPType]
+ProblemType = Union[MOIPProblem, JNRP]
 
 # describe a class provide an "universal" class 
 # for recording next release problem
@@ -38,7 +38,7 @@ class NextReleaseProblem:
         self.__dependencies : DependenciesType = []
         # request, customer -> requirement or team -> requirement
         self.__requests : RequestsType = []
-        # decide to model as a NRP or JNRP or searchSol form
+        # decide to model as a NRP or JNRP form
         self.__problem_type : str = problem_type
         # load from file
         self.__load(project_name)
@@ -292,9 +292,6 @@ class NextReleaseProblem:
         assert self.__project.startswith('classic') or self.__project.startswith('realistic')
         # requirement dependencies should be eliminated
         assert not self.__dependencies
-        # if type == search, we can just return NRP content
-        if self.__problem_type == 'search':
-            return self.content()
         # prepare the "variables"
         variables = list(self.__profit.keys()) + list(self.__cost.keys())
         # prepare objective coefs

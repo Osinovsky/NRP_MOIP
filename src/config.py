@@ -1,7 +1,7 @@
 # ################################## #
 # DONG Shi, dongshi@mail.ustc.edu.cn #
 # config.py, created: 2020.08.25     #
-# Last Modified: 2020.10.18          #
+# Last Modified: 2020.10.20          #
 # ################################## #
 
 from os import path
@@ -72,13 +72,12 @@ ALL_FILES_DICT = { \
 }
 
 # NRP modeling type
-PROBLEM_TYPES = ['default', 'jmetal', 'search']
+PROBLEM_TYPES = ['default', 'jmetal']
 
 # NRP MODELLING FROMS
 NRP_FORMS = ['single', 'binary']
 
 # SOLVERS
-SOLVING_METHOD = ['single', 'epsilon', 'cwmoip', 'ncgop', 'NSGAII', 'HYPE', 'SPEA2', 'search']
+SOLVING_METHOD = ['single', 'epsilon', 'cwmoip', 'ncgop', 'NSGAII', 'HYPE', 'SPEA2']
 DEFAULT_METHOD = ['single', 'epsilon', 'cwmoip', 'ncgop']
 MOEA_METHOD = ['NSGAII', 'HYPE', 'SPEA2']
-SEARCH_METHOD = ['search']
