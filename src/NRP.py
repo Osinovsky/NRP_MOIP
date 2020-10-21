@@ -1,7 +1,7 @@
 # ################################## #
 # DONG Shi, dongshi@mail.ustc.edu.cn #
 # NRP.py, created: 2020.09.19        #
-# Last Modified: 2020.10.20          #
+# Last Modified: 2020.10.21          #
 # ################################## #
 
 from typing import *
@@ -11,6 +11,7 @@ from moipProb import MOIPProblem
 from JNRP import JNRP
 from copy import deepcopy
 from functools import reduce
+from math import ceil, floor
 
 # Type 
 CostType = Union[Dict[int, int], Dict[Tuple[int, int], int]]
@@ -286,12 +287,9 @@ class NextReleaseProblem:
         # construct Problem 
         return NextReleaseProblem.MOIP(variables, objectives, inequations, inequations_operators, dict())
 
-    # model to bi-objective for classic and realistic nrps
-    def __to_bi_general_form(self) -> ProblemType:
-        # only for classic and realistic
-        assert self.__project.startswith('classic') or self.__project.startswith('realistic')
-        # requirement dependencies should be eliminated
-        assert not self.__dependencies
+    # model basic bi objective form
+    # return variables, objectives, inequations, inequations_operators, equations
+    def __basic_bi_form(self) -> Tuple[List[int], List[Dict[int, int]], List[str], List[Dict[int, int]]]:
         # prepare the "variables"
         variables = list(self.__profit.keys()) + list(self.__cost.keys())
         # prepare objective coefs
@@ -313,9 +311,84 @@ class NextReleaseProblem:
             inequations.append({req[0]:1, req[1]:-1, constant_id:0})
             # 'L' for <= and 'G' for >=, we can just convert every inequations into <= format
             inequations_operators.append('L')
+        # ignore equations
+        equations = dict() # non-empty and not a list
+        # return
+        return variables, objectives, inequations, inequations_operators, equations
+
+    # model to bi-objective for classic and realistic nrps
+    def __to_bi_general_form(self) -> ProblemType:
+        # only for classic and realistic
+        assert self.__project.startswith('classic') or self.__project.startswith('realistic')
+        # requirement dependencies should be eliminated
+        assert not self.__dependencies
+        # modelling
+        variables, objectives, inequations, inequations_operators, equations = \
+            self.__basic_bi_form()
         # construct Problem
         if self.__problem_type == 'default':
-            return NextReleaseProblem.MOIP(variables, objectives, inequations, inequations_operators, dict())
+            return NextReleaseProblem.MOIP(variables, objectives, inequations, inequations_operators, equations)
+        elif self.__problem_type == 'jmetal':
+            return JNRP(variables, objectives, inequations)
+        else:
+            assert False
+
+    # model to bi-objective with additional constraints form
+    def __to_bicst_form(self, 
+        max_cost : Union[int, float] = None, \
+        min_profit : Union[int, float] = None, \
+        min_requirements : int = None, \
+        min_customers : int = None\
+    ) -> ProblemType:
+        # only for classic and realistic
+        assert self.__project.startswith('classic') or self.__project.startswith('realistic')
+        # requirement dependencies should be eliminated
+        assert not self.__dependencies
+        # modelling
+        variables, objectives, inequations, inequations_operators, equations = \
+            self.__basic_bi_form()
+        # add additional constraints
+        constant_id = len(variables)
+        if max_cost: # sum cost <= max_cost
+            inequation = {k:v for k, v in self.__cost.items()}
+            if isinstance(max_cost, int):
+                inequation[constant_id] = max_cost
+            else:
+                print('max cost: ', ceil(max_cost*sum(list(self.__cost.values()))))
+                inequation[constant_id] = ceil(max_cost*sum(list(self.__cost.values())))
+            inequations.append(inequation)
+            inequations_operators.append('L')
+        if min_profit: # sum profit >= min_profit
+            # -p1 -p2 - ... <= - min_profit
+            inequation = {k:-v for k, v in self.__profit.items()}
+            if isinstance(min_profit, int):
+                inequation[constant_id] = - min_profit
+            else:
+                print('min profit: ', floor(min_profit*sum(list(self.__profit.values()))))
+                inequation[constant_id] = - floor(min_profit*sum(list(self.__profit.values())))
+            inequations.append(inequation)
+            inequations_operators.append('L')
+        if min_requirements: # |requirements| >= min_requirements
+            inequation = {k:-1 for k in self.__cost}
+            if isinstance(min_requirements, int):
+                inequation[constant_id] = - min_requirements
+            else:
+                print('min requirements: ', floor(min_requirements*len(self.__cost)))
+                inequation[constant_id] = - floor(min_requirements*len(self.__cost))
+            inequations.append(inequation)
+            inequations_operators.append('L')
+        if min_customers: # |customers| >= min_customers
+            inequation = {k:-1 for k in self.__profit}
+            if isinstance(min_customers, int):
+                inequation[constant_id] = - min_customers
+            else:
+                print('min customers: ', floor(min_customers*len(self.__profit)))
+                inequation[constant_id] = - floor(min_customers*len(self.__profit))
+            inequations.append(inequation)
+            inequations_operators.append('L')
+        # construct Problem
+        if self.__problem_type == 'default':
+            return NextReleaseProblem.MOIP(variables, objectives, inequations, inequations_operators, equations)
         elif self.__problem_type == 'jmetal':
             return JNRP(variables, objectives, inequations)
         else:
@@ -341,7 +414,7 @@ class NextReleaseProblem:
             return self.__to_single_stakeholder_form(b)
 
     # model to bi-objective form
-    def bi_form(self) -> MOIPProblem:
+    def bi_form(self) -> ProblemType:
         if self.__project.startswith('classic') or self.__project.startswith('realistic'):
             # classic and realistic nrps
             if self.__project.startswith('classic'):
@@ -351,6 +424,27 @@ class NextReleaseProblem:
             self.xuan_reencode()
             # to bi-objective form
             return self.__to_bi_general_form()
+        elif self.__project.startswith('Motorola'):
+            pass
+        elif self.__project.startswith('RALIC'):
+            pass
+        elif self.__project.startswith('Baan'):
+            pass
+        else:
+            # not found
+            assert False
+
+    # model to bi-objective with additional constraints form
+    def bicst_form(self, option : Dict[str, int]) -> ProblemType:
+        if self.__project.startswith('classic') or self.__project.startswith('realistic'):
+            # classic and realistic nrps
+            if self.__project.startswith('classic'):
+                # flatten, only classic dataset need this
+                self.flatten()
+            # reencode
+            self.xuan_reencode()
+            # to bi-objective form
+            return self.__to_bicst_form(**option)
         elif self.__project.startswith('Motorola'):
             pass
         elif self.__project.startswith('RALIC'):
@@ -403,3 +497,5 @@ class NextReleaseProblem:
             return self.single_form(option['b'])
         elif form == 'binary':
             return self.bi_form()
+        elif form == 'bicst':
+            return self.bicst_form(option)

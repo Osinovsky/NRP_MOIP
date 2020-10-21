@@ -1,7 +1,7 @@
 # ################################## #
 # DONG Shi, dongshi@mail.ustc.edu.cn #
 # config.py, created: 2020.08.25     #
-# Last Modified: 2020.10.20          #
+# Last Modified: 2020.10.21          #
 # ################################## #
 
 from os import path
@@ -75,7 +75,8 @@ ALL_FILES_DICT = { \
 PROBLEM_TYPES = ['default', 'jmetal']
 
 # NRP MODELLING FROMS
-NRP_FORMS = ['single', 'binary']
+# bicst for binary-objective-with-additional-constraint
+NRP_FORMS = ['single', 'binary', 'bicst']
 
 # SOLVERS
 SOLVING_METHOD = ['single', 'epsilon', 'cwmoip', 'ncgop', 'NSGAII', 'HYPE', 'SPEA2']
