@@ -21,15 +21,58 @@ def pure_config(the_config):
     del konfig['ite_num']
     return konfig
 
+# run bicst config
+def bicst_run(option, out_path):
+    configs = []
+    for project, file_name in ALL_FILES_DICT.items():
+        if project.startswith('classic'): #  or project.startswith('realistic')
+            configs.append(make_config(project, 'bicst', 'cwmoip', 1, option))
+            configs.append(make_config(project, 'bicst', 'epsilon', 1, option))
+    # names = []
+    # for one_config in configs:
+    #     name = Runner.name(**pure_config(one_config))
+    #     names.append(name)
+    #     print(name)
+    #run
+    runner = Runner(configs, out_path)
+
 # main function
 if __name__ == '__main__':
+    # option
+    # option = {'max_cost' : None, 'min_profit' : None, 'min_requirements' : None, 'min_customers' : None}
+
+    # interval
+    interval = [0.7, 0.5, 0.3]
+    # max cost
+    # for rhs in interval:
+    #     print('max cost: ', rhs)
+    #     option = {'max_cost' : rhs, 'min_profit' : None, 'min_requirements' : None, 'min_customers' : None}
+    #     bicst_run(option, '../result_max_cost'+str(rhs))
+    # min profit
+    # for rhs in interval:
+    #     print('min profit: ', rhs)
+    #     option = {'max_cost' : None, 'min_profit' : rhs, 'min_requirements' : None, 'min_customers' : None}
+    #     bicst_run(option, '../result_min_profit'+str(rhs))
+    # min requirements
+    # for rhs in interval:
+    #     print('min requirements: ', rhs)
+    #     option = {'max_cost' : None, 'min_profit' : None, 'min_requirements' : rhs, 'min_customers' : None}
+    #     bicst_run(option, '../result_min_req'+str(rhs))
+    # min customers
+    # for rhs in interval:
+    #     print('min customers: ', rhs)
+    #     option = {'max_cost' : None, 'min_profit' : None, 'min_requirements' : None, 'min_customers' : rhs}
+    #     bicst_run(option, '../result_min_cus'+str(rhs))
+
+    ###############################################################
+
     # run all classic and realistic nrps in single form and epsilon
 
     # config
-    out_path = '../result_20201021'
-    ite_num = 1
+    # out_path = '../result_20201021'
+    # ite_num = 1
 
-    configs = []
+    # configs = []
     # single
     # for project, file_name in ALL_FILES_DICT.items():
     #     if project.startswith('classic'):
@@ -40,14 +83,14 @@ if __name__ == '__main__':
     #         configs.append((project, 'single', 'single', {'b':0.3}))
     #         configs.append((project, 'single', 'single', {'b':0.5}))
     # binary, epsilon constraint
-    count = 0
-    for project, file_name in ALL_FILES_DICT.items():
-        if project.startswith('classic') or project.startswith('realistic'):
-            count += 1
-            if count == 1:
-                option = {'max_cost' : None, 'min_profit' : None, 'min_requirements' : None, 'min_customers' : None} 
-                configs.append(make_config(project, 'bicst', 'cwmoip', 1, option))
-                configs.append(make_config(project, 'bicst', 'epsilon', 1, option))
+    # count = 0
+    # for project, file_name in ALL_FILES_DICT.items():
+    #     if project.startswith('classic') or project.startswith('realistic'):
+    #         count += 1
+    #         if count == 1:
+    #             option = {'max_cost' : None, 'min_profit' : None, 'min_requirements' : None, 'min_customers' : None} 
+    #             configs.append(make_config(project, 'bicst', 'cwmoip', 1, option))
+    #             configs.append(make_config(project, 'bicst', 'epsilon', 1, option))
                 # configs.append(make_config(project, 'binary', 'cwmoip'))
                 # configs.append(make_config(project, 'binary', 'epsilon'))
                 # configs.append(make_config(project, 'binary', 'ncgop'))
@@ -55,13 +98,13 @@ if __name__ == '__main__':
                 # configs.append(make_config(project, 'binary', 'HYPE'))
 
     # prepare names
-    names = []
-    for one_config in configs:
-        name = Runner.name(**pure_config(one_config))
-        names.append(name)
-        print(name)
+    # names = []
+    # for one_config in configs:
+    #     name = Runner.name(**pure_config(one_config))
+    #     names.append(name)
+    #     print(name)
     # run
-    runner = Runner(configs, out_path)
+    # runner = Runner(configs, out_path)
 
     # compare
     # comparator = Comparator(out_path, names, ite_num)
