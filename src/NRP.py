@@ -295,7 +295,7 @@ class NextReleaseProblem:
         # prepare objective coefs
         max_profit = {k:-v for k, v in self.__profit.items()}
         min_cost = {k:v for k, v in self.__cost.items()}
-        objectives = [min_cost, max_profit]
+        objectives = [max_profit, min_cost]
         # prepare the atrribute matrix
         inequations : List[Dict[int, int]] = []
         inequations_operators : List[str] = []
