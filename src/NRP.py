@@ -1,7 +1,7 @@
 # ################################## #
 # DONG Shi, dongshi@mail.ustc.edu.cn #
 # NRP.py, created: 2020.09.19        #
-# Last Modified: 2020.10.21          #
+# Last Modified: 2020.10.22          #
 # ################################## #
 
 from typing import *
@@ -394,6 +394,46 @@ class NextReleaseProblem:
         else:
             assert False
 
+    # tri-objective form with max requirements selected as the third objective
+    def __to_tri_max_requirements_form(self) -> ProblemType:
+        # only for classic and realistic
+        assert self.__project.startswith('classic') or self.__project.startswith('realistic')
+        # requirement dependencies should be eliminated
+        assert not self.__dependencies
+        # modelling with bi-objective
+        variables, objectives, inequations, inequations_operators, equations = \
+            self.__basic_bi_form()
+        # add the third objective, max requirements <=> min -requirements
+        max_requirements = {k:-1 for k in self.__cost}
+        objectives.append(max_requirements)
+        # construct Problem
+        if self.__problem_type == 'default':
+            return NextReleaseProblem.MOIP(variables, objectives, inequations, inequations_operators, equations)
+        elif self.__problem_type == 'jmetal':
+            return JNRP(variables, objectives, inequations)
+        else:
+            assert False
+
+    # tri-objective form with max customers selected as the third objective
+    def __to_tri_max_customers_form(self) -> ProblemType:
+        # only for classic and realistic
+        assert self.__project.startswith('classic') or self.__project.startswith('realistic')
+        # requirement dependencies should be eliminated
+        assert not self.__dependencies
+        # modelling with bi-objective
+        variables, objectives, inequations, inequations_operators, equations = \
+            self.__basic_bi_form()
+        # add the third objective, max customers <=> min -customers
+        max_customers = {k:-1 for k in self.__profit}
+        objectives.append(max_customers)
+        # construct Problem
+        if self.__problem_type == 'default':
+            return NextReleaseProblem.MOIP(variables, objectives, inequations, inequations_operators, equations)
+        elif self.__problem_type == 'jmetal':
+            return JNRP(variables, objectives, inequations)
+        else:
+            assert False
+
     # model to single objective
     # different dataset using different form (according to the IST-2015)
     def single_form(self, b : float) -> MOIPProblem:
@@ -455,6 +495,32 @@ class NextReleaseProblem:
             # not found
             assert False
 
+    # the tri-objective forms
+    def tri_form(self, form : str) -> ProblemType:
+        if self.__project.startswith('classic') or self.__project.startswith('realistic'):
+            # classic and realistic nrps
+            if self.__project.startswith('classic'):
+                # flatten, only classic dataset need this
+                self.flatten()
+            # reencode
+            self.xuan_reencode()
+            # to bi-objective form
+            if form == 'trireq':
+                return self.__to_tri_max_requirements_form()
+            elif form == 'tricus':
+                return self.__to_tri_max_customers_form()
+            else:
+                assert False
+        elif self.__project.startswith('Motorola'):
+            pass
+        elif self.__project.startswith('RALIC'):
+            pass
+        elif self.__project.startswith('Baan'):
+            pass
+        else:
+            # not found
+            assert False
+
     # construct MOIPProblem
     @staticmethod
     def MOIP(
@@ -499,3 +565,5 @@ class NextReleaseProblem:
             return self.bi_form()
         elif form == 'bicst':
             return self.bicst_form(option)
+        elif form.startswith('tri'):
+            return self.tri_form(form)

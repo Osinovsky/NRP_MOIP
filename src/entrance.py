@@ -42,7 +42,7 @@ if __name__ == '__main__':
     # option = {'max_cost' : None, 'min_profit' : None, 'min_requirements' : None, 'min_customers' : None}
 
     # interval
-    interval = [0.7, 0.5, 0.3]
+    # interval = [0.7, 0.5, 0.3]
     # max cost
     # for rhs in interval:
     #     print('max cost: ', rhs)
@@ -69,10 +69,10 @@ if __name__ == '__main__':
     # run all classic and realistic nrps in single form and epsilon
 
     # config
-    # out_path = '../result_20201021'
-    # ite_num = 1
+    out_path = '../result_20201022'
+    ite_num = 1
 
-    # configs = []
+    configs = []
     # single
     # for project, file_name in ALL_FILES_DICT.items():
     #     if project.startswith('classic'):
@@ -83,44 +83,44 @@ if __name__ == '__main__':
     #         configs.append((project, 'single', 'single', {'b':0.3}))
     #         configs.append((project, 'single', 'single', {'b':0.5}))
     # binary, epsilon constraint
-    # count = 0
-    # for project, file_name in ALL_FILES_DICT.items():
-    #     if project.startswith('classic') or project.startswith('realistic'):
-    #         count += 1
-    #         if count == 1:
-    #             option = {'max_cost' : None, 'min_profit' : None, 'min_requirements' : None, 'min_customers' : None} 
-    #             configs.append(make_config(project, 'bicst', 'cwmoip', 1, option))
-    #             configs.append(make_config(project, 'bicst', 'epsilon', 1, option))
-                # configs.append(make_config(project, 'binary', 'cwmoip'))
-                # configs.append(make_config(project, 'binary', 'epsilon'))
+    count = 0
+    for project, file_name in ALL_FILES_DICT.items():
+        if project.startswith('classic') or project.startswith('realistic'):
+            count += 1
+            if count == 1:
+                option = {'max_cost' : None, 'min_profit' : None, 'min_requirements' : None, 'min_customers' : None} 
+                # configs.append(make_config(project, 'bicst', 'cwmoip', 1, option))
+                # configs.append(make_config(project, 'bicst', 'epsilon', 1, option))
+                configs.append(make_config(project, 'trireq', 'cwmoip'))
+                configs.append(make_config(project, 'trireq', 'epsilon'))
                 # configs.append(make_config(project, 'binary', 'ncgop'))
                 # configs.append(make_config(project, 'binary', 'NSGAII', 1, {'mutation': 0.035, 'crossover':1.0, 'max_evaluation' : MAX_EVALUATION, 'tolerance':10}))
                 # configs.append(make_config(project, 'binary', 'HYPE'))
 
     # prepare names
-    # names = []
-    # for one_config in configs:
-    #     name = Runner.name(**pure_config(one_config))
-    #     names.append(name)
-    #     print(name)
+    names = []
+    for one_config in configs:
+        name = Runner.name(**pure_config(one_config))
+        names.append(name)
+        print(name)
     # run
-    # runner = Runner(configs, out_path)
+    runner = Runner(configs, out_path)
 
     # compare
-    # comparator = Comparator(out_path, names, ite_num)
+    comparator = Comparator(out_path, names, ite_num)
 
     # load and display
-    # comparison = Comparator.load(out_path, 'comparison.json')
-    # template = '{NAME:100}|{RT:12}|{ND:8}|{IGD:12}|{HV:12}|{E:12}'
-    # # header
-    # print(template.format(NAME='Name', RT='Runtime', ND='NonD', IGD='IGD', HV='HV', E='Evenness'))
-    # for project_name in comparison:
-    #     print('project name: ' + project_name)
-    #     for name, value in comparison[project_name].items():
-    #         print(template.format(
-    #             NAME=name, SN=str(value['all']['solution number']),
-    #             RT=str(round(value['all']['runtime'], 2)),
-    #             ND=str(value['all']['nd']), IGD=str(round(value['all']['igd'], 2)),
-    #             HV=str(round(value['all']['hv'], 3)), E=str(round(value['all']['evenness'], 3))
-    #         ))
+    comparison = Comparator.load(out_path, 'comparison.json')
+    template = '{NAME:100}|{RT:12}|{ND:8}|{IGD:12}|{HV:12}|{E:12}'
+    # header
+    print(template.format(NAME='Name', RT='Runtime', ND='NonD', IGD='IGD', HV='HV', E='Evenness'))
+    for project_name in comparison:
+        print('project name: ' + project_name)
+        for name, value in comparison[project_name].items():
+            print(template.format(
+                NAME=name, SN=str(value['all']['solution number']),
+                RT=str(round(value['all']['runtime'], 2)),
+                ND=str(value['all']['nd']), IGD=str(round(value['all']['igd'], 2)),
+                HV=str(round(value['all']['hv'], 3)), E=str(round(value['all']['evenness'], 3))
+            ))
     

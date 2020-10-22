@@ -1,7 +1,7 @@
 # ################################## #
 # DONG Shi, dongshi@mail.ustc.edu.cn #
 # config.py, created: 2020.08.25     #
-# Last Modified: 2020.10.21          #
+# Last Modified: 2020.10.22          #
 # ################################## #
 
 from os import path
@@ -76,7 +76,9 @@ PROBLEM_TYPES = ['default', 'jmetal']
 
 # NRP MODELLING FROMS
 # bicst for binary-objective-with-additional-constraint
-NRP_FORMS = ['single', 'binary', 'bicst']
+# trireq for triple-objective-with-max-requirements-as-third-objective
+# tricus for triple-objective-with-max-requirements-as-third-objective
+NRP_FORMS = ['single', 'binary', 'bicst', 'trireq', 'tricus']
 
 # SOLVERS
 SOLVING_METHOD = ['single', 'epsilon', 'cwmoip', 'ncgop', 'NSGAII', 'HYPE', 'SPEA2']
