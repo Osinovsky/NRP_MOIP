@@ -91,8 +91,8 @@ if __name__ == '__main__':
                 option = {'max_cost' : None, 'min_profit' : None, 'min_requirements' : None, 'min_customers' : None} 
                 # configs.append(make_config(project, 'bicst', 'cwmoip', 1, option))
                 # configs.append(make_config(project, 'bicst', 'epsilon', 1, option))
-                configs.append(make_config(project, 'trireq', 'cwmoip'))
-                configs.append(make_config(project, 'trireq', 'epsilon'))
+                # configs.append(make_config(project, 'trireq', 'cwmoip'))
+                configs.append(make_config(project, 'binary', 'epsilon'))
                 # configs.append(make_config(project, 'binary', 'ncgop'))
                 # configs.append(make_config(project, 'binary', 'NSGAII', 1, {'mutation': 0.035, 'crossover':1.0, 'max_evaluation' : MAX_EVALUATION, 'tolerance':10}))
                 # configs.append(make_config(project, 'binary', 'HYPE'))
