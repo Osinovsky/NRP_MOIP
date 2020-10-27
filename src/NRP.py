@@ -1,7 +1,7 @@
 # ################################## #
 # DONG Shi, dongshi@mail.ustc.edu.cn #
 # NRP.py, created: 2020.09.19        #
-# Last Modified: 2020.10.22          #
+# Last Modified: 2020.10.27          #
 # ################################## #
 
 from typing import *
@@ -12,6 +12,8 @@ from JNRP import JNRP
 from copy import deepcopy
 from functools import reduce
 from math import ceil, floor
+import json
+import os
 
 # Type 
 CostType = Union[Dict[int, int], Dict[Tuple[int, int], int]]
@@ -329,6 +331,8 @@ class NextReleaseProblem:
         if self.__problem_type == 'default':
             return NextReleaseProblem.MOIP(variables, objectives, inequations, inequations_operators, equations)
         elif self.__problem_type == 'jmetal':
+            file_name = self.__project + '_' + 'binary.json'
+            NextReleaseProblem.dump(file_name, variables, objectives, inequations)
             return JNRP(variables, objectives, inequations)
         else:
             assert False
@@ -390,6 +394,8 @@ class NextReleaseProblem:
         if self.__problem_type == 'default':
             return NextReleaseProblem.MOIP(variables, objectives, inequations, inequations_operators, equations)
         elif self.__problem_type == 'jmetal':
+            file_name = self.__project + '_' + 'bicst.json'
+            NextReleaseProblem.dump(file_name, variables, objectives, inequations)
             return JNRP(variables, objectives, inequations)
         else:
             assert False
@@ -410,6 +416,8 @@ class NextReleaseProblem:
         if self.__problem_type == 'default':
             return NextReleaseProblem.MOIP(variables, objectives, inequations, inequations_operators, equations)
         elif self.__problem_type == 'jmetal':
+            file_name = self.__project + '_' + 'trireq.json'
+            NextReleaseProblem.dump(file_name, variables, objectives, inequations)
             return JNRP(variables, objectives, inequations)
         else:
             assert False
@@ -430,6 +438,8 @@ class NextReleaseProblem:
         if self.__problem_type == 'default':
             return NextReleaseProblem.MOIP(variables, objectives, inequations, inequations_operators, equations)
         elif self.__problem_type == 'jmetal':
+            file_name = self.__project + '_' + 'tricus.json'
+            NextReleaseProblem.dump(file_name, variables, objectives, inequations)
             return JNRP(variables, objectives, inequations)
         else:
             assert False
@@ -520,6 +530,41 @@ class NextReleaseProblem:
         else:
             # not found
             assert False
+
+    # dump
+    @staticmethod
+    def dump(
+        file_name : str, \
+        variables : List[int], \
+        objectives : List[Dict[int, int]], \
+        inequations : List[Dict[int, int]],
+    ) -> None:
+        # prepare a dict for storing all
+        result = dict()
+        # turn variables into dict
+        result['variables'] = dict()
+        for index, variable in enumerate(variables):
+            result['variables'][str(index)] = variable
+        # turn objectives into dict
+        result['objectives'] = dict()
+        for index, objective in enumerate(objectives):
+            result['objectives'][str(index)] = objective
+        # turn inequations into dict
+        result['inequations'] = dict()
+        for index, inequation in enumerate(inequations):
+            result['inequations'][str(index)] = inequation
+        # see if folder exists
+        if not os.path.exists(DUMP_PATH):
+            os.makedirs(DUMP_PATH)
+        # add file_name on path
+        file_name = os.path.join(DUMP_PATH, file_name)
+        # open output file
+        with open(file_name, 'w+') as out_file:
+            # dump
+            json_object = json.dumps(result, indent=4)
+            out_file.write(json_object)
+            # close the file
+            out_file.close()
 
     # construct MOIPProblem
     @staticmethod

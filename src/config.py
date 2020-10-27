@@ -1,7 +1,7 @@
 # ################################## #
 # DONG Shi, dongshi@mail.ustc.edu.cn #
 # config.py, created: 2020.08.25     #
-# Last Modified: 2020.10.22          #
+# Last Modified: 2020.10.27          #
 # ################################## #
 
 from os import path
@@ -17,6 +17,8 @@ OFFSPRING_SIZE = 100
 # FILES PATH AND NAMES
 # output path
 RESULT_PATH = '../result/'
+# NRP dump path
+DUMP_PATH = '../dump/'
 
 # input file pathes
 # Xuan's Datasets

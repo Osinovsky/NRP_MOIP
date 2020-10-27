@@ -4,5 +4,6 @@
 doc/_*
 tmp/*
 result*/*
+dump
 .*
 !.gitignore
