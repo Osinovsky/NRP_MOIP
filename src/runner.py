@@ -1,7 +1,7 @@
 # ################################## #
 # DONG Shi, dongshi@mail.ustc.edu.cn #
 # runner.py, created: 2020.09.22     #
-# Last Modified: 2020.10.20          #
+# Last Modified: 2020.10.28          #
 # ################################## #
 
 from typing import *
@@ -128,6 +128,8 @@ class Runner:
         self.__form = form
         if method in self.jmetal_solvers:
             type = 'jmetal'
+            # dump config in /dump/ folder
+            Runner.dump_config(project_name, form, option)
         else:
             type = 'default'
         self.__nrp = NextReleaseProblem(project_name, type)
@@ -178,6 +180,36 @@ class Runner:
         # print each solution
         for solution in self.__solutions:
             print(str(solution) + ', ')
+    
+    # dump jmetal config
+    @staticmethod
+    def dump_config(project_name : str, form : str, option : Dict[str, Any]) -> None:
+        # prepare the new option dict
+        neo_option = dict()
+        for key, value in option.items():
+            if not value:
+                # None
+                neo_option[key] = 'n'
+            elif isinstance(value, int):
+                # int
+                neo_option[key] = 'i' + str(value)
+            elif isinstance(value, float):
+                # float
+                neo_option[key] = 'f' + str(value)
+            else:
+                assert False
+        # end for
+        json_object = json.dumps(neo_option)
+        # create DUMP PATH if not exists
+        if not os.path.exists(os.path.dirname(DUMP_PATH)):
+            os.makedirs(DUMP_PATH)
+        # prepare file name
+        file_name = os.path.join(DUMP_PATH, ('config_' + project_name + '_' + form + '.json'))
+        # create config file
+        with open(file_name, 'w+') as file_out:
+            file_out.write(json_object)
+            file_out.close()
+        # end with
 
     # config name
     @staticmethod
