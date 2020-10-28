@@ -199,7 +199,7 @@ class Runner:
             else:
                 assert False
         # end for
-        json_object = json.dumps(neo_option)
+        json_object = json.dumps(neo_option, indent=4)
         # create DUMP PATH if not exists
         if not os.path.exists(os.path.dirname(DUMP_PATH)):
             os.makedirs(DUMP_PATH)
