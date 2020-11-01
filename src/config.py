@@ -1,88 +1,98 @@
-# ################################## #
-# DONG Shi, dongshi@mail.ustc.edu.cn #
-# config.py, created: 2020.08.25     #
-# Last Modified: 2020.10.27          #
-# ################################## #
+#
+# DONG Shi, dongshi@mail.ustc.edu.cn
+# Config.py, created: 2020.10.31
+# last modified: 2020.10.31
+#
 
+from typing import Dict, List
 from os import path
 
-# MOEA Parameters
-# max evaluation
-MAX_EVALUATION = 25000
-# population size
-POPULATION_SIZE = 100
-# offspring population size
-OFFSPRING_SIZE = 100
 
-# FILES PATH AND NAMES
-# output path
-RESULT_PATH = '../result/'
-# NRP dump path
-DUMP_PATH = '../dump/'
+class Config:
+    """ [summary] Config class is used to store global configs
 
-# input file pathes
-# Xuan's Datasets
-CLASSIC_NRP_PATH = '../datasets/xuan/classic-nrp/'
-CLASSIC_NRPS = ['nrp1.txt', 'nrp2.txt', 'nrp3.txt', 'nrp4.txt', 'nrp5.txt']
-REALISTIC_NRP_PATH = '../datasets/xuan/realistic-nrp/'
-REALISTIC_NRPS = ['nrp-e1.txt', 'nrp-e2.txt', 'nrp-e3.txt', 'nrp-e4.txt', 'nrp-g1.txt', 'nrp-g2.txt', 'nrp-g3.txt', 'nrp-g4.txt', 'nrp-m1.txt', 'nrp-m2.txt', 'nrp-m3.txt', 'nrp-m4.txt']
-# The Motorola Dateset
-MOTOROLA_FILE_NAME = '../datasets/motorola/motorola.txt'
-# RALIC Dataset(s), RateP
-RALIC_PATH = '../datasets/RALIC/'
-RALIC_COST_FILE = 'RALIC_requirements_and_cost.txt'
-RALIC_PREFIX = ['Point', 'Rank', 'Rate']
-RALIC_FILE = {'obj' : '{0}P-Obj.txt', 'req' : '{0}P-Req.txt', 'sreq' : '{0}P-SReq.txt'}
-# Baan Dataset
-BAAN_FILE_NAME = '../datasets/Baan/Baan.xls'
-BAAN_SHEET_NAME = 'all requirements'
-BAAN_BOUNDARY = {'left': 4, 'right': 22, 'up' : 1, 'down' : 101}
+    Please update Config if you:
+        update datasets
+        update Loader
+    """
+    def __init__(self) -> None:
+        # datasets
+        self.dataset: Dict[str, str] = {}
+        # datasets path
+        self.dataset_path = './datasets/'
+        # keywords
+        self.keywords = ['classic', 'realistic']
 
-# make the file path more friendly, code them into a big dict
-ALL_FILES_DICT = { \
-    'classic_1' : path.join(CLASSIC_NRP_PATH, CLASSIC_NRPS[0]), \
-    'classic_2' : path.join(CLASSIC_NRP_PATH, CLASSIC_NRPS[1]), \
-    'classic_3' : path.join(CLASSIC_NRP_PATH, CLASSIC_NRPS[2]), \
-    'classic_4' : path.join(CLASSIC_NRP_PATH, CLASSIC_NRPS[3]), \
-    'classic_5' : path.join(CLASSIC_NRP_PATH, CLASSIC_NRPS[4]), \
-    'realistic_e1' : path.join(REALISTIC_NRP_PATH , REALISTIC_NRPS[0]), \
-    'realistic_e2' : path.join(REALISTIC_NRP_PATH , REALISTIC_NRPS[1]), \
-    'realistic_e3' : path.join(REALISTIC_NRP_PATH , REALISTIC_NRPS[2]), \
-    'realistic_e4' : path.join(REALISTIC_NRP_PATH , REALISTIC_NRPS[3]), \
-    'realistic_g1' : path.join(REALISTIC_NRP_PATH , REALISTIC_NRPS[4]), \
-    'realistic_g2' : path.join(REALISTIC_NRP_PATH , REALISTIC_NRPS[5]), \
-    'realistic_g3' : path.join(REALISTIC_NRP_PATH , REALISTIC_NRPS[6]), \
-    'realistic_g4' : path.join(REALISTIC_NRP_PATH , REALISTIC_NRPS[7]), \
-    'realistic_m1' : path.join(REALISTIC_NRP_PATH , REALISTIC_NRPS[8]), \
-    'realistic_m2' : path.join(REALISTIC_NRP_PATH , REALISTIC_NRPS[9]), \
-    'realistic_m3' : path.join(REALISTIC_NRP_PATH , REALISTIC_NRPS[10]), \
-    'realistic_m4' : path.join(REALISTIC_NRP_PATH , REALISTIC_NRPS[11]), \
-    'Motorola' : MOTOROLA_FILE_NAME, \
-    'RALIC_Point' : {'obj' : path.join(RALIC_PATH, RALIC_FILE['obj'].format('Point')), \
-                     'req' : path.join(RALIC_PATH, RALIC_FILE['req'].format('Point')), \
-                     'sreq' : path.join(RALIC_PATH, RALIC_FILE['sreq'].format('Point')), \
-                     'cost' : path.join(RALIC_PATH, RALIC_COST_FILE)}, \
-    'RALIC_Rank' : {'obj' : path.join(RALIC_PATH, RALIC_FILE['obj'].format('Rank')), \
-                    'req' : path.join(RALIC_PATH, RALIC_FILE['req'].format('Rank')), \
-                    'sreq' : path.join(RALIC_PATH, RALIC_FILE['sreq'].format('Rank')), \
-                    'cost' : path.join(RALIC_PATH, RALIC_COST_FILE)}, \
-    'RALIC_Rate' : {'obj' : path.join(RALIC_PATH, RALIC_FILE['obj'].format('Rate')), \
-                    'req' : path.join(RALIC_PATH, RALIC_FILE['req'].format('Rate')), \
-                    'sreq' : path.join(RALIC_PATH, RALIC_FILE['sreq'].format('Rate')), \
-                    'cost' : path.join(RALIC_PATH, RALIC_COST_FILE)}, \
-    'Baan' : BAAN_FILE_NAME, \
-}
+        # prepare datasets
+        self.make_xuan_index()
 
-# NRP modeling type
-PROBLEM_TYPES = ['default', 'jmetal']
+        # model form
+        self.modelling = ['single', 'sincus', 'binary', 'bincst', 'trireq', 'tricus']
+        # solvers
+        self.solvers = ['single', 'epsilon', 'cwmoip', 'ncgop', 'NSGAII']
 
-# NRP MODELLING FROMS
-# bicst for binary-objective-with-additional-constraint
-# trireq for triple-objective-with-max-requirements-as-third-objective
-# tricus for triple-objective-with-max-requirements-as-third-objective
-NRP_FORMS = ['single', 'binary', 'bicst', 'trireq', 'tricus']
+        # dump path
+        self.dump_path = './dump/'
 
-# SOLVERS
-SOLVING_METHOD = ['single', 'epsilon', 'cwmoip', 'ncgop', 'NSGAII', 'HYPE', 'SPEA2']
-DEFAULT_METHOD = ['single', 'epsilon', 'cwmoip', 'ncgop']
-MOEA_METHOD = ['NSGAII', 'HYPE', 'SPEA2']
+    def make_xuan_index(self) -> None:
+        """make_xuan_index [summary] make classic and realistic datasets
+        index in self.dataset
+        """
+        # classic nrp index
+        classic_name = 'classic_{}'
+        classic_format = 'xuan/classic-nrp/nrp{}.txt'
+        for name in ['1', '2', '3', '4', '5']:
+            self.dataset[classic_name.format(name)] = \
+                path.join(self.dataset_path, classic_format.format(name))
+
+        # realistic nrp index
+        realistic_name = 'classic_{}'
+        realistic_format = 'xuan/realistic-nrp/nrp-{}.txt'
+        for name_left in ['e', 'm', 'g']:
+            for name_right in ['1', '2', '3', '4']:
+                name = name_left + name_right
+                self.dataset[realistic_name.format(name)] = \
+                    path.join(self.dataset_path, realistic_format.format(name))
+
+    def get_index_dict(self, keywords: List[str]) -> Dict[str, str]:
+        """get_index_dict [summary] get given keywords dataset subset
+
+        Args:
+            keywords (List[str]):
+            [description] project name startswith keywords
+
+        Returns:
+            Dict[str, str]: [description] a map from name to file path
+        """
+        # check if keyword in keywords
+        for keyword in keywords:
+            assert keyword in self.keywords
+        # prepare a tmp dict
+        dataset_subset: Dict[str, str] = {}
+        # traverse all entry in dataset
+        for key in self.dataset:
+            # try each keywords
+            for keyword in keywords:
+                if key.startswith(keyword):
+                    dataset_subset[key] = self.dataset[key]
+        # return
+        return dataset_subset
+    
+    def parse_keyword(self, name: str) -> str:
+        """parse_keyword [summary] parse the keyword in project name
+
+        Args:
+            name (str): [description] project name
+
+        Returns:
+            str: [description] the keyword
+        """
+        # should be in dataset
+        assert name in self.dataset
+        # find keyword by check startswith
+        for keyword in self.keywords:
+            if name.startswith(keyword):
+                return keyword
+        # if not found
+        print('keyword lost as project: ', name)
+        return ''
