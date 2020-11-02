@@ -1,7 +1,7 @@
 #
 # DONG Shi, dongshi@mail.ustc.edu.cn
 # NRP.py, created: 2020.10.31
-# last modified: 2020.10.31
+# last modified: 2020.11.02
 #
 
 import os
@@ -10,9 +10,9 @@ from copy import deepcopy
 from functools import reduce
 from math import ceil, floor
 from typing import Dict, Tuple, List, Union, Set, Any
-from Loader import Loader, XuanProblem
+from src.Loader import Loader, XuanProblem
 from src.Config import Config
-from util.moipProb import MOIPProblem
+from src.util.moipProb import MOIPProblem
 
 
 class XuanNRP:
@@ -57,35 +57,11 @@ class NextReleaseProblem:
 
         # load config
         config = Config()
-        keyword = config.parse_keyword(project)
+        keyword = config.parse_dataset_keyword(project)
         # construct NRP from dataset
-        self.nrp = getattr(self, 'constuct_from_{}'.format(keyword))(project)
+        self.nrp = getattr(self, 'construct_from_{}'.format(keyword))(project)
         # for MOIPProblem
         self.problem: MOIPProblem = None
-
-    @staticmethod
-    def construct_from_classic(project: str) -> XuanNRP:
-        """construct_from_classic [summary] construct XuanNRP from classic dataset
-
-        Args:
-            project (str): [description] project name
-
-        Returns:
-            XuanNRP: [description] raw NRP (Xuan form)
-        """
-        return NextReleaseProblem.construct_from_xuan(project)
-
-    @staticmethod
-    def construct_from_realistic(project: str) -> XuanNRP:
-        """construct_from_realistic [summary] construct XuanNRP from realistic dataset
-
-        Args:
-            project (str): [description] project name
-
-        Returns:
-            XuanNRP: [description] raw NRP (Xuan form)
-        """
-        return NextReleaseProblem.construct_from_xuan(project)
 
     @staticmethod
     def construct_from_xuan(project: str) -> XuanNRP:
@@ -176,10 +152,9 @@ class NextReleaseProblem:
             encoding will be compact and from 0
 
         Returns:
-            Tuple[Dict[int, int], Dict[int, int]]: [description]
+            Tuple[Dict[int, int], Dict[int, int]]:
+            [description] requirement renamer, customer renamer
         """
-        # assume that dependencies is empty
-        assert not self.nrp.dependencies
         # employ an encoder
         encoder = 0
         # prepare a requirement encoder
@@ -198,13 +173,18 @@ class NextReleaseProblem:
             cus_encoder[cus] = encoder
             neo_profit[encoder] = profit
             encoder += 1
+        # apply them on dependencies
+        neo_dependencies = \
+            [(req_encoder[x[0]], req_encoder[x[1]])
+             for x in self.nrp.dependencies]
         # apply them on requests
-        neo_requests = []
-        for cus, req in self.nrp.requests:
-            neo_requests.append((cus_encoder[cus], req_encoder[req]))
+        neo_requests = \
+            [(cus_encoder[x[0]], req_encoder[x[1]])
+             for x in self.nrp.requests]
         # change them all
         self.nrp.cost = neo_cost
         self.nrp.profit = neo_profit
+        self.nrp.dependencies = neo_dependencies
         self.nrp.requests = neo_requests
         # return dicts
         return req_encoder, cus_encoder

@@ -9,14 +9,8 @@
             "type": "python",
             "request": "launch",
             "program": "${file}",
-            "console": "integratedTerminal"
-        },
-        {
-            "name": "Python: Runner",
-            "type": "python",
-            "request": "launch",
-            "program": "./src/runner.py",
-            "console": "integratedTerminal"
+            "console": "integratedTerminal",
+            "env": {"PYTHONPATH": "${workspaceFolder}"}
         }
     ]
 }
