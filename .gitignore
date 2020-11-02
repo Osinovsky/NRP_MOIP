@@ -1,6 +1,6 @@
 .vscode/*
 */__pycache__
-src/util/__pycache__
+**/__pycache__
 */test.py
 doc/_*
 tmp/*

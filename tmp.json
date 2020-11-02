@@ -1,0 +1,19 @@
+[
+    {
+        "name": "result folder name",
+        "dataset": ["classic_1", "realistic_1"],
+        "modelling": [
+            {
+                "name": "bincst",
+                "max_cost": 0.7
+            },
+            {
+                "name": "single"
+            }
+        ],
+        "method": {
+            "name": "NSGAII",
+            "max_evaluations": 25000
+        }
+    }
+]

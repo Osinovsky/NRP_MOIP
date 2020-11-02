@@ -36,8 +36,15 @@ class Config:
         # model form
         self.modelling = \
             ['single', 'sincus', 'binary', 'bincst', 'trireq', 'tricus']
-        # solvers
-        self.solvers = ['single', 'epsilon', 'cwmoip', 'ncgop', 'NSGAII']
+        # solving methods
+        self.method = \
+            ['single', 'epsilon', 'cwmoip', 'ncgop', 'NSGAII']
+        # moip methods
+        self.moip_method = \
+            ['single', 'epsilon', 'cwmoip', 'ncgop']
+        # dump methods(for jar algorithm)
+        self.dump_method = \
+            ['NSGAII']
 
         # dump path
         self.dump_path = './dump/'
@@ -139,3 +146,69 @@ class Config:
         for keyword in self.keywords:
             name_set.add(self.keywords[keyword])
         return list(name_set)
+
+    def keyword_cluster(self, keyword: str) -> List[str]:
+        """keyword_cluster [summary] cluster problems with same keyword
+
+        Args:
+            keyword (str): [description] keyword
+
+        Returns:
+            List[str]: [description] all problems with same keyword
+        """
+        cluster = []
+        for name in self.dataset:
+            if self.parse_keyword(name) == keyword:
+                cluster.append(name)
+        return cluster
+
+    def dataset_cluster(self, dataset_name: str) -> List[str]:
+        """dataset_cluster [summary] cluster problems inside a dataset
+
+        Args:
+            dataset_name (str): [description] dataset name
+
+        Returns:
+            List[str]: [description] all problems within same dataset
+        """
+        cluster = []
+        for name in self.dataset:
+            if self.parse_dataset_keyword(name) == dataset_name:
+                cluster.append(name)
+        return cluster
+
+    def name_type(self, name: str) -> str:
+        """name_type [summary] testify if name is
+        dataset name, keyword or a specific problem name.
+        
+        Note that check from dataset name to problem name,
+        if there are duplicated names among three levels,
+        it will return the toppest level it has met.
+
+        Args:
+            name (str): [description] name
+
+        Returns:
+            str: [description] 'dataset'/'keyword'/'problem'/'not found'
+        """
+        for keyword, dataset_name in self.keywords.items():
+            if name == dataset_name:
+                return 'dataset'
+            if name == keyword:
+                return 'keyword'
+        for problem in self.dataset:
+            if name == problem:
+                return 'problem'
+        return 'not found'
+
+    def if_dump(self, method: str) -> bool:
+        """if_dump [summary] if problem should be dumpped,
+        or just use MOIPProblem form
+
+        Args:
+            method (str): [description] method name
+
+        Returns:
+            bool: [description] True -> dump, False -> MOIPProblem
+        """
+        return method in self.dump_method
