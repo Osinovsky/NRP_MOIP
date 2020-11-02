@@ -1,5 +1,6 @@
 .vscode/*
 */__pycache__
+src/util/__pycache__
 */test.py
 doc/_*
 tmp/*
@@ -7,3 +8,4 @@ result*/*
 dump
 .*
 !.gitignore
+!.gitattributes
