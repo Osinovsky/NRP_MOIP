@@ -2,4 +2,4 @@
 
 from src.Controller import Controller
 
-Controller.run('single.json')
+Controller.run('binary.json')

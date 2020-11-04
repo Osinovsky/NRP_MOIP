@@ -8,7 +8,7 @@ import json
 from time import clock
 from typing import Dict, Any, List, Union, Tuple, Set
 from os import makedirs
-from os.path import exists, join
+from os.path import join
 from src.Config import Config
 from src.NRP import NextReleaseProblem
 from src.Solver import Solver
@@ -125,7 +125,7 @@ class Controller:
             dataset = [dataset]
         for name in dataset:
             type = config.name_type(name)
-            if type == 'name':
+            if type == 'problem':
                 problems.add(name)
             elif type == 'keyword':
                 problems.update(set(config.keyword_cluster(name)))

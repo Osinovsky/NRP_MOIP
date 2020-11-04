@@ -5,9 +5,14 @@
 #
 
 from abc import ABCMeta, abstractmethod
+from src.util.moipProb import MOIPProblem
 
 
 class ABCSolver(metaclass=ABCMeta):
+    @abstractmethod
+    def __init__(self, problem: MOIPProblem):
+        pass
+
     @abstractmethod
     def prepare(self):
         pass

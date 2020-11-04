@@ -1,26 +1,28 @@
 #
 # DONG Shi, dongshi@mail.ustc.edu.cn
-# EConstraint.py, created: 2020.11.02
-# last modified: 2020.11.02
+# CWMOIP.py, created: 2020.11.04
+# last modified: 2020.11.04
 #
 
 import math
-from typing import Dict, List, Any, Tuple, Set
 import numpy as np
+from decimal import Decimal
+from typing import List, Any, Tuple, Dict, Set
 from src.Solvers.BaseSolver import BaseSolver
 from src.util.moipProb import MOIPProblem
+from src.util.mooUtility import MOOUtility
 from src.Solvers.ABCSolver import ABCSolver
 
 
-class EConstraint(ABCSolver):
+class CWMOIP(ABCSolver):
     def __init__(self, problem: MOIPProblem) -> None:
         """__init__ [summary] define members and add constraints,
         variables (from problem)into solver
 
-        The method short for epsilon-constraint, mentioned in
-        An Integer Linear Programming approach to the single
-        and bi-objective Next Release Problem, NadarajenVeerapen
-        https://doi.org/10.1016/j.infsof.2015.03.008
+        The method is just named as CWMOIP(), mentionend in
+        Multi-Objective Integer Programming Approaches for Solving
+        Optimal Feature Selection Problem, Yinxing Xue, Yan-Fu Li
+        https://doi.org/10.1145/3180155.3180257
 
         Args:
             problem (MOIPProblem): [description] moip (p)roblem
@@ -29,8 +31,10 @@ class EConstraint(ABCSolver):
         self.problem: MOIPProblem = problem
         # solver
         self.solver: BaseSolver = BaseSolver(problem)
+        # boundary solver
+        self.boundary_solver: BaseSolver = BaseSolver(problem)
 
-        # boundary of objectives
+        # true boundary of objectives
         self.low: List[Any] = []
         self.up: List[Any] = []
 
@@ -44,23 +48,45 @@ class EConstraint(ABCSolver):
         Returns:
             [type]: [description] lower bound, upper bound
         """
-        ub = 0.0
-        lb = 0.0
-        for value in obj:
-            if value > 0:
-                ub = ub + value
-            else:
-                lb = lb + value
-        return lb, ub
+        # set minimize tag for lower boundary
+        self.boundary_solver.set_objective(obj, minimize=False)
+        self.boundary_solver.solve()
+        low = self.boundary_solver.get_objective_value()
+        # set maximize tag for upper boundary
+        self.boundary_solver.set_objective(obj, minimize=True)
+        self.boundary_solver.solve()
+        up = self.boundary_solver.get_objective_value()
+        # return
+        return low, up
+
+    def next_rhs(self, objective: List[Any], solutions: Dict[str, Any]) -> int:
+        """next_rhs [summary] calculate maax value on this objective
+
+        Args:
+            objective (List[Any]): [description] current objective
+            solutions (Dict[str, Any]): [description] solutions we found
+
+        Returns:
+            int: [description] next rhs
+        """
+        values = [float("-inf")]
+        array1 = np.array(objective)
+        for key in solutions:
+            new_solution = solutions[key]
+            array2 = np.array(new_solution)
+            values.append(float(np.dot(array1, array2)))
+        result = MOOUtility.round(max(values))
+        return result - 1
 
     def recuse(self, level: int,
-               low: List[Any], up: List[Any]) -> Dict[str, Any]:
+               up: List[Any],
+               attribute: List[List[Any]]) -> Dict[str, Any]:
         """recuse [summary] recusively execute
 
         Args:
             level (int): [description] current objective
-            low (List[Any]): [description] lower bound of each objective
             up (List[Any]): [description] upper bound of each objective
+            attribute (List[List[Any]]): [description] original objectives
 
         Returns:
             Dict[str, Any]: [description] results found so far through this
@@ -72,16 +98,21 @@ class EConstraint(ABCSolver):
         else:
             # prepare all solutions set
             all_solutions: Dict[str, Any] = dict()
-            # get the up and low bound
-            relaxed_up = math.ceil(up[level])
-            relaxed_low = math.ceil(low[level])
+            # get the up bound
+            rhs = math.ceil(up[level])
             constraint_name = 'obj_' + str(level)
-            for rhs in range(relaxed_up, relaxed_low - 1, -1):
+            while True:
                 # update rhs
                 self.solver.set_rhs(constraint_name, rhs)
-                solutions = self.recuse(level - 1, low, up)
+                solutions = self.recuse(level - 1, up, attribute)
+                # cannot find solutions anymore
+                if not solutions:
+                    break
+                # update next rhs
+                rhs = self.next_rhs(attribute[level], solutions)
+                # update solutions
                 all_solutions = {**all_solutions, **solutions}
-            # end for
+            # end while
             return all_solutions
 
     def prepare(self) -> None:
@@ -98,21 +129,26 @@ class EConstraint(ABCSolver):
         self.up = [.0] * k
         for i in range(1, k):
             self.low[i], self.up[i] = self.calculte_boundary(attribute[i])
-        # prepare the objective
-        only_objective = attribute_np[0].tolist()
-        self.solver.set_objective(only_objective, True)
+        # calculate weights
+        w = Decimal(1.0)
+        only_objective = attribute_np[0]
+        for i in range(1, k):
+            w = w / Decimal(MOOUtility.round(self.up[i] - self.low[i] + 1.0))
+            only_objective = only_objective + float(w) * attribute_np[1]
+        # set objective
+        self.solver.set_objective(only_objective.tolist(), True)
         # prepare other objective's constraint
         obj_cst: Dict[str, Dict[Any, Any]] = dict()
         for i in range(1, k):
             obj_cst['obj_' + str(i)] = objectives[i]
         self.solver.add_constriants(obj_cst)
 
-    def execute(self) -> None:
+    def execute(self):
         """execute [summary] execute the algorithm
         """
         # solver
         k = len(self.problem.attributeMatrix)
-        self.recuse(k - 1, self.low, self.up)
+        self.recuse(k - 1, self.low, self.problem.attributeMatrix)
         # build pareto
         self.solver.build_pareto()
 

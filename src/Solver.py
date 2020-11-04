@@ -1,7 +1,7 @@
 #
 # DONG Shi, dongshi@mail.ustc.edu.cn
 # Solver.py, created: 2020.11.02
-# last modified: 2020.11.03
+# last modified: 2020.11.04
 #
 
 from typing import Dict, Any, Set
@@ -9,6 +9,7 @@ from src.Config import Config
 from src.util.moipProb import MOIPProblem
 from src.Solvers.ABCSolver import ABCSolver
 from src.Solvers.EConstraint import EConstraint
+from src.Solvers.CWMOIP import CWMOIP
 
 
 class Solver:
@@ -43,5 +44,11 @@ class Solver:
     def employ_epsilon(self,
                        problem: MOIPProblem,
                        option: Dict[str, Any] = None
-                       ) -> EConstraint:
+                       ) -> None:
         self.solver = EConstraint(problem)
+
+    def employ_cwmoip(self,
+                      problem: MOIPProblem,
+                      option: Dict[str, Any] = None
+                      ) -> None:
+        self.solver = CWMOIP(problem)

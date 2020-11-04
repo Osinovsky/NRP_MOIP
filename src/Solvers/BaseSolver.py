@@ -1,7 +1,7 @@
 #
 # DONG Shi, dongshi@mail.ustc.edu.cn
 # BaseSolver.py, created: 2020.11.02
-# last modified: 2020.11.02
+# last modified: 2020.11.04
 #
 
 from typing import Dict, Any, List, Set
@@ -78,7 +78,10 @@ class BaseSolver:
             rows = []
             vari = []
             coef = []
-            rs = ineqlDic[vars_num]
+            if vars_num in ineqlDic:
+                rs = ineqlDic[vars_num]
+            else:
+                rs = 0
             for key in ineqlDic:
                 if key != vars_num:
                     vari.append('x' + str(key))
@@ -136,6 +139,14 @@ class BaseSolver:
             return {cplex_result.getResultID(): result_variables}
         else:
             return dict()
+
+    def get_objective_value(self) -> Any:
+        """get_objective_value [summary] get the objective value
+
+        Returns:
+            Any: [description] objective value
+        """
+        return self.solver.solution.get_objective_value()
 
     def build_pareto(self):
         """build_pareto [summary] build pareto from
