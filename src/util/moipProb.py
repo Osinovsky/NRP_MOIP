@@ -262,4 +262,5 @@ if __name__ == "__main__":
     prob.displaySparseEquationsMapList()
     prob.displayAttributeMatrix()
 else:
-    print("moipProb.py is being imported into another module")
+    pass
+    # print("moipProb.py is being imported into another module")

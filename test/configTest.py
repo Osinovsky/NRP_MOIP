@@ -1,7 +1,7 @@
 #
 # DONG Shi, dongshi@mail.ustc.edu.cn
 # ConfigTest.py, created: 2020.10.31
-# last modified: 2020.11.02
+# last modified: 2020.11.04
 #
 
 import unittest
@@ -36,7 +36,26 @@ class ConfigTest(unittest.TestCase):
         # test all keywords
         for name in config.dataset:
             key = config.parse_keyword(name)
-            assert config.keywords[key] == config.parse_database_keyword(name)
+            assert config.keywords[key] == config.parse_dataset_keyword(name)
+
+    def test_keyword_cluster(self):
+        config = Config()
+        # for all keywords
+        for name in config.keywords:
+            cluster = config.keyword_cluster(name)
+            assert cluster
+            for problem in cluster:
+                assert config.parse_keyword(problem) == name
+
+    def test_dataset_cluster(self):
+        config = Config()
+        # for all dataset
+        datasets = config.dataset_names()
+        for dataset in datasets:
+            cluster = config.dataset_cluster(dataset)
+            assert cluster
+            for problem in cluster:
+                assert config.parse_dataset_keyword(problem) == dataset
 
 
 if __name__ == '__main__':

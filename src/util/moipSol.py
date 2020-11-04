@@ -5,8 +5,8 @@ Created on Thu Jun 14 16:49:14 2018
 @author: Yinxing Xue
 """
 
-from moipProb import MOIPProblem 
-from mooUtility import MOOUtility 
+from src.util.moipProb import MOIPProblem
+from src.util.mooUtility import MOOUtility
 import numpy as np
 import cplex
 from cplex import Cplex
@@ -284,4 +284,5 @@ if __name__ == "__main__":
     sol.displayVariableTypes()
     sol.displayVariableNames()
 else:
-    print("moipSol.py is being imported into another module")
+    pass
+    # print("moipSol.py is being imported into another module")

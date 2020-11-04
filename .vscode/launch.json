@@ -11,6 +11,14 @@
             "program": "${file}",
             "console": "integratedTerminal",
             "env": {"PYTHONPATH": "${workspaceFolder}"}
+        },
+        {
+            "name": "Python: run",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}\\tasks\\run.py",
+            "console": "integratedTerminal",
+            "env": {"PYTHONPATH": "${workspaceFolder}"}
         }
     ]
 }

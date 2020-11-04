@@ -1,7 +1,7 @@
 #
 # DONG Shi, dongshi@mail.ustc.edu.cn
 # Config.py, created: 2020.10.31
-# last modified: 2020.11.02
+# last modified: 2020.11.04
 #
 
 from typing import Dict, List
@@ -30,8 +30,7 @@ class Config:
         # prepare datasets
         make_index_string = 'make_{}_index'
         for name in self.keywords:
-            make_index = getattr(self, make_index_string.format(name))
-            make_index()
+            getattr(self, make_index_string.format(name))()
 
         # model form
         self.modelling = \
@@ -46,8 +45,12 @@ class Config:
         self.dump_method = \
             ['NSGAII']
 
+        # result root path
+        self.result_root_path = './results/'
         # dump path
         self.dump_path = './dump/'
+        # default task path
+        self.task_path = './tasks/'
 
     def make_classic_index(self) -> None:
         """make_classic_index [summary] make classic datasets
@@ -65,7 +68,7 @@ class Config:
         index in self.dataset
         """
         # realistic nrp index
-        realistic_name = 'classic_{}'
+        realistic_name = 'realistic_{}'
         realistic_format = 'xuan/realistic-nrp/nrp-{}.txt'
         for name_left in ['e', 'm', 'g']:
             for name_right in ['1', '2', '3', '4']:
@@ -180,7 +183,7 @@ class Config:
     def name_type(self, name: str) -> str:
         """name_type [summary] testify if name is
         dataset name, keyword or a specific problem name.
-        
+
         Note that check from dataset name to problem name,
         if there are duplicated names among three levels,
         it will return the toppest level it has met.

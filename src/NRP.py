@@ -1,7 +1,7 @@
 #
 # DONG Shi, dongshi@mail.ustc.edu.cn
 # NRP.py, created: 2020.10.31
-# last modified: 2020.11.02
+# last modified: 2020.11.03
 #
 
 import os
@@ -189,6 +189,27 @@ class NextReleaseProblem:
         # return dicts
         return req_encoder, cus_encoder
 
+    def premodel(self) -> None:
+        """premodel [summary] pre model
+        """
+        # get config
+        config = Config()
+        keyword = config.parse_keyword(self.__project)
+        getattr(self, '{}_premodel'.format(keyword))()
+
+    def classic_premodel(self) -> None:
+        """classic_premodel [summary]
+            premodel the classic keyword dataset
+        """
+        self.flatten_xuan()
+        self.reencode_xuan()
+
+    def realistic_premodel(self) -> None:
+        """realistic_premodel [summary]
+            premodel the realistic keyword dataset
+        """
+        self.reencode_xuan()
+
     @staticmethod
     def dump(
         file_name: str,
@@ -268,8 +289,8 @@ class NextReleaseProblem:
         # return
         return MOIP
 
-    def model(self, form: str, option: Dict[str, Any]) -> MOIPProblem:
-        """model [summary] modelling to MOIPProblem
+    def model(self, form: str, option: Dict[str, Any]) -> NRPProblem:
+        """model [summary] modelling to NRPProblem
 
         Args:
             form (str): [description] problem form
