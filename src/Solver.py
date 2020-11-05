@@ -4,23 +4,26 @@
 # last modified: 2020.11.04
 #
 
-from typing import Dict, Any, Set
+from typing import Dict, Any, Set, Union
 from src.Config import Config
 from src.util.moipProb import MOIPProblem
 from src.Solvers.ABCSolver import ABCSolver
 from src.Solvers.EConstraint import EConstraint
 from src.Solvers.CWMOIP import CWMOIP
+from src.Solvers.JarSolver import JarSolver
 
 
 class Solver:
     def __init__(self,
                  method: str,
                  method_option: Dict[str, Any],
-                 problem: MOIPProblem) -> None:
+                 problem: Union[MOIPProblem, str]) -> None:
         """__init__ [summary] define members
 
         Args:
             method (str): [description] which method to solve
+            method_option (Dict[str, Any]): method option
+            problem (Union[MOIPProblem, str]): problem or dumpped problem file
         """
         # store
         self.method = method
@@ -52,3 +55,9 @@ class Solver:
                       option: Dict[str, Any] = None
                       ) -> None:
         self.solver = CWMOIP(problem)
+
+    def employ_NSGAII(self,
+                      problem: str,
+                      option: Dict[str, Any] = None
+                      ) -> None:
+        self.solver = JarSolver('NSGAII', option, problem)

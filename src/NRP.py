@@ -1,7 +1,7 @@
 #
 # DONG Shi, dongshi@mail.ustc.edu.cn
 # NRP.py, created: 2020.10.31
-# last modified: 2020.11.03
+# last modified: 2020.11.04
 #
 
 import os
@@ -245,7 +245,7 @@ class NextReleaseProblem:
         if not os.path.exists(config.dump_path):
             os.makedirs(config.dump_path)
         # add file_name on path
-        file_name = os.path.join(config.dump_path, file_name)
+        # file_name = os.path.join(config.dump_path, file_name)
         # open output file
         with open(file_name, 'w+') as out_file:
             # dump

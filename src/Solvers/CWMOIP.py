@@ -60,7 +60,7 @@ class CWMOIP(ABCSolver):
         return low, up
 
     def next_rhs(self, objective: List[Any], solutions: Dict[str, Any]) -> int:
-        """next_rhs [summary] calculate maax value on this objective
+        """next_rhs [summary] calculate max value on this objective
 
         Args:
             objective (List[Any]): [description] current objective

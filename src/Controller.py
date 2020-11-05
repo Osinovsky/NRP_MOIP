@@ -298,28 +298,55 @@ class Controller:
         # result folder
         task_root = join(config.result_root_path, task.root_folder)
         makedirs(task_root, exist_ok=True)
+        # check if need dump
+        need_dump = False
+        for method, _ in task.methods:
+            if config.if_dump(method):
+                need_dump = True
+                break
+        # end for
         # load problems
         for problem_name in task.problems:
-            problem = NextReleaseProblem(problem_name)
-            problem.premodel()
-            nrp = problem.model(*task.modelling)
-            moip = NextReleaseProblem.MOIP(nrp.variables,
-                                           nrp.objectives,
-                                           nrp.inequations)
+            nrp_problem = NextReleaseProblem(problem_name)
+            nrp_problem.premodel()
+            nrp = nrp_problem.model(*task.modelling)
             # make problem folder name
-            problem_folder = \
+            project_name = \
                 Controller.project_name(problem_name, *task.modelling)
-            problem_folder = join(task_root, problem_folder)
+            problem_folder = join(task_root, project_name)
             makedirs(problem_folder, exist_ok=True)
-            # for each method
+            # prepare dump path
+            dump_path = join(config.dump_path, task.root_folder)
+            # dump if necessary or modelling into MOIPProblem
+            if need_dump:
+                makedirs(dump_path, exist_ok=True)
+                # prepare dump file name
+                problem = join(dump_path, project_name + '.json')
+                NextReleaseProblem.dump(problem,
+                                        nrp.variables,
+                                        nrp.objectives,
+                                        nrp.inequations)
+            else:
+                # modelling as MOIPProblem
+                problem = NextReleaseProblem.MOIP(nrp.variables,
+                                                  nrp.objectives,
+                                                  nrp.inequations)
+            # for each method, run on the problem
             for method, option in task.methods:
                 # prepare method folder
                 method_folder = join(problem_folder,
                                      Controller.method_name(method, option))
                 makedirs(method_folder, exist_ok=True)
-                solver = Solver(method, option, moip)
                 # run iteration_num times
                 for itr in range(task.iteration_num):
+                    # prepare some running option for dump solver
+                    if need_dump:
+                        option['dump_path'] = dump_path
+                        option['problem_name'] = project_name
+                        option['result_path'] = method_folder
+                        option['iteration'] = itr
+                    # employ a solver
+                    solver = Solver(method, option, problem)
                     # solve
                     start_time = clock()
                     solver.prepare()
