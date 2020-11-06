@@ -8,7 +8,7 @@ import json
 from time import clock
 from typing import Dict, Any, List, Union, Tuple, Set
 from os import makedirs
-from os.path import join
+from os.path import join, abspath
 from src.Config import Config
 from src.NRP import NextReleaseProblem
 from src.Solver import Solver
@@ -292,6 +292,19 @@ class Controller:
             file_out.close()
 
     @staticmethod
+    def dump_moip_variables(file_name: str, variables: Set[Any]) -> None:
+        """dump_moip_variables [summary] dump moip variables
+
+        Args:
+            file_name (str): [description] file for dumpping
+            variables (Set[Any]): [description] the variables
+        """
+        with open(file_name, 'w+') as file_out:
+            for solution in variables:
+                file_out.write(str(solution)+'\n')
+            file_out.close()
+
+    @staticmethod
     def run_task(task: Task):
         # load config
         config = Config()
@@ -321,7 +334,7 @@ class Controller:
             if need_dump:
                 makedirs(dump_path, exist_ok=True)
                 # prepare dump file name
-                problem = join(dump_path, project_name + '.json')
+                problem = abspath(join(dump_path, project_name + '.json'))
                 NextReleaseProblem.dump(problem,
                                         nrp.variables,
                                         nrp.objectives,
@@ -337,38 +350,51 @@ class Controller:
                 method_folder = join(problem_folder,
                                      Controller.method_name(method, option))
                 makedirs(method_folder, exist_ok=True)
-                # run iteration_num times
-                for itr in range(task.iteration_num):
+                # dump solvers
+                if need_dump:
                     # prepare some running option for dump solver
-                    if need_dump:
-                        option['dump_path'] = dump_path
-                        option['problem_name'] = project_name
-                        option['result_path'] = method_folder
-                        option['iteration'] = itr
+                    option['problem_name'] = project_name
+                    option['dump_path'] = abspath(dump_path)
+                    option['result_path'] = abspath(method_folder)
+                    option['iteration'] = task.iteration_num
                     # employ a solver
                     solver = Solver(method, option, problem)
-                    # solve
-                    start_time = clock()
                     solver.prepare()
                     solver.execute()
-                    elapsed_time = clock() - start_time
-                    # moip need dump solutions and runtime manually
-                    if method in config.moip_method:
-                        solutions = solver.solutions()
-                        # dump solutions
-                        solutions_file = join(method_folder,
-                                              's_' + str(itr) + '.txt')
-                        Controller.dump_moip_solutions(solutions_file,
-                                                       solutions)
-                        # dump other info
-                        info_file = join(method_folder,
-                                         'i_' + str(itr) + '.json')
-                        info: Dict[str, Any] = {}
-                        info['elapsed time'] = round(elapsed_time, 2)
-                        info['solutions found'] = len(solutions)
-                        Controller.dump_dict(info_file, info)
-                    # end if
-                # end for
+                else:
+                    # run iteration_num times
+                    for itr in range(task.iteration_num):
+                        # employ a solver
+                        solver = Solver(method, option, problem)
+                        # solve
+                        start_time = clock()
+                        solver.prepare()
+                        solver.execute()
+                        elapsed_time = clock() - start_time
+                        # moip need dump solutions and runtime manually
+                        if method in config.moip_method:
+                            solutions = solver.solutions()
+                            # dump solutions
+                            solutions_file = join(method_folder,
+                                                  's_' + str(itr) + '.txt')
+                            Controller.dump_moip_solutions(solutions_file,
+                                                           solutions)
+                            # dump variables
+                            variables = solver.variables()
+                            variables_file = join(method_folder,
+                                                  'v_' + str(itr) + '.txt')
+                            Controller.dump_moip_variables(variables_file,
+                                                           variables)
+                            # dump other info
+                            info_file = join(method_folder,
+                                             'i_' + str(itr) + '.json')
+                            info: Dict[str, Any] = {}
+                            info['elapsed time'] = round(elapsed_time, 2)
+                            info['solutions found'] = len(solutions)
+                            Controller.dump_dict(info_file, info)
+                        # end if
+                    # end for
+                # end if
             # end for
 
     @staticmethod

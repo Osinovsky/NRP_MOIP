@@ -148,7 +148,7 @@ class BaseSolver:
         """
         return self.solver.solution.get_objective_value()
 
-    def build_pareto(self):
+    def build_pareto(self) -> None:
         """build_pareto [summary] build pareto from
         """
         inputPoints = [list(map(float, resultID.split('_')))
@@ -160,5 +160,10 @@ class BaseSolver:
                 MOOUtility.simple_cull(inputPoints, MOOUtility.dominates)
             self.cplexParetoSet = paretoPoints
 
-    def get_pareto(self):
+    def get_pareto(self) -> Set[Any]:
+        """get_pareto [summary] get the solutions
+
+        Returns:
+            Set[Any]: [description] solutions
+        """
         return self.cplexParetoSet

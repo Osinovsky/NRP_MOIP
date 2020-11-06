@@ -1,7 +1,7 @@
 #
 # DONG Shi, dongshi@mail.ustc.edu.cn
 # CWMOIP.py, created: 2020.11.04
-# last modified: 2020.11.04
+# last modified: 2020.11.06
 #
 
 import math
@@ -33,6 +33,8 @@ class CWMOIP(ABCSolver):
         self.solver: BaseSolver = BaseSolver(problem)
         # boundary solver
         self.boundary_solver: BaseSolver = BaseSolver(problem)
+        # solutions
+        self.__solutions: Dict[Any, Any] = {}
 
         # true boundary of objectives
         self.low: List[Any] = []
@@ -148,7 +150,8 @@ class CWMOIP(ABCSolver):
         """
         # solver
         k = len(self.problem.attributeMatrix)
-        self.recuse(k - 1, self.low, self.problem.attributeMatrix)
+        self.__solutions = self.recuse(k - 1, self.low,
+                                       self.problem.attributeMatrix)
         # build pareto
         self.solver.build_pareto()
 
@@ -159,3 +162,15 @@ class CWMOIP(ABCSolver):
             Any: [description] solutions
         """
         return self.solver.get_pareto()
+
+    def variables(self) -> Set[Any]:
+        """variables [summary] get variables
+
+        Returns:
+            Set[Any]: [description] variables
+        """
+        variables = set()
+        for solution in self.__solutions.values():
+            solution_var = tuple([int(x) for x in solution])
+            variables.add(solution_var)
+        return variables

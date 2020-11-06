@@ -1,7 +1,7 @@
 #
 # DONG Shi, dongshi@mail.ustc.edu.cn
 # Solver.py, created: 2020.11.02
-# last modified: 2020.11.04
+# last modified: 2020.11.06
 #
 
 from typing import Dict, Any, Set, Union
@@ -43,6 +43,9 @@ class Solver:
 
     def solutions(self) -> Set[Any]:
         return self.solver.solutions()
+
+    def variables(self) -> Set[Any]:
+        return self.solver.variables()
 
     def employ_epsilon(self,
                        problem: MOIPProblem,

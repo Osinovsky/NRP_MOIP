@@ -230,17 +230,17 @@ class NextReleaseProblem:
         # prepare a dict for storing all
         result: Dict[str, Any] = dict()
         # turn variables into dict
-        result['variables'] = dict()
-        for index, variable in enumerate(variables):
-            result['variables'][str(index)] = variable
+        result['variables'] = variables
+        # for index, variable in enumerate(variables):
+        #     result['variables'][str(index)] = variable
         # turn objectives into dict
-        result['objectives'] = dict()
-        for index, objective in enumerate(objectives):
-            result['objectives'][str(index)] = objective
+        result['objectives'] = objectives
+        # for index, objective in enumerate(objectives):
+        #     result['objectives'][str(index)] = objective
         # turn inequations into dict
-        result['inequations'] = dict()
-        for index, inequation in enumerate(inequations):
-            result['inequations'][str(index)] = inequation
+        result['inequations'] = inequations
+        # for index, inequation in enumerate(inequations):
+        #     result['inequations'][str(index)] = inequation
         # see if folder exists
         if not os.path.exists(config.dump_path):
             os.makedirs(config.dump_path)

@@ -10,7 +10,12 @@
         "iteration": 1,
         "method":[
             {
-                "name": "NSGAII"
+                "name": "NSGAII",
+                "population": 100,
+                "max_evaluations": 25000,
+                "patient": 5,
+                "mutation": 0.00417,
+                "crossover": 1.0
             }
         ]
     }

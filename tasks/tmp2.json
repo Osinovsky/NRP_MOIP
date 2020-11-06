@@ -1,0 +1,20 @@
+[
+    {
+        "name": "xuan_binary_tmp2",
+        "dataset": "classic_1",
+        "modelling": [
+            {
+                "name": "binary"
+            }
+        ],
+        "iteration": 3,
+        "method":[
+            {
+                "name": "epsilon"
+            },
+            {
+                "name": "cwmoip"
+            }
+        ]
+    }
+]
