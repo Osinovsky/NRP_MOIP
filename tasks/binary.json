@@ -1,7 +1,7 @@
 [
     {
-        "name": "xuan_binary_tmp",
-        "dataset": "classic_1",
+        "name": "xuan_binary",
+        "dataset": "xuan",
         "modelling": [
             {
                 "name": "binary"

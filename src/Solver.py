@@ -63,4 +63,4 @@ class Solver:
                       problem: str,
                       option: Dict[str, Any] = None
                       ) -> None:
-        self.solver = JarSolver('NSGAII', option, problem)
+        self.solver = JarSolver('NSGAII', option)

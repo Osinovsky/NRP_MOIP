@@ -1,7 +1,7 @@
 #
 # DONG Shi, dongshi@mail.ustc.edu.cn
 # Config.py, created: 2020.10.31
-# last modified: 2020.11.04
+# last modified: 2020.11.07
 #
 
 from typing import Dict, List
@@ -51,6 +51,9 @@ class Config:
         self.dump_path = './dump/'
         # default task path
         self.task_path = './tasks/'
+
+        # java path
+        self.java_exe = 'C:\\Program Files\\Java\\jdk-11.0.8\\bin\\java.exe'
 
     def make_classic_index(self) -> None:
         """make_classic_index [summary] make classic datasets

@@ -1,6 +1,6 @@
 [
     {
-        "name": "xuan_binary_tmp",
+        "name": "xuan_binary_nsga",
         "dataset": "classic_1",
         "modelling": [
             {
@@ -13,7 +13,7 @@
                 "name": "NSGAII",
                 "population": 100,
                 "max_evaluations": 25000,
-                "patient": 5,
+                "patient": 10,
                 "mutation": 0.00417,
                 "crossover": 1.0
             }
