@@ -52,3 +52,9 @@ class JarSolver:
         # call the algorithm
         print('exec> ' + self.cmd)
         subprocess.run(self.cmd)
+
+    def solutions(self):
+        return None
+
+    def variables(self):
+        return None

@@ -351,13 +351,13 @@ class Controller:
                     solver.execute()
                 else:
                     # modelling as MOIPProblem
-                    problem = NextReleaseProblem.MOIP(nrp.variables,
-                                                      nrp.objectives,
-                                                      nrp.inequations)
+                    moiproblem = NextReleaseProblem.MOIP(nrp.variables,
+                                                         nrp.objectives,
+                                                         nrp.inequations)
                     # run iteration_num times
                     for itr in range(task.iteration_num):
                         # employ a solver
-                        solver = Solver(method, option, problem)
+                        solver = Solver(method, option, moiproblem)
                         # solve
                         start_time = clock()
                         solver.prepare()

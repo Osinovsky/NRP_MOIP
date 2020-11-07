@@ -7,10 +7,12 @@
 from typing import Dict, Any, Set, Union
 from src.Config import Config
 from src.util.moipProb import MOIPProblem
-from src.Solvers.ABCSolver import ABCSolver
 from src.Solvers.EConstraint import EConstraint
 from src.Solvers.CWMOIP import CWMOIP
 from src.Solvers.JarSolver import JarSolver
+
+# type
+SolverType = Union[EConstraint, CWMOIP, JarSolver]
 
 
 class Solver:
@@ -32,7 +34,7 @@ class Solver:
         # get config
         config = Config()
         assert method in config.method
-        self.solver: ABCSolver = None
+        self.solver: SolverType
         getattr(self, 'employ_{}'.format(method))(problem, method_option)
 
     def prepare(self):
@@ -61,6 +63,6 @@ class Solver:
 
     def employ_NSGAII(self,
                       problem: str,
-                      option: Dict[str, Any] = None
+                      option: Dict[str, Any] = {}
                       ) -> None:
         self.solver = JarSolver('NSGAII', option)

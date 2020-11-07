@@ -1,5 +1,5 @@
 # HERE IS ON HOW TO LOAD TASKS AND RUN THEM
 
-from src.Controller import Controller
+from src import Controller
 
 Controller.run('binary_nsgaii.json')

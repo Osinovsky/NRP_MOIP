@@ -36,9 +36,9 @@ class NRPProblem:
         # variables
         self.variables: List[int] = []
         # objectives
-        self.objectives: List[Dict[int, float]] = []
+        self.objectives: List[Dict[int, int]] = []
         # inequations, lhs <= rhs
-        self.inequations: List[Dict[int, float]] = []
+        self.inequations: List[Dict[int, int]] = []
 
 
 # Type
@@ -61,7 +61,7 @@ class NextReleaseProblem:
         # construct NRP from dataset
         self.nrp = getattr(self, 'construct_from_{}'.format(keyword))(project)
         # for MOIPProblem
-        self.problem: MOIPProblem = None
+        self.problem: MOIPProblem
 
     @staticmethod
     def construct_from_xuan(project: str) -> XuanNRP:
@@ -430,15 +430,15 @@ class NextReleaseProblem:
             mnrp.inequations.append({req[0]: 1, req[1]: -1, constant_id: 0})
         # second, xj - Sum yi <= 0
         for req, demand_list in demands.items():
-            tmp_inequation = {req: 1.0}
+            tmp_inequation = {req: 1}
             for customer_id in demand_list:
-                tmp_inequation[customer_id] = -1.0
-            tmp_inequation[constant_id] = 0.0
+                tmp_inequation[customer_id] = -1
+            tmp_inequation[constant_id] = 0
             mnrp.inequations.append(tmp_inequation)
         # finialy, use sum cost_i x_i < b sum(cost) of course
         cost_sum = sum(self.nrp.cost.values())
         tmp_inequation = deepcopy(self.nrp.cost)
-        tmp_inequation[constant_id] = float(cost_sum * option['b'])
+        tmp_inequation[constant_id] = int(cost_sum * option['b'])
         mnrp.inequations.append(tmp_inequation)
         # return
         return mnrp
