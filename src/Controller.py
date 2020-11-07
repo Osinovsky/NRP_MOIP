@@ -311,12 +311,6 @@ class Controller:
         # result folder
         task_root = join(config.result_root_path, task.root_folder)
         makedirs(task_root, exist_ok=True)
-        # check if need dump
-        need_dump = False
-        for method, _ in task.methods:
-            if config.if_dump(method):
-                need_dump = True
-                break
         # end for
         # load problems
         for problem_name in task.problems:
@@ -330,20 +324,7 @@ class Controller:
             makedirs(problem_folder, exist_ok=True)
             # prepare dump path
             dump_path = join(config.dump_path, task.root_folder)
-            # dump if necessary or modelling into MOIPProblem
-            if need_dump:
-                makedirs(dump_path, exist_ok=True)
-                # prepare dump file name
-                problem = abspath(join(dump_path, project_name + '.json'))
-                NextReleaseProblem.dump(problem,
-                                        nrp.variables,
-                                        nrp.objectives,
-                                        nrp.inequations)
-            else:
-                # modelling as MOIPProblem
-                problem = NextReleaseProblem.MOIP(nrp.variables,
-                                                  nrp.objectives,
-                                                  nrp.inequations)
+
             # for each method, run on the problem
             for method, option in task.methods:
                 # prepare method folder
@@ -351,7 +332,14 @@ class Controller:
                                      Controller.method_name(method, option))
                 makedirs(method_folder, exist_ok=True)
                 # dump solvers
-                if need_dump:
+                if config.if_dump(method):
+                    makedirs(dump_path, exist_ok=True)
+                    # prepare dump file name
+                    problem = abspath(join(dump_path, project_name + '.json'))
+                    NextReleaseProblem.dump(problem,
+                                            nrp.variables,
+                                            nrp.objectives,
+                                            nrp.inequations)
                     # prepare some running option for dump solver
                     option['problem_name'] = project_name
                     option['dump_path'] = abspath(dump_path)
@@ -362,6 +350,10 @@ class Controller:
                     solver.prepare()
                     solver.execute()
                 else:
+                    # modelling as MOIPProblem
+                    problem = NextReleaseProblem.MOIP(nrp.variables,
+                                                      nrp.objectives,
+                                                      nrp.inequations)
                     # run iteration_num times
                     for itr in range(task.iteration_num):
                         # employ a solver

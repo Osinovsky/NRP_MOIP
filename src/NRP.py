@@ -1,7 +1,7 @@
 #
 # DONG Shi, dongshi@mail.ustc.edu.cn
 # NRP.py, created: 2020.10.31
-# last modified: 2020.11.04
+# last modified: 2020.11.07
 #
 
 import os
@@ -147,9 +147,13 @@ class NextReleaseProblem:
         self.nrp.requests = neo_requests
         self.nrp.dependencies.clear()
 
-    def reencode_xuan(self) -> Tuple[Dict[int, int], Dict[int, int]]:
+    def reencode_xuan(self, customer_first: bool = True
+                      ) -> Tuple[Dict[int, int], Dict[int, int]]:
         """reencode_xuan [summary] classic and realistic reencode, single objective
             encoding will be compact and from 0
+
+        Args:
+            customer_first (bool): encode customer first
 
         Returns:
             Tuple[Dict[int, int], Dict[int, int]]:
@@ -160,19 +164,32 @@ class NextReleaseProblem:
         # prepare a requirement encoder
         req_encoder = dict()
         neo_cost = dict()
-        for req, cost in self.nrp.cost.items():
-            assert req not in req_encoder
-            req_encoder[req] = encoder
-            neo_cost[encoder] = cost
-            encoder += 1
         # prepare a customer encoder
         cus_encoder = dict()
         neo_profit = dict()
-        for cus, profit in self.nrp.profit.items():
-            assert cus not in cus_encoder
-            cus_encoder[cus] = encoder
-            neo_profit[encoder] = profit
-            encoder += 1
+        # encode
+        if customer_first:
+            for cus, profit in self.nrp.profit.items():
+                assert cus not in cus_encoder
+                cus_encoder[cus] = encoder
+                neo_profit[encoder] = profit
+                encoder += 1
+            for req, cost in self.nrp.cost.items():
+                assert req not in req_encoder
+                req_encoder[req] = encoder
+                neo_cost[encoder] = cost
+                encoder += 1
+        else:
+            for req, cost in self.nrp.cost.items():
+                assert req not in req_encoder
+                req_encoder[req] = encoder
+                neo_cost[encoder] = cost
+                encoder += 1
+            for cus, profit in self.nrp.profit.items():
+                assert cus not in cus_encoder
+                cus_encoder[cus] = encoder
+                neo_profit[encoder] = profit
+                encoder += 1
         # apply them on dependencies
         neo_dependencies = \
             [(req_encoder[x[0]], req_encoder[x[1]])
@@ -443,7 +460,7 @@ class NextReleaseProblem:
         # prepare objective coefs
         max_profit = {k: -v for k, v in self.nrp.profit.items()}
         min_cost = {k: v for k, v in self.nrp.cost.items()}
-        mnrp.objectives = [max_profit, min_cost]
+        mnrp.objectives = [min_cost, max_profit]
         # don't forget encode the constant, it always be MAX_CODE + 1
         constant_id = len(mnrp.variables)
         assert constant_id not in self.nrp.cost.keys()
