@@ -54,6 +54,7 @@ class Config:
 
         # java path
         self.java_exe = 'C:\\Program Files\\Java\\jdk-11.0.8\\bin\\java.exe'
+        # self.java_exe = 'java'
 
     def make_classic_index(self) -> None:
         """make_classic_index [summary] make classic datasets

@@ -9,16 +9,13 @@
             "type": "python",
             "request": "launch",
             "program": "${file}",
-            "console": "integratedTerminal",
-            "env": {"PYTHONPATH": "${workspaceFolder}"}
+            "console": "integratedTerminal"
         },
         {
             "name": "Python: run",
             "type": "python",
             "request": "launch",
-            "program": "${workspaceFolder}\\tasks\\run.py",
-            "console": "integratedTerminal",
-            "env": {"PYTHONPATH": "${workspaceFolder}"}
+            "program": "${workspaceFolder}\\tasks\\run.py"
         }
     ]
 }

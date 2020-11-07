@@ -2,4 +2,4 @@
 
 from src import Controller
 
-Controller.run('binary_nsgaii.json')
+Controller.run('binary.json')
