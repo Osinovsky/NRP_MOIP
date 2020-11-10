@@ -1,12 +1,12 @@
 #
 # DONG Shi, dongshi@mail.ustc.edu.cn
 # Solver.py, created: 2020.11.02
-# last modified: 2020.11.06
+# last modified: 2020.11.09
 #
 
 from typing import Dict, Any, Set, Union
+from src.NRP import NRPProblem
 from src.Config import Config
-from src.util.moipProb import MOIPProblem
 from src.Solvers.EConstraint import EConstraint
 from src.Solvers.CWMOIP import CWMOIP
 from src.Solvers.JarSolver import JarSolver
@@ -19,13 +19,13 @@ class Solver:
     def __init__(self,
                  method: str,
                  method_option: Dict[str, Any],
-                 problem: Union[MOIPProblem, str]) -> None:
+                 problem: Union[NRPProblem, str]) -> None:
         """__init__ [summary] define members
 
         Args:
             method (str): [description] which method to solve
             method_option (Dict[str, Any]): method option
-            problem (Union[MOIPProblem, str]): problem or dumpped problem file
+            problem (Union[NRPProblem, str]): problem or dumpped problem file
         """
         # store
         self.method = method
@@ -50,13 +50,13 @@ class Solver:
         return self.solver.variables()
 
     def employ_epsilon(self,
-                       problem: MOIPProblem,
+                       problem: NRPProblem,
                        option: Dict[str, Any] = None
                        ) -> None:
         self.solver = EConstraint(problem)
 
     def employ_cwmoip(self,
-                      problem: MOIPProblem,
+                      problem: NRPProblem,
                       option: Dict[str, Any] = None
                       ) -> None:
         self.solver = CWMOIP(problem)

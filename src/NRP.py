@@ -1,7 +1,7 @@
 #
 # DONG Shi, dongshi@mail.ustc.edu.cn
 # NRP.py, created: 2020.10.31
-# last modified: 2020.11.07
+# last modified: 2020.11.09
 #
 
 import os
@@ -39,6 +39,21 @@ class NRPProblem:
         self.objectives: List[Dict[int, int]] = []
         # inequations, lhs <= rhs
         self.inequations: List[Dict[int, int]] = []
+
+    def attributes(self) -> List[List[int]]:
+        """attributes [summary] convert objectives into attributes matrix
+
+        Returns:
+            List[int]: [description] the attributes
+        """
+        zeros = [0] * len(self.variables)
+        attributes = []
+        for i in range(len(self.objectives)):
+            line = zeros[:]
+            for key, val in self.objectives[i].items():
+                line[key] = val
+            attributes.append(line)
+        return attributes
 
 
 # Type
@@ -206,26 +221,34 @@ class NextReleaseProblem:
         # return dicts
         return req_encoder, cus_encoder
 
-    def premodel(self) -> None:
+    def premodel(self, option: Dict[str, Any]) -> None:
         """premodel [summary] pre model
         """
         # get config
         config = Config()
         keyword = config.parse_keyword(self.__project)
-        getattr(self, '{}_premodel'.format(keyword))()
+        getattr(self, '{}_premodel'.format(keyword))(option)
 
-    def classic_premodel(self) -> None:
+    def classic_premodel(self, option: Dict[str, Any]) -> None:
         """classic_premodel [summary]
             premodel the classic keyword dataset
         """
+        if 'profit_cost' in option:
+            profit_cost = option['profit_cost']
+        else:
+            profit_cost = True
         self.flatten_xuan()
-        self.reencode_xuan()
+        self.reencode_xuan(profit_cost)
 
-    def realistic_premodel(self) -> None:
+    def realistic_premodel(self, option: Dict[str, Any]) -> None:
         """realistic_premodel [summary]
             premodel the realistic keyword dataset
         """
-        self.reencode_xuan()
+        if 'profit_cost' in option:
+            profit_cost = option['profit_cost']
+        else:
+            profit_cost = True
+        self.reencode_xuan(profit_cost)
 
     @staticmethod
     def dump(
@@ -443,7 +466,7 @@ class NextReleaseProblem:
         # return
         return mnrp
 
-    def to_basic_binary_form(self) -> NRPProblem:
+    def to_basic_binary_form(self, option: Dict[str, Any]) -> NRPProblem:
         """to_basic_binary_form [summary] constuct the
         very basic binary form nrp
 
@@ -452,15 +475,24 @@ class NextReleaseProblem:
         """
         # check dependencies
         assert not self.nrp.dependencies
+        # get config
+        if 'profit_cost' in option:
+            profit_cost = option['profit_cost']
+        else:
+            profit_cost = True
         # prepare the NRPProblem, modelled nrp, mnrp
         mnrp = NRPProblem()
-        # prepare the "variables"
-        mnrp.variables = \
-            list(self.nrp.profit.keys()) + list(self.nrp.cost.keys())
-        # prepare objective coefs
+        # prepare objective coefs and variables
         max_profit = {k: -v for k, v in self.nrp.profit.items()}
         min_cost = {k: v for k, v in self.nrp.cost.items()}
-        mnrp.objectives = [min_cost, max_profit]
+        if profit_cost:
+            mnrp.variables = \
+                list(self.nrp.profit.keys()) + list(self.nrp.cost.keys())
+            mnrp.objectives = [max_profit, min_cost]
+        else:
+            mnrp.variables = \
+                list(self.nrp.cost.keys()) + list(self.nrp.profit.keys())
+            mnrp.objectives = [min_cost, max_profit]
         # don't forget encode the constant, it always be MAX_CODE + 1
         constant_id = len(mnrp.variables)
         assert constant_id not in self.nrp.cost.keys()
@@ -490,7 +522,7 @@ class NextReleaseProblem:
             NRPProblem: [description]
         """
         # basic form
-        return self.to_basic_binary_form()
+        return self.to_basic_binary_form(option)
 
     def to_bincst_form(self, option: Dict[str, Any]) -> NRPProblem:
         """to_bincst_form [summary] binary form with
@@ -504,7 +536,7 @@ class NextReleaseProblem:
             NRPProblem: [description]
         """
         # basic form
-        mnrp = self.to_basic_binary_form()
+        mnrp = self.to_basic_binary_form(option)
         # constant
         constant_id = len(self.nrp.variables)
         # put more inequations

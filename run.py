@@ -2,4 +2,4 @@
 
 from src import Controller
 
-Controller.run('binary.json')
+Controller.run('binary_objective_order.json')

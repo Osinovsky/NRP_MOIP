@@ -15,7 +15,7 @@
             "name": "Python: run",
             "type": "python",
             "request": "launch",
-            "program": "${workspaceFolder}\\tasks\\run.py"
+            "program": "${workspaceFolder}\\run.py"
         }
     ]
 }

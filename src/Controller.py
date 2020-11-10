@@ -1,7 +1,7 @@
 #
 # DONG Shi, dongshi@mail.ustc.edu.cn
 # Controller.py, created: 2020.11.02
-# last modified: 2020.11.02
+# last modified: 2020.11.10
 #
 
 import json
@@ -189,7 +189,7 @@ class Controller:
         option_str = ''
         if modelling_option:
             for key, value in modelling_option.items():
-                if value:
+                if value is not None:
                     pair_str = '-' + key + '+' + str(value)
                     option_str += pair_str
         # end if
@@ -301,7 +301,13 @@ class Controller:
         """
         with open(file_name, 'w+') as file_out:
             for solution in variables:
-                file_out.write(str(solution)+'\n')
+                var_list = []
+                for var in solution:
+                    if var:
+                        var_list.append(1)
+                    else:
+                        var_list.append(0)
+                file_out.write(str(tuple(var_list))+'\n')
             file_out.close()
 
     @staticmethod
@@ -311,11 +317,15 @@ class Controller:
         # result folder
         task_root = join(config.result_root_path, task.root_folder)
         makedirs(task_root, exist_ok=True)
+        # dump task dict in this folder
+        with open(join(task_root, 'task.json'), 'w+') as task_file:
+            task_file.write(str(task))
+            task_file.close()
         # end for
         # load problems
         for problem_name in task.problems:
             nrp_problem = NextReleaseProblem(problem_name)
-            nrp_problem.premodel()
+            nrp_problem.premodel(task.modelling[1])
             nrp = nrp_problem.model(*task.modelling)
             # make problem folder name
             project_name = \
@@ -350,14 +360,10 @@ class Controller:
                     solver.prepare()
                     solver.execute()
                 else:
-                    # modelling as MOIPProblem
-                    moiproblem = NextReleaseProblem.MOIP(nrp.variables,
-                                                         nrp.objectives,
-                                                         nrp.inequations)
                     # run iteration_num times
                     for itr in range(task.iteration_num):
                         # employ a solver
-                        solver = Solver(method, option, moiproblem)
+                        solver = Solver(method, option, nrp)
                         # solve
                         start_time = clock()
                         solver.prepare()
