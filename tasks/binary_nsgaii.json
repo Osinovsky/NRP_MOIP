@@ -1,21 +1,22 @@
 [
     {
-        "name": "xuan_binary_nsga",
+        "name": "xuan_binary_nsga_seed",
         "dataset": "classic_1",
         "modelling": [
             {
                 "name": "binary"
             }
         ],
-        "iteration": 1,
+        "iteration": 10,
         "method":[
             {
                 "name": "NSGAII",
                 "population": 100,
                 "max_evaluations": 25000,
-                "patient": 10,
+                "patient": 50,
                 "mutation": 0.00417,
-                "crossover": 1.0
+                "crossover": 1.0,
+                "seeds": "C:\\Users\\osino\\Desktop\\dev\\prototype\\NRP_MOIP\\results\\xuan_test\\classic_1-binary\\epsilon\\v_0.txt"
             }
         ]
     }

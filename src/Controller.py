@@ -189,7 +189,14 @@ class Controller:
         option_str = ''
         if modelling_option:
             for key, value in modelling_option.items():
-                if value is not None:
+                if value is None:
+                    pass
+                elif (isinstance(value, str)
+                      or '/' not in value
+                      or ':' not in value
+                      or '\\' not in value):
+                    pass
+                else:
                     pair_str = '-' + key + '+' + str(value)
                     option_str += pair_str
         # end if
@@ -210,7 +217,15 @@ class Controller:
         option_str = ''
         if method_option:
             for key, value in method_option.items():
-                if value:
+                if value is None:
+                    pass
+                elif isinstance(value, str):
+                    if '/' in value or ':' in value or '\\' in value:
+                        pass
+                    else:
+                        pair_str = '-' + key + '+' + str(value)
+                        option_str += pair_str
+                else:
                     pair_str = '-' + key + '+' + str(value)
                     option_str += pair_str
         # end if

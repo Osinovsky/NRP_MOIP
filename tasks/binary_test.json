@@ -1,0 +1,17 @@
+[
+    {
+        "name": "xuan_binary_test",
+        "dataset": "classic_1",
+        "modelling": [
+            {
+                "name": "binary"
+            }
+        ],
+        "iteration": 5,
+        "method":[
+            {
+                "name": "epsilon"
+            }
+        ]
+    }
+]
