@@ -1,7 +1,7 @@
 #
 # DONG Shi, dongshi@mail.ustc.edu.cn
 # Config.py, created: 2020.10.31
-# last modified: 2020.11.07
+# last modified: 2020.11.11
 #
 
 from typing import Dict, List
@@ -44,6 +44,8 @@ class Config:
         # dump methods(for jar algorithm)
         self.dump_method = \
             ['NSGAII']
+        # indicators
+        self.indicators = ['igd', 'hv', 'evenness', 'mean', 'median']
 
         # result root path
         self.result_root_path = './results/'

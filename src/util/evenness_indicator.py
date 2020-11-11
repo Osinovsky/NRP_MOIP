@@ -28,7 +28,8 @@ class EvennessIndicator(QualityIndicator):
             for j in range(size): 
                 if (i==j):
                     continue
-                dist =  np.linalg.norm(np.array(solutions[i].objectives) - np.array(solutions[j].objectives))
+                # dist =  np.linalg.norm(np.array(solutions[i].objectives) - np.array(solutions[j].objectives))
+                dist =  np.linalg.norm(solutions[i] - solutions[j])
                 if(dist < currDist):
                     currDist = dist
                     neighbourPair[i] = j
