@@ -1,10 +1,12 @@
 #
 # DONG Shi, dongshi@mail.ustc.edu.cn
 # Analyzer.py, created: 2020.11.10
-# last modified: 2020.11.11
+# last modified: 2020.11.12
 #
 
 from typing import Dict, List
+from os import listdir, makedirs
+from os.path import join, isdir
 import matplotlib.pyplot as plt
 from jmetal.core.solution import BinarySolution
 from jmetal.util.archive import NonDominatedSolutionsArchive
@@ -29,8 +31,74 @@ class Comparator:
         # pareto fronts for each project
         self.fronts: Dict[str, NonDominatedSolutionsArchive] = {}
 
+    def cached(self) -> bool:
+        folder = join(self.result_manager.root, 'comparison')
+        return isdir(folder)
+
+    def dump_comparison(self) -> None:
+        """dump_comparison [summary] dump all comparison into 'comparison' folder
+        """
+        folder = join(self.result_manager.root, 'comparison')
+        makedirs(folder, exist_ok=True)
+        for project in self.fronts:
+            project_folder = join(folder, project)
+            makedirs(project_folder, exist_ok=True)
+            # dump front of project
+            front_name = join(project_folder, 'front.archive')
+            Result.dump_archive(front_name, self.fronts[project])
+            for method in self.comparison[project]:
+                method_folder = join(project_folder, method)
+                makedirs(method_folder, exist_ok=True)
+                # dump result entries
+                for index, entry in \
+                        enumerate(self.comparison[project][method]):
+                    Result.dump_result_entry(
+                        method_folder, index, entry
+                    )
+        # end nest for
+
+    def load_comparison(self) -> None:
+        """load_comparison [summary] load from <result_folder>/comparison
+        """
+        folder = join(self.result_manager.root, 'comparison')
+        methods: List[str] = []
+        iterations = -1
+        # get projects names
+        projects: List[str] = \
+            list(filter(lambda x: '.' not in x, listdir(folder)))
+        for project in projects:
+            project_folder = join(folder, project)
+            # load front
+            front_name = join(project_folder, 'front.archive')
+            self.fronts[project] = Result.load_archive(front_name)
+            self.comparison[project] = {}
+            # get methods names
+            methods_folders = list(filter(lambda x: '.' not in x,
+                                          listdir(project_folder)))
+            if methods:
+                assert methods == methods_folders
+            else:
+                methods = methods_folders
+            for method in methods:
+                method_folder = join(project_folder, method)
+                self.comparison[project][method] = []
+                # get iterations
+                this_iterations = len(listdir(method_folder))
+                assert this_iterations % 3 == 0
+                if iterations >= 0:
+                    assert iterations == int(this_iterations / 3)
+                else:
+                    iterations = int(this_iterations / 3)
+                # load result entries
+                for index in range(iterations):
+                    self.comparison[project][method].append(
+                        Result.load_result_entry(method_folder, index)
+                    )
+        # end nest for
+
     def compare(self, projects: List[str] = [], methods: List[str] = [],
-                indicators: List[str] = [], on_front: bool = True) -> None:
+                indicators: List[str] = [], on_front: bool = True,
+                to_dump: bool = True) -> None:
         """compare [summary] compare methods with indicators on given projects,
         if on_front is true, all info will be relative with their front
         solutions, either, it will work on all solutions that it found
@@ -44,6 +112,7 @@ class Comparator:
             methods (List[str], optional): [description]. Defaults to [].
             indicators (List[str], optional): [description]. Defaults to [].
             on_front (bool, optional): [description]. Defaults to True.
+            to_dump (bool, optional): [description]. Defaults to True
         """
         if not projects:
             projects = self.result_manager.projects
@@ -61,6 +130,10 @@ class Comparator:
         for project in projects:
             self.comparison[project] = {}
             self.__compare(project, methods, indicators, on_front)
+        # end for
+        # dump
+        if to_dump:
+            self.dump_comparison()
 
     def __compare(self, project: str, methods: List[str],
                   indicators: List[str], on_front: bool
@@ -143,18 +216,23 @@ class Comparator:
 
 
 class Analyzer:
-    def __init__(self, result_folder: str) -> None:
+    def __init__(self, result_folder: str, use_cache: bool = True) -> None:
         """__init__ [summary] Analyzer is used for visualize
         results from Comparator
 
         Args:
             result_folder (str): [description] result root folder
+            use_cache (bool): [description] if use comparator cache
         """
         # employ an comparator
         self.comparator = Comparator(result_folder)
 
         # compute all scores and infomations in comparator
-        self.comparator.compare()
+        # of course read comparator cache if exists
+        if self.comparator.cached() and use_cache:
+            self.comparator.load_comparison()
+        else:
+            self.comparator.compare()
 
     @staticmethod
     def tabulate(file_name: str,
@@ -332,7 +410,7 @@ class Analyzer:
         """plot_2D_pareto [summary] plot 2D pareto figure
 
         Args:
-            project (str): [description] 
+            project (str): [description]
             methods (List[str]): [description]
         """
         project = self.comparator.result_manager.project_name(project)

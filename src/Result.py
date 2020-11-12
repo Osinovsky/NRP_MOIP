@@ -1,7 +1,7 @@
 #
 # DONG Shi, dongshi@mail.ustc.edu.cn
 # Result.py, created: 2020.11.10
-# last modified: 2020.11.11
+# last modified: 2020.11.12
 #
 
 from typing import Dict, Any, List, Tuple
@@ -50,7 +50,8 @@ class Result:
 
         # project names
         self.projects: List[str] = \
-            list(filter(lambda x: '.' not in x, listdir(self.root)))
+            list(filter(lambda x: '.' not in x and x != 'comparison',
+                        listdir(self.root)))
         assert len(self.projects) >= 1
         # method names
         first_project = join(self.root, self.projects[0])
@@ -268,3 +269,133 @@ class Result:
             solutions.append(solution)
         # end for
         return solutions
+
+    @staticmethod
+    def dump_archive(file_name: str,
+                     archive: NonDominatedSolutionsArchive) -> None:
+        """dump_archive [summary] dump an archive
+
+        Args:
+            file_name (str): [description]
+            archive (NonDominatedSolutionsArchive): [description]
+        """
+        with open(file_name, 'w+') as archive_file:
+            for solution in archive.solution_list:
+                solution_str = Result.solution_string(solution)
+                archive_file.write(solution_str + '\n')
+            archive_file.close()
+
+    @staticmethod
+    def load_archive(file_name: str) -> NonDominatedSolutionsArchive:
+        """load_archive [summary] load an archive from file
+
+        Args:
+            file_name (str): [description]
+
+        Returns:
+            NonDominatedSolutionsArchive: [description]
+        """
+        archive = NonDominatedSolutionsArchive()
+        with open(file_name, 'r') as archive_file:
+            for solution_str in archive_file:
+                solution = Result.parse_solution(solution_str)
+                archive.add(solution)
+            archive_file.close()
+        return archive
+
+    @staticmethod
+    def solution_string(solution: BinarySolution) -> str:
+        """solution_string [summary] convert solution into
+        a json string
+
+        Args:
+            solution (BinarySolution): [description]
+
+        Returns:
+            str: [description] json string
+        """
+        solution_dict: Dict[str, Any] = {}
+        solution_dict['variables'] = [int(x) for x in solution.variables[0]]
+        solution_dict['objectives'] = solution.objectives
+        solution_dict['constraints'] = solution.constraints
+        return json.dumps(solution_dict)
+
+    @staticmethod
+    def parse_solution(solution_str: str) -> BinarySolution:
+        """parse_solution [summary] parse json to solution
+
+        Args:
+            solution_str (str): [description]
+
+        Returns:
+            BinarySolution: [description]
+        """
+        solution_dict = json.loads(solution_str)
+        variables = [[bool(x) for x in solution_dict['variables']]]
+        objectives = solution_dict['objectives']
+        constraints = solution_dict['constraints']
+        solution = BinarySolution(
+            len(variables), len(objectives), len(constraints)
+        )
+        solution.variables = variables
+        solution.objectives = objectives
+        solution.constraints = constraints
+        return solution
+
+    @staticmethod
+    def dump_result_entry(folder: str, index: int, entry: ResultEntry) -> None:
+        """dump_result_entry [summary] dump a result entry into
+        three files: entry_{index}.json, front_{index}.archive,
+        found_{index}.archive
+
+        Args:
+            folder (str): [description] folder name
+            index (int): [description] index of entry in the list
+            entry (ResultEntry): [description]
+        """
+        # dump entry
+        entry_dict: Dict[str, Any] = {}
+        entry_dict['time'] = entry.time
+        entry_dict['score'] = entry.score
+        entry_name = join(folder, 'entry_{}.json'.format(index))
+        with open(entry_name, 'w+') as entry_file:
+            json.dump(entry_dict, entry_file, indent=4)
+            entry_file.close()
+        # dump found
+        Result.dump_archive(
+            join(folder, 'found_{}.archive'.format(index)),
+            entry.found
+        )
+        # dump front
+        Result.dump_archive(
+            join(folder, 'front_{}.archive'.format(index)),
+            entry.front
+        )
+
+    @staticmethod
+    def load_result_entry(folder: str, index: int) -> ResultEntry:
+        """load_result_entry [summary] load result entry
+        from three files: entry_{index}.json, front_{index}.archive,
+        found_{index}.archive
+
+        Args:
+            folder (str): [description]
+            index (int): [description]
+
+        Returns:
+            ResultEntry: [description]
+        """
+        entry = ResultEntry()
+        entry_name = join(folder, 'entry_{}.json'.format(index))
+        with open(entry_name, 'r') as entry_file:
+            entry_dict = json.load(entry_file)
+            entry_file.close()
+        entry.time = entry_dict['time']
+        entry.score = entry_dict['score']
+        entry.found = Result.load_archive(
+            join(folder, 'found_{}.archive'.format(index))
+        )
+        entry.front = Result.load_archive(
+            join(folder, 'front_{}.archive'.format(index))
+        )
+        return entry
