@@ -538,7 +538,7 @@ class NextReleaseProblem:
         # basic form
         mnrp = self.to_basic_binary_form(option)
         # constant
-        constant_id = len(self.nrp.variables)
+        constant_id = len(mnrp.variables)
         # put more inequations
         if 'max_cost' in option:
             # sum cost <= max_cost
@@ -554,9 +554,9 @@ class NextReleaseProblem:
         if 'min_profit' in option:
             # sum profit >= min_profit
             min_profit = option['min_profit']
-            inequation = {k: v for k, v in self.nrp.cost.items()}
+            inequation = {k: -v for k, v in self.nrp.profit.items()}
             if isinstance(min_profit, int):
-                inequation[constant_id] = min_profit
+                inequation[constant_id] = - min_profit
             else:
                 inequation[constant_id] = \
                     - floor(min_profit * sum(list(self.nrp.profit.values())))
@@ -576,7 +576,7 @@ class NextReleaseProblem:
         if 'min_customers' in option:
             # |requirements| >= min_requirements
             min_requirements = option['min_customers']
-            inequation = {k: -1 for k in self.nrp.cost}
+            inequation = {k: -1 for k in self.nrp.profit}
             if isinstance(min_requirements, int):
                 inequation[constant_id] = - min_requirements
             else:

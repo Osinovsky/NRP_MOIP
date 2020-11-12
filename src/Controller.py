@@ -191,11 +191,12 @@ class Controller:
             for key, value in modelling_option.items():
                 if value is None:
                     pass
-                elif (isinstance(value, str)
-                      or '/' not in value
-                      or ':' not in value
-                      or '\\' not in value):
-                    pass
+                elif isinstance(value, str):
+                    if '/' in value or ':' in value or '\\' in value:
+                        pass
+                    else:
+                        pair_str = '-' + key + '+' + str(value)
+                        option_str += pair_str
                 else:
                     pair_str = '-' + key + '+' + str(value)
                     option_str += pair_str
