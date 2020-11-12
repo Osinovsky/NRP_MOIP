@@ -171,8 +171,7 @@ class Analyzer:
                 for index, element in enumerate(line):
                     if index > 0:
                         line_str += ', '
-                    else:
-                        line_str += element
+                    line_str += element
                 fout.write(line_str + '\n')
             fout.close()
 
@@ -241,6 +240,7 @@ class Analyzer:
             # elapsed time
             header = ['time'] + \
                      ['itr' + str(x+1) for x in range(iteration_num)]
+            sheet.append(header)
             for method in methods:
                 # method: time1, time2, ...
                 line = [method] + \
@@ -250,19 +250,21 @@ class Analyzer:
             # solutions found
             header = ['found'] + \
                      ['itr' + str(x+1) for x in range(iteration_num)]
+            sheet.append(header)
             for method in methods:
                 # method: found1, found2, ...
                 line = [method] + \
-                    [str(len(x.found)) for x in
+                    [str(len(x.found.solution_list)) for x in
                      self.comparator.comparison[project][method]]
                 sheet.append(line)
             # solutions on the front
             header = ['front'] + \
                      ['itr' + str(x+1) for x in range(iteration_num)]
+            sheet.append(header)
             for method in methods:
                 # method: front1, front2, ...
                 line = [method] + \
-                    [str(len(x.front)) for x in
+                    [str(len(x.front.solution_list)) for x in
                      self.comparator.comparison[project][method]]
                 sheet.append(line)
         # end nest for
@@ -296,8 +298,8 @@ class Analyzer:
                 # method, time, solutions found, solutions on front, score1, ..
                 method_line = [method] \
                     + [str(round(scores.time, 2))] \
-                    + [str(len(scores.found))] \
-                    + [str(len(scores.front))] \
+                    + [str(len(scores.found.solution_list))] \
+                    + [str(len(scores.front.solution_list))] \
                     + [str(round(scores.score[indicator], 6))
                        for indicator in indicators]
                 sheet.append(method_line)
@@ -349,7 +351,8 @@ class Analyzer:
                                         .comparison[project][method][iteration]
                                         .front.solution_list)
             handle = \
-                plt.scatter(objectives[0], objectives[1], label=method, alpha=0.5)
+                plt.scatter(objectives[0], objectives[1],
+                            label=method, alpha=0.5)
             handles.append(handle)
             labels.append(method)
         if file_name:
