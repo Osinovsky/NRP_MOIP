@@ -27,6 +27,9 @@ class BaseSolver:
         self.archive: NonDominatedSolutionsArchive = \
             NonDominatedSolutionsArchive()
 
+        # solution tmp list
+        self.tmp_list: List[BinarySolution] = []
+
         # prepare the solver
         self.solver.set_results_stream(None)
         self.solver.set_warning_stream(None)
@@ -183,7 +186,8 @@ class BaseSolver:
         solution = self.jmetal_solution(self.solver.solution)
         if solution:
             # add into archive
-            self.archive.add(solution)
+            # self.archive.add(solution)
+            self.tmp_list.append(solution)
             return {BaseSolver.objectives_str(solution): solution}
         else:
             # no solution
@@ -203,6 +207,10 @@ class BaseSolver:
         Returns:
             List[Tuple[float, ...]]: [description] list of objectives tuple
         """
+        # from tmp list to archive
+        for solution in self.tmp_list:
+            self.archive.add(solution)
+
         objectives = []
         for solution in self.archive.solution_list:
             objectives.append(tuple(solution.objectives))
