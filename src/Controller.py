@@ -134,7 +134,7 @@ class Controller:
             else:
                 print(name, ' not exists')
         # end for
-        problems_list: List[str] = list(problems)
+        problems_list: List[str] = sorted(list(problems))
 
         # parse the methods
         assert 'method' in task
