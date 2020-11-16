@@ -186,8 +186,8 @@ class BaseSolver:
             # add into archive
             neo_solution = deepcopy(solution)
             neo_solution.objectives = [-x for x in neo_solution.objectives]
-            self.archive.add(solution)
-            return {BaseSolver.objectives_str(solution): solution}
+            self.archive.add(neo_solution)
+            return {BaseSolver.objectives_str(neo_solution): neo_solution}
         else:
             # no solution
             return {}
