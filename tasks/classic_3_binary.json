@@ -1,0 +1,20 @@
+[
+    {
+        "name": "classic_3_binary",
+        "dataset": "classic_3",
+        "modelling": [
+            {
+                "name": "binary"
+            }
+        ],
+        "iteration": 1,
+        "method":[
+            {
+                "name": "epsilon"
+            },
+            {
+                "name": "cwmoip"
+            }
+        ]
+    }
+]
