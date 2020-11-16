@@ -11,6 +11,9 @@
         "method":[
             {
                 "name": "cwmoip"
+            },
+            {
+                "name": "epsilon"
             }
         ]
     }
