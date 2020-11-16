@@ -1,13 +1,12 @@
 #
 # DONG Shi, dongshi@mail.ustc.edu.cn
 # EConstraint.py, created: 2020.11.02
-# last modified: 2020.11.10
+# last modified: 2020.11.16
 #
 
 import math
 from typing import Dict, List, Any, Tuple, Set
 import numpy as np
-from jmetal.util.archive import NonDominatedSolutionsArchive
 from jmetal.core.solution import BinarySolution
 from src.NRP import NRPProblem
 from src.Solvers.BaseSolver import BaseSolver
@@ -31,9 +30,6 @@ class EConstraint(ABCSolver):
         self.problem: NRPProblem = problem
         # solver
         self.solver: BaseSolver = BaseSolver(problem)
-        # Non-Dominated Solutions Archive
-        self.archive: NonDominatedSolutionsArchive = \
-            NonDominatedSolutionsArchive()
 
         # boundary of objectives
         self.low: List[Any] = []

@@ -1,11 +1,10 @@
 #
 # DONG Shi, dongshi@mail.ustc.edu.cn
 # BaseSolver.py, created: 2020.11.02
-# last modified: 2020.11.10
+# last modified: 2020.11.16
 #
 
 from typing import Dict, Any, List, Union, Tuple
-from copy import deepcopy
 from cplex import Cplex, SolutionInterface
 from jmetal.util.archive import NonDominatedSolutionsArchive
 from jmetal.core.solution import BinarySolution
@@ -184,9 +183,7 @@ class BaseSolver:
         solution = self.jmetal_solution(self.solver.solution)
         if solution:
             # add into archive
-            neo_solution = deepcopy(solution)
-            neo_solution.objectives = [-x for x in neo_solution.objectives]
-            self.archive.add(neo_solution)
+            self.archive.add(solution)
             return {BaseSolver.objectives_str(solution): solution}
         else:
             # no solution
@@ -208,7 +205,7 @@ class BaseSolver:
         """
         objectives = []
         for solution in self.archive.solution_list:
-            objectives.append(tuple([-x for x in solution.objectives]))
+            objectives.append(tuple(solution.objectives))
         return objectives
 
     def get_variables(self) -> List[Tuple[bool, ...]]:
