@@ -1,7 +1,7 @@
 #
 # DONG Shi, dongshi@mail.ustc.edu.cn
 # NRP.py, created: 2020.10.31
-# last modified: 2020.11.09
+# last modified: 2020.11.18
 #
 
 import os
@@ -287,6 +287,38 @@ class NextReleaseProblem:
         # add file_name on path
         # file_name = os.path.join(config.dump_path, file_name)
         # open output file
+        with open(file_name, 'w+') as out_file:
+            # dump
+            json_object = json.dumps(result, indent=4)
+            out_file.write(json_object)
+            # close the file
+            out_file.close()
+
+    @staticmethod
+    def dump_xuan(file_name: str, nrp: XuanNRP) -> None:
+        assert not nrp.dependencies
+        # load config
+        config = Config()
+        # prepare a dict for storing all
+        result: Dict[str, Any] = dict()
+        # requirements cost
+        result['cost'] = nrp.cost
+        # customers profits
+        result['profit'] = nrp.profit
+        # requests
+        # result['request'] = nrp.requests
+        neo_requests: Dict[str, List[int]] = {}
+        for request in nrp.requests:
+            customer = str(request[0])
+            requirement = request[1]
+            if customer in neo_requests:
+                neo_requests[customer].append(requirement)
+            else:
+                neo_requests[customer] = [requirement]
+        result['request'] = neo_requests
+        # see if folder exists
+        if not os.path.exists(config.dump_path):
+            os.makedirs(config.dump_path)
         with open(file_name, 'w+') as out_file:
             # dump
             json_object = json.dumps(result, indent=4)

@@ -16,7 +16,6 @@
                 "b": 0.7
             }
         ],
-        "iteration": 1,
         "method":{
             "name": "epsilon"
         }
@@ -34,7 +33,6 @@
                 "b": 0.5
             }
         ],
-        "iteration": 1,
         "method":{
             "name": "epsilon"
         }

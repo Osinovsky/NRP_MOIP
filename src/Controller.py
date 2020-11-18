@@ -1,14 +1,14 @@
 #
 # DONG Shi, dongshi@mail.ustc.edu.cn
 # Controller.py, created: 2020.11.02
-# last modified: 2020.11.10
+# last modified: 2020.11.19
 #
 
 import json
 from time import clock
 from typing import Dict, Any, List, Union, Tuple, Set
 from os import makedirs
-from os.path import join, abspath
+from os.path import isdir, join, abspath
 from src.Config import Config
 from src.NRP import NextReleaseProblem
 from src.Solver import Solver
@@ -20,29 +20,29 @@ Entry = Tuple[str, Dict[str, Any]]
 class Task:
     def __init__(self,
                  root_folder: str,
-                 iteration_num: int,
-                 problems: List[str],
+                 problem: str,
                  modelling: Entry,
-                 methods: List[Entry]
+                 method: Entry
                  ) -> None:
         """__init__ [summary] define members
         """
         self.root_folder: str = root_folder
-        self.iteration_num: int = iteration_num
-        self.problems: List[str] = problems
+        self.problem: str = problem
         self.modelling: Entry = modelling
-        self.methods: List[Entry] = methods
+        self.method: Entry = method
 
     def __str__(self) -> str:
         dict_object: Dict[str, Any] = {}
         dict_object['root_folder'] = self.root_folder
-        dict_object['iteration_num'] = str(self.iteration_num)
-        dict_object['problem'] = self.problems
-        dict_object['modelling'] = self.modelling
-        method_dict: Dict[str, Any] = {}
-        for entry in self.methods:
-            method_dict[entry[0]] = entry[1]
-        dict_object['methods'] = method_dict
+        dict_object['problem'] = self.problem
+        dict_object['modelling'] = {
+            'name': self.modelling[0],
+            'option': self.modelling[1]
+        }
+        dict_object['method'] = {
+            'name': self.method[0],
+            'option': self.method[1]
+        }
         return json.dumps(dict_object, indent=2)
 
 
@@ -106,36 +106,52 @@ class Controller:
         """
         # load config
         config = Config()
-        # prepare task list
-        task_list: List[Task] = []
-
         # find the task name
         assert 'name' in task
         task_name: str = task['name']
-        # find the iteration num
-        assert 'iteration' in task
-        iteration_num: int = task['iteration']
 
         # parse the datasets
         assert 'dataset' in task
         dataset = task['dataset']
         # gather all problems it needs
         problems: Set[str] = set()
+        problems_list: List[str] = []
         if isinstance(dataset, str):
             dataset = [dataset]
         for name in dataset:
             type = config.name_type(name)
             if type == 'problem':
-                problems.add(name)
+                if name not in problems:
+                    problems.add(name)
+                    problems_list.append(name)
             elif type == 'keyword':
-                problems.update(set(config.keyword_cluster(name)))
+                cluster = set(config.keyword_cluster(name))
+                for set_name in cluster:
+                    if set_name not in problems:
+                        problems.add(set_name)
+                        problems_list.append(set_name)
             elif type == 'dataset':
-                problems.update(set(config.dataset_cluster(name)))
+                cluster = set(config.dataset_cluster(name))
+                for set_name in cluster:
+                    if set_name not in problems:
+                        problems.add(set_name)
+                        problems_list.append(set_name)
             else:
                 print(name, ' not exists')
         # end for
-        problems_list: List[str] = sorted(list(problems))
-
+        # parse the modelling
+        assert 'modelling' in task
+        formatting = task['modelling']
+        modellings: List[Entry] = []
+        if isinstance(formatting, dict):
+            formatting = [formatting]
+        for modelling in formatting:
+            assert 'name' in modelling
+            modelling_name = modelling['name']
+            assert modelling_name in config.modelling
+            del modelling['name']
+            modellings.append((modelling_name, modelling))
+        # end for
         # parse the methods
         assert 'method' in task
         algorithms = task['method']
@@ -150,26 +166,16 @@ class Controller:
             methods.append((method_name, algorithm))
         # end for
 
-        # parse the modelling
-        assert 'modelling' in task
-        formatting = task['modelling']
-        if isinstance(formatting, dict):
-            formatting = [formatting]
-        for modelling in formatting:
-            assert 'name' in modelling
-            modelling_name = modelling['name']
-            assert modelling_name in config.modelling
-            del modelling['name']
-            # create a task
-            one_task = Task(
-                task_name,
-                iteration_num,
-                problems_list,
-                (modelling_name, modelling),
-                methods
-            )
-            task_list.append(one_task)
-        # end for
+        # prepare task list
+        task_list: List[Task] = []
+        # Till here, we got problem_list, methods, modellings
+        # Now, make tasks from them
+        for problem in problems_list:
+            for model in modellings:
+                for method in methods:
+                    # create a task
+                    task_list.append(Task(task_name, problem, model, method))
+        # end nest for
         return task_list
 
     @staticmethod
@@ -327,89 +333,107 @@ class Controller:
             file_out.close()
 
     @staticmethod
-    def run_task(task: Task):
+    def __prepare_task(task: Task) -> bool:
         # load config
         config = Config()
-        # result folder
+        # check task folder
         task_root = join(config.result_root_path, task.root_folder)
-        makedirs(task_root, exist_ok=True)
-        # dump task dict in this folder
-        with open(join(task_root, 'task.json'), 'w+') as task_file:
-            task_file.write(str(task))
-            task_file.close()
-        # end for
-        # load problems
-        for problem_name in task.problems:
-            nrp_problem = NextReleaseProblem(problem_name)
-            nrp_problem.premodel(task.modelling[1])
-            nrp = nrp_problem.model(*task.modelling)
-            # make problem folder name
-            project_name = \
-                Controller.project_name(problem_name, *task.modelling)
-            problem_folder = join(task_root, project_name)
-            makedirs(problem_folder, exist_ok=True)
-            # prepare dump path
-            dump_path = join(config.dump_path, task.root_folder)
+        if not isdir(task_root):
+            makedirs(task_root, exist_ok=False)
+        # check project folder
+        project_name = Controller.project_name(task.problem, *task.modelling)
+        project_folder = join(task_root, project_name)
+        if not isdir(project_folder):
+            makedirs(project_folder, exist_ok=False)
+        # check method folder
+        method_name = Controller.method_name(*task.method)
+        method_folder = join(project_folder, method_name)
+        if not isdir(method_folder):
+            makedirs(method_folder, exist_ok=False)
+        # check if need dump problem
+        return task.method[0] in config.dump_method
 
-            # for each method, run on the problem
-            for method, option in task.methods:
-                # prepare method folder
-                method_folder = join(problem_folder,
-                                     Controller.method_name(method, option))
-                makedirs(method_folder, exist_ok=True)
-                # dump solvers
-                if config.if_dump(method):
-                    makedirs(dump_path, exist_ok=True)
-                    # prepare dump file name
-                    problem = abspath(join(dump_path, project_name + '.json'))
-                    NextReleaseProblem.dump(problem,
-                                            nrp.variables,
-                                            nrp.objectives,
-                                            nrp.inequations)
-                    # prepare some running option for dump solver
-                    option['problem_name'] = project_name
-                    option['dump_path'] = abspath(dump_path)
-                    option['result_path'] = abspath(method_folder)
-                    option['iteration'] = task.iteration_num
-                    # employ a solver
-                    solver = Solver(method, option, problem)
-                    solver.prepare()
-                    solver.execute()
-                else:
-                    # run iteration_num times
-                    for itr in range(task.iteration_num):
-                        # employ a solver
-                        solver = Solver(method, option, nrp)
-                        # solve
-                        start_time = clock()
-                        solver.prepare()
-                        solver.execute()
-                        elapsed_time = clock() - start_time
-                        # moip need dump solutions and runtime manually
-                        if method in config.moip_method:
-                            solutions = solver.solutions()
-                            # dump solutions
-                            solutions_file = join(method_folder,
-                                                  's_' + str(itr) + '.txt')
-                            Controller.dump_moip_solutions(solutions_file,
-                                                           solutions)
-                            # dump variables
-                            variables = solver.variables()
-                            variables_file = join(method_folder,
-                                                  'v_' + str(itr) + '.txt')
-                            Controller.dump_moip_variables(variables_file,
-                                                           variables)
-                            # dump other info
-                            info_file = join(method_folder,
-                                             'i_' + str(itr) + '.json')
-                            info: Dict[str, Any] = {}
-                            info['elapsed time'] = round(elapsed_time, 2)
-                            info['solutions found'] = len(solutions)
-                            Controller.dump_dict(info_file, info)
-                        # end if
-                    # end for
-                # end if
-            # end for
+    @staticmethod
+    def run_moea_task(task: Task) -> None:
+        # check dump folder
+        config = Config()
+        if not isdir(config.dump_path):
+            makedirs(config.dump_path, exist_ok=False)
+        # prepare folders
+        project_name = Controller.project_name(task.problem, *task.modelling)
+        method_name = Controller.method_name(*task.method)
+        method_folder = join(config.result_root_path, task.root_folder,
+                             project_name, method_name)
+        # prepare problem
+        nrp_problem = NextReleaseProblem(task.problem)
+        nrp_problem.premodel(task.modelling[1])
+        # dump problem
+        problem_file = abspath(join(config.dump_path, project_name + '.json'))
+        # TODO: more than dump xuan
+        NextReleaseProblem.dump_xuan(problem_file, nrp_problem.nrp)
+        option = task.method[1]
+        if 'iteration' not in option:
+            option['iteration'] = 1
+        option['problem_name'] = project_name
+        option['dump_path'] = abspath(config.dump_path)
+        option['result_path'] = abspath(method_folder)
+        # employ a solver
+        solver = Solver(task.method[0], option, problem_file)
+        solver.prepare()
+        solver.execute()
+
+    @staticmethod
+    def run_moip_task(task: Task) -> None:
+        # prepare folders
+        config = Config()
+        project_name = Controller.project_name(task.problem, *task.modelling)
+        method_name = Controller.method_name(*task.method)
+        method_folder = join(config.result_root_path, task.root_folder,
+                             project_name, method_name)
+        # prepare problem
+        nrp_problem = NextReleaseProblem(task.problem)
+        nrp_problem.premodel(task.modelling[1])
+        nrp = nrp_problem.model(*task.modelling)
+        # get iteration num
+        if 'iteration' in task.method[1]:
+            iteration = task.method[1]['iteration']
+        else:
+            iteration = 1
+        # run iteration_num times
+        for itr in range(iteration):
+            # employ a solver
+            solver = Solver(*task.method, nrp)
+            # solve
+            start_time = clock()
+            solver.prepare()
+            solver.execute()
+            elapsed_time = clock() - start_time
+            solutions = solver.solutions()
+            # dump solutions
+            solutions_file = join(method_folder, 's_' + str(itr) + '.txt')
+            Controller.dump_moip_solutions(solutions_file, solutions)
+            # dump variables
+            variables = solver.variables()
+            variables_file = join(method_folder, 'v_' + str(itr) + '.txt')
+            Controller.dump_moip_variables(variables_file, variables)
+            # dump other info
+            info_file = join(method_folder, 'i_' + str(itr) + '.json')
+            info: Dict[str, Any] = {}
+            info['elapsed time'] = round(elapsed_time, 2)
+            info['solutions found'] = len(solutions)
+            Controller.dump_dict(info_file, info)
+        # end for
+
+    @staticmethod
+    def run_task(task: Task) -> None:
+        # prepare result folders, get if need dump
+        need_dump = Controller.__prepare_task(task)
+        # run moip task
+        if need_dump:
+            Controller.run_moea_task(task)
+        # run moea task
+        else:
+            Controller.run_moip_task(task)
 
     @staticmethod
     def run(task_file: str) -> None:

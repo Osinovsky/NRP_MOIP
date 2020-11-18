@@ -1,13 +1,12 @@
 [
     {
-        "name": "classic_1_binary_test",
+        "name": "classic_1_binary",
         "dataset": "classic_1",
         "modelling": [
             {
                 "name": "binary"
             }
         ],
-        "iteration": 1,
         "method":[
             {
                 "name": "cwmoip"

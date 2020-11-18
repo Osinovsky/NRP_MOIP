@@ -1,16 +1,16 @@
 [
     {
-        "name": "xuan_binary_nsga",
+        "name": "xuan_binary_nsga_test",
         "dataset": "classic_1",
         "modelling": [
             {
                 "name": "binary"
             }
         ],
-        "iteration": 1,
         "method":[
             {
                 "name": "NSGAII",
+                "iteration": 5,
                 "population": 100,
                 "max_evaluations": 50000,
                 "patient": 10,

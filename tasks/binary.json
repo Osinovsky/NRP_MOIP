@@ -7,7 +7,6 @@
                 "name": "binary"
             }
         ],
-        "iteration": 1,
         "method":[
             {
                 "name": "epsilon"

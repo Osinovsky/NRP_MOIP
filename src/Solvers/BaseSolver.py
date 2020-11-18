@@ -1,7 +1,7 @@
 #
 # DONG Shi, dongshi@mail.ustc.edu.cn
 # BaseSolver.py, created: 2020.11.02
-# last modified: 2020.11.16
+# last modified: 2020.11.18
 #
 
 from typing import Dict, Any, List, Union, Tuple
@@ -28,7 +28,7 @@ class BaseSolver:
             NonDominatedSolutionsArchive()
 
         # solution tmp list
-        self.tmp_list: List[BinarySolution] = []
+        self.solution_list: List[BinarySolution] = []
 
         # prepare the solver
         self.solver.set_results_stream(None)
@@ -187,7 +187,7 @@ class BaseSolver:
         if solution:
             # add into archive
             # self.archive.add(solution)
-            self.tmp_list.append(solution)
+            self.solution_list.append(solution)
             return {BaseSolver.objectives_str(solution): solution}
         else:
             # no solution
@@ -208,9 +208,10 @@ class BaseSolver:
             List[Tuple[float, ...]]: [description] list of objectives tuple
         """
         # from tmp list to archive
-        for solution in self.tmp_list:
-            self.archive.add(solution)
-
+        if self.archive.size() == 0:
+            for solution in self.solution_list:
+                self.archive.add(solution)
+        # convert objectives
         objectives = []
         for solution in self.archive.solution_list:
             objectives.append(tuple(solution.objectives))

@@ -27,7 +27,6 @@
                 "profit_cost": true
             }
         ],
-        "iteration": 1,
         "method":[
             {
                 "name": "cwmoip"

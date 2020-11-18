@@ -15,7 +15,6 @@ object = {
             "min_profit": 0.5
         }
     ],
-    "iteration": 1,
     "method": [
         {
             "name": "epsilon"
