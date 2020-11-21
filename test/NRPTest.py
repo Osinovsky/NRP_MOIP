@@ -1,14 +1,15 @@
 #
 # DONG Shi, dongshi@mail.ustc.edu.cn
 # LoaderTest.py, created: 2020.11.02
-# last modified: 2020.11.02
+# last modified: 2020.11.21
 #
 
 import unittest
 from copy import deepcopy
+from random import randint
 from functools import partial, reduce
 from src.Config import Config
-from src.NRP import NextReleaseProblem
+from src.NRP import NRPProblem, NextReleaseProblem
 
 
 class NRPTest(unittest.TestCase):
@@ -123,6 +124,36 @@ class NRPTest(unittest.TestCase):
             else:
                 assert key == 'realistic'
                 assert not nrp.nrp.dependencies
+
+    @staticmethod
+    def random_objectives(num, dim):
+        objectives_list = []
+        for _ in range(num):
+            objs = {}
+            for _ in range(dim):
+                objs[randint(0, 499)] = randint(1, 1000)
+            objectives_list.append(objs)
+        return objectives_list
+
+    def test_attributes(self):
+        for _ in range(100):
+            nrp_problem = NRPProblem()
+            objs = NRPTest.random_objectives(randint(1, 4), 500)
+            nrp_problem.variables = list(range(500))
+            nrp_problem.objectives = objs
+            attrs = nrp_problem.attributes()
+            assert len(attrs) == len(objs)
+            # check objectives => attrs
+            for i in range(len(objs)):
+                for key in objs[i]:
+                    assert attrs[i][key] == objs[i][key]
+            # check attrs => objectives
+            for i in range(len(objs)):
+                for key in range(len(nrp_problem.variables)):
+                    if attrs[i][key] == 0:
+                        assert key not in objs[i]
+                    else:
+                        assert attrs[i][key] == objs[i][key]
 
 
 if __name__ == '__main__':

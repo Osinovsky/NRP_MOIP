@@ -6,6 +6,7 @@
 
 import math
 import numpy as np
+from copy import deepcopy
 from decimal import Decimal
 from typing import List, Any, Tuple, Dict, Set
 from jmetal.core.solution import BinarySolution
@@ -123,7 +124,7 @@ class CWMOIP(ABCSolver):
             self.low[i], self.up[i] = self.calculte_boundary(attributes[i])
         # calculate weights
         w = Decimal(1.0)
-        only_objective = attributes_np[0]
+        only_objective = deepcopy(attributes_np[0])
         for i in range(1, k):
             w = w / Decimal(MOOUtility.round(self.up[i] - self.low[i] + 1.0))
             only_objective = only_objective + float(w) * attributes_np[1]
