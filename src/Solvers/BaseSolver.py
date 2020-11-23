@@ -154,8 +154,7 @@ class BaseSolver:
         # check
         assert len(variables) == len(self.problem.variables)
         # set variables
-        # solution.variables = [[BaseSolver.bool_float(x) for x in variables]]
-        solution.variables = [variables]
+        solution.variables = [[BaseSolver.bool_float(x) for x in variables]]
         # calculate objectives
         solution.objectives = [0.0] * len(self.problem.objectives)
         constant_id = len(self.problem.variables)
@@ -164,13 +163,9 @@ class BaseSolver:
                 rhs = float(objective[constant_id])
             else:
                 rhs = 0.0
-            for vindex, val in enumerate(variables):
-                var = self.problem.variables[vindex]
-                if var in objective:
-                    rhs += val * objective[var]
-            # for var in objective:
-            #     if solution.variables[0][var]:
-            #         rhs += objective[var]
+            for var in objective:
+                if solution.variables[0][var]:
+                    rhs += objective[var]
             solution.objectives[index] = rhs
         return solution
 
