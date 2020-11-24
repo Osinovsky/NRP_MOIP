@@ -33,11 +33,11 @@ class CWMOIP(ABCSolver):
         # solver
         self.solver: BaseSolver = BaseSolver(problem)
         # boundary solver
-        self.boundary_solver: BaseSolver = BaseSolver(problem)
+        self.__boundary_solver: BaseSolver = BaseSolver(problem)
 
         # true boundary of objectives
-        self.low: List[Any] = []
-        self.up: List[Any] = []
+        # self.low: List[Any] = []
+        # self.up: List[Any] = []
 
     def calculte_boundary(self, obj: Dict[int, Any]) -> Tuple[Any, Any]:
         """calculte_boundary [summary] calculate
@@ -50,13 +50,13 @@ class CWMOIP(ABCSolver):
             [type]: [description] lower bound, upper bound
         """
         # set minimize tag for lower boundary
-        self.boundary_solver.set_objective(obj, minimize=True)
-        self.boundary_solver.solve()
-        low = self.boundary_solver.get_objective_value()
+        self.__boundary_solver.set_objective(obj, minimize=True)
+        self.__boundary_solver.solve()
+        low = self.__boundary_solver.get_objective_value()
         # set maximize tag for upper boundary
-        self.boundary_solver.set_objective(obj, minimize=False)
-        self.boundary_solver.solve()
-        up = self.boundary_solver.get_objective_value()
+        self.__boundary_solver.set_objective(obj, minimize=False)
+        self.__boundary_solver.solve()
+        up = self.__boundary_solver.get_objective_value()
         # return
         return low, up
 
@@ -74,29 +74,46 @@ class CWMOIP(ABCSolver):
         return math.floor(max([solution.objectives[objective_index]
                                for solution in solutions]) + 0.5) - 1
 
-    def recuse(self, level: int, up: List[Any]) -> Dict[str, BinarySolution]:
+    def recuse(self, only_objective: Dict[int, Any],
+               w: Decimal, objectives: List[Dict[int, Any]],
+               level: int) -> Dict[str, BinarySolution]:
         """recuse [summary] recusively execute
 
         Args:
+            only_objective (Dict[int, Any]): [description]
+            w (Decimal): [description] weight
+            objectives (List[Dict[int, Any]]) : [description]
             level (int): [description] current objective
-            up (List[Any]): [description] upper bound of each objective
 
         Returns:
             List[BinarySolution]: [description] solutions found so far
         """
         if level == 0:
             # solve
+            self.solver.set_objective(only_objective, True)
             return self.solver.solve()
         else:
+            # solve boundaries
+            self.solver.set_objective(objectives[level], True)
+            self.solver.solve()
+            low = self.solver.get_objective_value()
+            self.solver.set_objective(objectives[level], False)
+            self.solver.solve()
+            up = self.solver.get_objective_value()
+            w = w / Decimal(MOOUtility.round(up - low + 1.0))
+            only_objective = BaseSolver.objective_add(deepcopy(only_objective),
+                                                      objectives[level],
+                                                      float(w))
             # prepare all solutions set
             all_solutions: Dict[str, BinarySolution] = {}
             # get the up bound
-            rhs = math.ceil(up[level])
+            rhs = math.ceil(up)
             constraint_name = 'obj_' + str(level)
             while True:
                 # update rhs
                 self.solver.set_rhs(constraint_name, rhs)
-                solutions = self.recuse(level - 1, up)
+                solutions = \
+                    self.recuse(only_objective, w, objectives, level - 1)
                 # cannot find solutions anymore
                 if not solutions:
                     break
@@ -115,32 +132,37 @@ class CWMOIP(ABCSolver):
         objectives = self.problem.objectives
         k = len(self.problem.objectives)
         # calculate other boundraies
-        self.low = [.0] * k
-        self.up = [.0] * k
+        # self.low = [.0] * k
+        # self.up = [.0] * k
+        up_most = [.0] * k
         for i in range(1, k):
-            self.low[i], self.up[i] = self.calculte_boundary(objectives[i])
-        # calculate weights
-        w = Decimal(1.0)
-        only_objective = deepcopy(objectives[0])
-        for i in range(1, k):
-            w = w / Decimal(MOOUtility.round(self.up[i] - self.low[i] + 1.0))
-            only_objective = BaseSolver.objective_add(only_objective,
-                                                      objectives[i],
-                                                      float(w))
-        # set objective
-        self.solver.set_objective(only_objective, True)
+            _, up_most[i] = self.calculte_boundary(objectives[i])
+        # # calculate weights
+        # w = Decimal(1.0)
+        # only_objective = deepcopy(objectives[0])
+        # for i in range(1, k):
+        #     w = w / Decimal(MOOUtility.round(self.up[i] - self.low[i] + 1.0))
+        #     only_objective = BaseSolver.objective_add(only_objective,
+        #                                               objectives[i],
+        #                                               float(w))
+        # # set objective
+        # self.solver.set_objective(only_objective, True)
         # prepare other objective's constraint
         obj_cst: Dict[str, Dict[Any, Any]] = dict()
         for i in range(1, k):
             obj_cst['obj_' + str(i)] = objectives[i]
         self.solver.add_constriants(obj_cst)
+        # set up as default rhs
+        for i in range(1, k):
+            self.solver.set_rhs('obj_' + str(i), up_most[i])
 
     def execute(self):
         """execute [summary] execute the algorithm
         """
         # solver
+        objectives = deepcopy(self.problem.objectives)
         k = len(self.problem.objectives)
-        self.recuse(k - 1, self.up)
+        self.recuse(deepcopy(objectives[0]), Decimal(1.0), objectives, k - 1)
 
     def solutions(self) -> List[Any]:
         """solutions [summary] get solutions

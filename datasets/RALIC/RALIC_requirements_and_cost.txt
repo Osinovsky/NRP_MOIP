@@ -184,6 +184,6 @@ j.7.2	landswitch	66
 j.8	be capable of having direct printing to both sides of the card, which will include the library barcode	119
 j.9	the chosen manufacturer must have a proven tracker record within Institutions with Access Control, ID Pass Production, ODBC, Smart Card technologies.	184
 j.10	photo ID Pass Software must be an embedded feature of the Access control Software and only require software/licence upgrades.	161
-j.11	The system manufacturer MUST be a Microsoft� Certified Partner.	27
-j.12	the system MUST utilise Microsoft� Windows 2000 and/or XP Operating System.	31
-j.13	the Database platform MUST support Microsoft� SQL Server and/or Oracle Server.	27
+j.11	The system manufacturer MUST be a Microsoft Certified Partner.	27
+j.12	the system MUST utilise Microsoft Windows 2000 and/or XP Operating System.	31
+j.13	the Database platform MUST support Microsoft SQL Server and/or Oracle Server.	27
