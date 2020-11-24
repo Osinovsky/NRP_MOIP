@@ -1,7 +1,7 @@
 #
 # DONG Shi, dongshi@mail.ustc.edu.cn
 # NRP.py, created: 2020.10.31
-# last modified: 2020.11.18
+# last modified: 2020.11.24
 #
 
 import os
@@ -162,13 +162,9 @@ class NextReleaseProblem:
         self.nrp.requests = neo_requests
         self.nrp.dependencies.clear()
 
-    def reencode_xuan(self, customer_first: bool = True
-                      ) -> Tuple[Dict[int, int], Dict[int, int]]:
+    def reencode_xuan(self) -> Tuple[Dict[int, int], Dict[int, int]]:
         """reencode_xuan [summary] classic and realistic reencode, single objective
             encoding will be compact and from 0
-
-        Args:
-            customer_first (bool): encode customer first
 
         Returns:
             Tuple[Dict[int, int], Dict[int, int]]:
@@ -183,28 +179,16 @@ class NextReleaseProblem:
         cus_encoder = dict()
         neo_profit = dict()
         # encode
-        if customer_first:
-            for cus, profit in self.nrp.profit.items():
-                assert cus not in cus_encoder
-                cus_encoder[cus] = encoder
-                neo_profit[encoder] = profit
-                encoder += 1
-            for req, cost in self.nrp.cost.items():
-                assert req not in req_encoder
-                req_encoder[req] = encoder
-                neo_cost[encoder] = cost
-                encoder += 1
-        else:
-            for req, cost in self.nrp.cost.items():
-                assert req not in req_encoder
-                req_encoder[req] = encoder
-                neo_cost[encoder] = cost
-                encoder += 1
-            for cus, profit in self.nrp.profit.items():
-                assert cus not in cus_encoder
-                cus_encoder[cus] = encoder
-                neo_profit[encoder] = profit
-                encoder += 1
+        for cus, profit in self.nrp.profit.items():
+            assert cus not in cus_encoder
+            cus_encoder[cus] = encoder
+            neo_profit[encoder] = profit
+            encoder += 1
+        for req, cost in self.nrp.cost.items():
+            assert req not in req_encoder
+            req_encoder[req] = encoder
+            neo_cost[encoder] = cost
+            encoder += 1
         # apply them on dependencies
         neo_dependencies = \
             [(req_encoder[x[0]], req_encoder[x[1]])
@@ -233,22 +217,14 @@ class NextReleaseProblem:
         """classic_premodel [summary]
             premodel the classic keyword dataset
         """
-        if 'profit_cost' in option:
-            profit_cost = option['profit_cost']
-        else:
-            profit_cost = True
         self.flatten_xuan()
-        self.reencode_xuan(profit_cost)
+        self.reencode_xuan()
 
     def realistic_premodel(self, option: Dict[str, Any]) -> None:
         """realistic_premodel [summary]
             premodel the realistic keyword dataset
         """
-        if 'profit_cost' in option:
-            profit_cost = option['profit_cost']
-        else:
-            profit_cost = True
-        self.reencode_xuan(profit_cost)
+        self.reencode_xuan()
 
     @staticmethod
     def dump(
@@ -325,41 +301,6 @@ class NextReleaseProblem:
             out_file.write(json_object)
             # close the file
             out_file.close()
-
-    @staticmethod
-    def MOIP(
-        variables: List[int],
-        objectives: List[Dict[int, int]],
-        inequations: List[Dict[int, int]]
-    ) -> MOIPProblem:
-        """MOIP [summary] construct MOIPProblem
-
-        Args:
-            variables (List[int]): [description]
-            objectives (List[Dict[int, int]]): [description]
-            inequations (List[Dict[int, int]]): [description]
-        Returns:
-            MOIPProblem: [description]
-        """
-        # use objectives make attribute matrix
-        attribute_matrix = []
-        for objective in objectives:
-            line = [0] * (len(variables))
-            for key, value in objective.items():
-                line[key] = value
-            # there was a constant_id = max_id + 1, then api do not work
-            # so I assume there's no constant in objective
-            attribute_matrix.append(line)
-        # load into the MOIP
-        # construct MOIP
-        MOIP = MOIPProblem(len(objectives), len(variables), 0)
-        # call load
-        MOIP.load(objectives, inequations, dict(), False, None)
-        # ...load manually
-        MOIP.sparseInequationSensesList = ['L'] * len(inequations)
-        MOIP.attributeMatrix = attribute_matrix
-        # return
-        return MOIP
 
     def model(self, form: str, option: Dict[str, Any]) -> NRPProblem:
         """model [summary] modelling to NRPProblem
@@ -515,15 +456,13 @@ class NextReleaseProblem:
         # prepare the NRPProblem, modelled nrp, mnrp
         mnrp = NRPProblem()
         # prepare objective coefs and variables
+        mnrp.variables = \
+            list(self.nrp.profit.keys()) + list(self.nrp.cost.keys())
         max_profit = {k: -v for k, v in self.nrp.profit.items()}
         min_cost = {k: v for k, v in self.nrp.cost.items()}
         if profit_cost:
-            mnrp.variables = \
-                list(self.nrp.profit.keys()) + list(self.nrp.cost.keys())
             mnrp.objectives = [max_profit, min_cost]
         else:
-            mnrp.variables = \
-                list(self.nrp.cost.keys()) + list(self.nrp.profit.keys())
             mnrp.objectives = [min_cost, max_profit]
         # don't forget encode the constant, it always be MAX_CODE + 1
         constant_id = len(mnrp.variables)

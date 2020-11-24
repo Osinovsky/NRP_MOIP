@@ -301,12 +301,12 @@ class Controller:
             file_out.close()
 
     @staticmethod
-    def dump_moip_solutions(file_name: str, parato_set: Set[Any]) -> None:
+    def dump_moip_solutions(file_name: str, parato_set: List[Any]) -> None:
         """dump_moip_solutions [summary] dump moip solutions
 
         Args:
             file_name (str): [description] file for dumpping
-            parato_set (Set[Any]): [description] the solutions
+            parato_set (List[Any]): [description] the solutions
         """
         with open(file_name, 'w+') as file_out:
             for solution in parato_set:
@@ -314,12 +314,12 @@ class Controller:
             file_out.close()
 
     @staticmethod
-    def dump_moip_variables(file_name: str, variables: Set[Any]) -> None:
+    def dump_moip_variables(file_name: str, variables: List[Any]) -> None:
         """dump_moip_variables [summary] dump moip variables
 
         Args:
             file_name (str): [description] file for dumpping
-            variables (Set[Any]): [description] the variables
+            variables (List[Any]): [description] the variables
         """
         with open(file_name, 'w+') as file_out:
             for solution in variables:

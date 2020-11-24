@@ -93,19 +93,53 @@ class BaseSolver:
                                                rhs=[float(rs)],
                                                names=[name])
 
+    @staticmethod
+    def objective_add(left: Dict[int, Any],
+                      right: Dict[int, Any],
+                      coef: float
+                      ) -> Dict[int, Any]:
+        """objective_add [summary] add up two objectives(map)
+
+        Args:
+            left (Dict[int, Any]): [description]
+            right (Dict[int, Any]): [description]
+            coef (float): [description] weight of right objective
+
+        Returns:
+            Dict[int, Any]: [description] merged objective
+        """
+        sum_obj: Dict[int, Any] = {}
+        # see left objective
+        for k in left:
+            if k in sum_obj:
+                sum_obj[k] += left[k]
+            else:
+                sum_obj[k] = left[k]
+        # see right objective
+        for k in right:
+            if k in sum_obj:
+                sum_obj[k] += coef * right[k]
+            else:
+                sum_obj[k] = coef * right[k]
+        # end for
+        return sum_obj
+
     def set_objective(self,
-                      objective: List[Any],
+                      objective: Dict[int, Any],
                       minimize: bool) -> None:
         """set_objective [summary] set the objective
 
         Args:
-            objective (List[Any]): [description] objective is a
-            list of each variables' coefficient
+            objective (Dict[int, Any]): [description] objective is a
+            map of each variables' coefficients, note that there should not
+            be constant number
             minimize (bool): [description] True -> minimize, False -> maximize
         """
-        var_len = len(objective)
+        # prepare pairs for setting objectives
+        pairs: List[Tuple[str, Any]] = \
+            [('x' + str(k), v) for k, v in objective.items()]
         # set objective
-        self.solver.objective.set_linear(zip(list(range(var_len)), objective))
+        self.solver.objective.set_linear(pairs)
         # set sense
         sense = None
         if minimize:
@@ -150,11 +184,14 @@ class BaseSolver:
         status = cplex_soltuion.get_status_string()
         if 'optimal' not in status:
             return None
-        variables = cplex_soltuion.get_values()
+        variables: Dict[int, Any] = {}
+        for var_id in self.problem.variables:
+            value = cplex_soltuion.get_values('x'+str(var_id))
+            variables[var_id] = BaseSolver.bool_float(value)
         # check
         assert len(variables) == len(self.problem.variables)
         # set variables
-        solution.variables = [[BaseSolver.bool_float(x) for x in variables]]
+        solution.variables = variables
         # calculate objectives
         solution.objectives = [0.0] * len(self.problem.objectives)
         constant_id = len(self.problem.variables)
@@ -164,17 +201,42 @@ class BaseSolver:
             else:
                 rhs = 0.0
             for var in objective:
-                if solution.variables[0][var]:
+                if solution.variables[var]:
+                    rhs += objective[var]
+            solution.objectives[index] = rhs
+        return solution
+
+    def fake_jmetal_solution(self, vars_list):
+        solution = BinarySolution(
+            len(self.problem.variables),
+            len(self.problem.objectives),
+            len(self.problem.inequations)
+        )
+        solution.variables = vars_list
+        # calculate objectives
+        solution.objectives = [0.0] * len(self.problem.objectives)
+        constant_id = len(self.problem.variables)
+        for index, objective in enumerate(self.problem.objectives):
+            if constant_id in objective:
+                rhs = float(objective[constant_id])
+            else:
+                rhs = 0.0
+            for var in objective:
+                if var >= len(solution.variables):
+                    print(objective)
+                    print(var)
+                    input()
+                if solution.variables[var]:
                     rhs += objective[var]
             solution.objectives[index] = rhs
         return solution
 
     @staticmethod
     def objectives_str(solution: BinarySolution) -> str:
-        obj_str = str(int(solution.objectives[0]))
+        obj_str = str(round(solution.objectives[0], 2))
         for i in range(1, len(solution.objectives)):
             obj_str += '_'
-            obj_str += str(int(solution.objectives[i]))
+            obj_str += str(round(solution.objectives[i], 2))
         return obj_str
 
     def solve(self) -> Dict[str, BinarySolution]:
@@ -225,5 +287,8 @@ class BaseSolver:
         """
         variables = []
         for solution in self.archive.solution_list:
-            variables.append(tuple(solution.variables[0]))
+            vars_list: List[bool] = []
+            for var in range(len(solution.variables)):
+                vars_list.append(solution.variables[var])
+            variables.append(tuple(vars_list))
         return variables

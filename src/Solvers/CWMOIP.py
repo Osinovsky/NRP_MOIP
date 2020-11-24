@@ -1,14 +1,13 @@
 #
 # DONG Shi, dongshi@mail.ustc.edu.cn
 # CWMOIP.py, created: 2020.11.04
-# last modified: 2020.11.10
+# last modified: 2020.11.24
 #
 
 import math
-import numpy as np
 from copy import deepcopy
 from decimal import Decimal
-from typing import List, Any, Tuple, Dict, Set
+from typing import List, Any, Tuple, Dict
 from jmetal.core.solution import BinarySolution
 from src.NRP import NRPProblem
 from src.Solvers.BaseSolver import BaseSolver
@@ -40,12 +39,12 @@ class CWMOIP(ABCSolver):
         self.low: List[Any] = []
         self.up: List[Any] = []
 
-    def calculte_boundary(self, obj: List[Any]) -> Tuple[Any, Any]:
+    def calculte_boundary(self, obj: Dict[int, Any]) -> Tuple[Any, Any]:
         """calculte_boundary [summary] calculate
         the boundary of the objective
 
         Args:
-            obj (List[Any]): [description] objective
+            obj (Dict[int, Any]): [description] objective
 
         Returns:
             [type]: [description] lower bound, upper bound
@@ -114,22 +113,22 @@ class CWMOIP(ABCSolver):
         """
         # prepare attribute and variable num
         objectives = self.problem.objectives
-        attributes = self.problem.attributes()
-        attributes_np = np.array(attributes)
-        k = len(attributes)
+        k = len(self.problem.objectives)
         # calculate other boundraies
         self.low = [.0] * k
         self.up = [.0] * k
         for i in range(1, k):
-            self.low[i], self.up[i] = self.calculte_boundary(attributes[i])
+            self.low[i], self.up[i] = self.calculte_boundary(objectives[i])
         # calculate weights
         w = Decimal(1.0)
-        only_objective = deepcopy(attributes_np[0])
+        only_objective = deepcopy(objectives[0])
         for i in range(1, k):
             w = w / Decimal(MOOUtility.round(self.up[i] - self.low[i] + 1.0))
-            only_objective = only_objective + float(w) * attributes_np[1]
+            only_objective = BaseSolver.objective_add(only_objective,
+                                                      objectives[i],
+                                                      float(w))
         # set objective
-        self.solver.set_objective(only_objective.tolist(), True)
+        self.solver.set_objective(only_objective, True)
         # prepare other objective's constraint
         obj_cst: Dict[str, Dict[Any, Any]] = dict()
         for i in range(1, k):
@@ -143,18 +142,18 @@ class CWMOIP(ABCSolver):
         k = len(self.problem.objectives)
         self.recuse(k - 1, self.up)
 
-    def solutions(self) -> Set[Any]:
+    def solutions(self) -> List[Any]:
         """solutions [summary] get solutions
 
         Returns:
             Any: [description] solutions
         """
-        return set(self.solver.get_objectives())
+        return self.solver.get_objectives()
 
-    def variables(self) -> Set[Any]:
+    def variables(self) -> List[Any]:
         """variables [summary] get variables
 
         Returns:
-            Set[Any]: [description] variables
+            List[Any]: [description] variables
         """
-        return set(self.solver.get_variables())
+        return self.solver.get_variables()

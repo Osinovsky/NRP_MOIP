@@ -1,10 +1,10 @@
 #
 # DONG Shi, dongshi@mail.ustc.edu.cn
 # Solver.py, created: 2020.11.02
-# last modified: 2020.11.09
+# last modified: 2020.11.24
 #
 
-from typing import Dict, Any, Set, Union
+from typing import Dict, Any, List, Union
 from src.NRP import NRPProblem
 from src.Config import Config
 from src.Solvers.EConstraint import EConstraint
@@ -43,10 +43,10 @@ class Solver:
     def execute(self):
         self.solver.execute()
 
-    def solutions(self) -> Set[Any]:
+    def solutions(self) -> List[Any]:
         return self.solver.solutions()
 
-    def variables(self) -> Set[Any]:
+    def variables(self) -> List[Any]:
         return self.solver.variables()
 
     def employ_epsilon(self,

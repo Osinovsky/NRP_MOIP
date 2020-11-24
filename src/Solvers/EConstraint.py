@@ -1,12 +1,11 @@
 #
 # DONG Shi, dongshi@mail.ustc.edu.cn
 # EConstraint.py, created: 2020.11.02
-# last modified: 2020.11.16
+# last modified: 2020.11.24
 #
 
 import math
-from typing import Dict, List, Any, Tuple, Set
-import numpy as np
+from typing import Dict, List, Any, Tuple
 from jmetal.core.solution import BinarySolution
 from src.NRP import NRPProblem
 from src.Solvers.BaseSolver import BaseSolver
@@ -35,19 +34,19 @@ class EConstraint(ABCSolver):
         self.low: List[Any] = []
         self.up: List[Any] = []
 
-    def calculte_boundary(self, obj: List[Any]) -> Tuple[Any, Any]:
+    def calculte_boundary(self, obj: Dict[int, Any]) -> Tuple[Any, Any]:
         """calculte_boundary [summary] calculate
         the boundary of the objective
 
         Args:
-            obj (List[Any]): [description] objective
+            obj (Dict[int, Any]): [description] objective
 
         Returns:
             [type]: [description] lower bound, upper bound
         """
         ub = 0.0
         lb = 0.0
-        for value in obj:
+        for value in obj.values():
             if value > 0:
                 ub = ub + value
             else:
@@ -90,17 +89,14 @@ class EConstraint(ABCSolver):
         """
         # prepare attribute and variable num
         objectives = self.problem.objectives
-        attributes = self.problem.attributes()
-        attribute_np = np.array(attributes)
-        k = len(attributes)
+        k = len(self.problem.objectives)
         # calculate other boundraies
         self.low = [.0] * k
         self.up = [.0] * k
         for i in range(1, k):
-            self.low[i], self.up[i] = self.calculte_boundary(attributes[i])
+            self.low[i], self.up[i] = self.calculte_boundary(objectives[i])
         # prepare the objective
-        only_objective = attribute_np[0].tolist()
-        self.solver.set_objective(only_objective, True)
+        self.solver.set_objective(objectives[0], True)
         # prepare other objective's constraint
         obj_cst: Dict[str, Dict[Any, Any]] = dict()
         for i in range(1, k):
@@ -114,18 +110,18 @@ class EConstraint(ABCSolver):
         k = len(self.problem.objectives)
         self.recuse(k - 1, self.low, self.up)
 
-    def solutions(self) -> Set[Any]:
+    def solutions(self) -> List[Any]:
         """solutions [summary] get solutions
 
         Returns:
-            Any: [description] solutions
+            List[Any]: [description] solutions
         """
-        return set(self.solver.get_objectives())
+        return self.solver.get_objectives()
 
-    def variables(self) -> Set[Any]:
+    def variables(self) -> List[Any]:
         """variables [summary] get variables
 
         Returns:
-            Set[Any]: [description] variables
+            List[Any][Any]: [description] variables
         """
-        return set(self.solver.get_variables())
+        return self.solver.get_variables()

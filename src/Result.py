@@ -214,7 +214,15 @@ class Result:
             if ch in ignore:
                 pass
             elif ch in terminate:
-                tuple_list.append(element_type(recording))
+                if element_type == bool:
+                    if recording == '1':
+                        tuple_list.append(True)
+                    elif recording == '0':
+                        tuple_list.append(False)
+                    else:
+                        assert False
+                else:
+                    tuple_list.append(element_type(recording))
                 recording = ''
             else:
                 recording += ch
