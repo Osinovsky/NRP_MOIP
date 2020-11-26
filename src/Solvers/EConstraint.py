@@ -8,7 +8,8 @@ import math
 from typing import Dict, List, Any, Tuple
 from jmetal.core.solution import BinarySolution
 from src.NRP import NRPProblem
-from src.Solvers.BaseSolver import BaseSolver
+# from src.Solvers.BaseSolver import BaseSolver
+from src.Solvers.LazyBaseSolver import LazyBaseSolver as BaseSolver
 from src.Solvers.ABCSolver import ABCSolver
 
 

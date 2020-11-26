@@ -10,7 +10,8 @@ from decimal import Decimal
 from typing import List, Any, Tuple, Dict
 from jmetal.core.solution import BinarySolution
 from src.NRP import NRPProblem
-from src.Solvers.BaseSolver import BaseSolver
+# from src.Solvers.BaseSolver import BaseSolver
+from src.Solvers.LazyBaseSolver import LazyBaseSolver as BaseSolver
 from src.Solvers.ABCSolver import ABCSolver
 from src.util.mooUtility import MOOUtility
 
