@@ -269,7 +269,7 @@ class BaseSolver:
         Returns:
             List[Tuple[float, ...]]: [description] list of objectives tuple
         """
-        # from tmp list to archive
+        # from solution list to archive
         if self.archive.size() == 0:
             for solution in self.solution_list:
                 self.archive.add(solution)
@@ -285,6 +285,10 @@ class BaseSolver:
         Returns:
             List[Tuple[bool, ...]]: [description] list of variables tuple
         """
+        # from solution list to archive
+        if self.archive.size() == 0:
+            for solution in self.solution_list:
+                self.archive.add(solution)
         variables = []
         for solution in self.archive.solution_list:
             vars_list: List[bool] = []
