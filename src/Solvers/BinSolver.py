@@ -1,3 +1,9 @@
+#
+# DONG Shi, dongshi@mail.ustc.edu.cn
+# BinSolver.py, created: 2020.11.27
+# last modified: 2020.11.27
+#
+
 from typing import Dict, Any, List, Union, Tuple
 from cplex import Cplex, SolutionInterface
 from math import ceil, floor
@@ -10,38 +16,73 @@ from src.Solvers.ABCSolver import ABCSolver
 from src.Solvers.BaseSolver import BaseSolver
 
 
-class EConstraint(ABCSolver):
+class BinProblem:
     def __init__(self, problem: NRPProblem) -> None:
-        # store the problem
         self.problem = problem
-        # the solver
-        self.solver = Cplex()
-        # Non-Dominated Solutions Archive
-        self.archive: NonDominatedSolutionsArchive = \
-            NonDominatedSolutionsArchive()
+        # prepare variables
+        vars_num = len(problem.variables)
+        self.types = ['B'] * vars_num
+        self.variables = ['x' + str(i) for i in problem.variables]
+        # prepare objective
+        self.objective: Dict[int, Any] = {}
+        # prepare inequations
+        self.inequations = {}
+        for index, inequ in enumerate(problem.inequations):
+            self.inequations['c' + str(index)] = inequ
 
-        # solution tmp list
-        self.solution_list: List[BinarySolution] = []
+    def set_objective(self, w: float = None):
+        self.objective = deepcopy(self.problem.objectives[0])
+        if w:
+            for k, v in self.problem.objectives[1].items():
+                if k in self.objective:
+                    self.objective[k] += w * v
+                else:
+                    self.objective[k] = w * v
 
-    @staticmethod
-    def to_int(f: float) -> int:
-        f_floor = floor(f)
-        f_ceil = ceil(f)
-        if f >= f_floor - 1e-6 and f <= f_floor + 1e-6:
-            return f_floor
-        if f >= f_ceil - 1e-6 and f <= f_ceil + 1e-6:
-            return f_ceil
-        assert False
+    def set_rhs(self, rhs):
+        var_num = len(self.variables)
+        self.inequations['obj'] = deepcopy(self.problem.objectives[1])
+        self.inequations['obj'][var_num] = rhs
 
-    def calculte_boundary(self, obj: Dict[int, Any]) -> Tuple[Any, Any]:
-        ub = 0.0
-        lb = 0.0
-        for value in obj.values():
-            if value > 0:
-                ub = ub + value
+    def solve(self):
+        solver = Cplex()
+        solver.set_results_stream(None)
+        solver.set_warning_stream(None)
+        solver.set_error_stream(None)
+        solver.parameters.threads.set(1)
+        solver.parameters.parallel.set(1)
+        solver.variables.add(obj=None, lb=None, ub=None,
+                             types=self.types, names=self.variables)
+        vars_num = len(self.variables)
+        for name, inequation in self.inequations.items():
+            rows = []
+            vari = []
+            coef = []
+            if vars_num in inequation:
+                rs = inequation[vars_num]
             else:
-                lb = lb + value
-        return lb, ub
+                rs = 0
+            for key in inequation:
+                if key != vars_num:
+                    vari.append('x' + str(key))
+                    coef.append(inequation[key])
+            rows.append([vari, coef])
+            solver.linear_constraints.add(lin_expr=rows,
+                                          senses='L',
+                                          rhs=[rs],
+                                          names=[name])
+        # set objective
+        pairs: List[Tuple[str, Any]] = \
+            [('x' + str(k), v) for k, v in self.objective.items()]
+        # set objective
+        solver.objective.set_linear(pairs)
+        # set sense
+        solver.objective.set_sense(solver.objective.sense.minimize)
+        # solve
+        solver.solve()
+        solution = self.jmetal_solution(solver.solution)
+        del solver
+        return solution
 
     def jmetal_solution(self, cplex_soltuion: SolutionInterface
                         ) -> Union[BinarySolution, None]:
@@ -75,75 +116,67 @@ class EConstraint(ABCSolver):
                 if solution.variables[var]:
                     rhs += objective[var]
             solution.objectives[index] = rhs
+        # check constraints
+        for cst in self.problem.inequations:
+            cst_val = 0
+            for var, coef in cst.items():
+                if var == len(variables):
+                    cst_val += coef
+                else:
+                    if variables[var]:
+                        cst_val -= coef
+            if cst_val < -1e-6:
+                print(cst_val, solution.objectives)
+            assert cst_val >= -1e-6
         return solution
 
-    def prepare(self):
-        problem = self.problem
-        # prepare the solver
-        self.solver.set_results_stream(None)
-        self.solver.set_warning_stream(None)
-        self.solver.set_error_stream(None)
-        self.solver.parameters.threads.set(1)
-        self.solver.parameters.parallel.set(1)
-        # add variables
-        vars_num = len(problem.variables)
-        types = ['B'] * vars_num
-        variables = ['x' + str(i) for i in problem.variables]
-        self.solver.variables.add(obj=None, lb=None, ub=None,
-                                  types=types, names=variables)
-        # add constraints
-        counter = 0
-        for inequation in problem.inequations:
-            rows = []
-            vari = []
-            coef = []
-            if vars_num in inequation:
-                rs = inequation[vars_num]
+
+class EConstraint(ABCSolver):
+    def __init__(self, problem: NRPProblem) -> None:
+        # store the problem
+        self.problem = BinProblem(problem)
+        # Non-Dominated Solutions Archive
+        self.archive: NonDominatedSolutionsArchive = \
+            NonDominatedSolutionsArchive()
+        # solution tmp list
+        self.solution_list: List[BinarySolution] = []
+
+    @staticmethod
+    def to_int(f: float) -> int:
+        f_floor = floor(f)
+        f_ceil = ceil(f)
+        if f >= f_floor - 1e-6 and f <= f_floor + 1e-6:
+            return f_floor
+        if f >= f_ceil - 1e-6 and f <= f_ceil + 1e-6:
+            return f_ceil
+        assert False
+
+    def calculte_boundary(self, obj: Dict[int, Any]) -> Tuple[Any, Any]:
+        ub = 0.0
+        lb = 0.0
+        for value in obj.values():
+            if value > 0:
+                ub = ub + value
             else:
-                rs = 0
-            for key in inequation:
-                if key != vars_num:
-                    vari.append('x' + str(key))
-                    coef.append(inequation[key])
-            rows.append([vari, coef])
-            self.solver.linear_constraints.add(lin_expr=rows,
-                                               senses='L',
-                                               rhs=[rs],
-                                               names=['c' + str(counter)])
-            counter += 1
-        # calculate boundary of that objective
-        _, up = self.calculte_boundary(problem.objectives[1])
-        # add objective
-        rows = []
-        vari = []
-        coef = []
-        rs = up
-        for key in problem.objectives[1]:
-            if key != vars_num:
-                vari.append('x' + str(key))
-                coef.append(problem.objectives[1][key])
-        rows.append([vari, coef])
-        self.solver.linear_constraints.add(lin_expr=rows,
-                                           senses='L',
-                                           rhs=[rs],
-                                           names=['obj'])
+                lb = lb + value
+        return lb, ub
+
+    def prepare(self):
+        pass
 
     def execute(self):
-        # add objective
-        pairs: List[Tuple[str, Any]] = \
-            [('x' + str(k), v) for k, v in self.problem.objectives[0].items()]
-        # set objective
-        self.solver.objective.set_linear(pairs)
-        # set sense
-        self.solver.objective.set_sense(self.solver.objective.sense.minimize)
         # main loop
-        low, up = self.calculte_boundary(self.problem.objectives[1])
+        low, up = self.calculte_boundary(self.problem.problem.objectives[1])
         low = floor(low)
         up = ceil(up)
+        # set objective
+        self.problem.set_objective()
         for rhs in range(up, low - 1, -1):
-            self.solver.linear_constraints.set_rhs('obj', rhs)
-            self.solver.solve()
-            solution = self.jmetal_solution(self.solver.solution)
+            # set rhs
+            self.problem.set_rhs(rhs)
+            solution = self.problem.solve()
+            if not solution:
+                break
             self.solution_list.append(solution)
         # end for
 
@@ -174,30 +207,20 @@ class EConstraint(ABCSolver):
 
 class CWMOIP(EConstraint):
     def execute(self):
-        # prepare the objective
-        low, up = self.calculte_boundary(self.problem.objectives[1])
-        w = Decimal(1.0) / Decimal(self.to_int(up) - self.to_int(low) + 1)
-        only_objective = deepcopy(self.problem.objectives[0])
-        for var, val in self.problem.objectives[1].items():
-            if var in only_objective:
-                only_objective[var] += float(w) * val
-            else:
-                only_objective[var] = float(w) * val
-        # add objective
-        pairs: List[Tuple[str, Any]] = \
-            [('x' + str(k), v) for k, v in only_objective.items()]
-        # set objective
-        self.solver.objective.set_linear(pairs)
-        # set sense
-        self.solver.objective.set_sense(self.solver.objective.sense.minimize)
         # main loop
-        rhs = self.to_int(up)
+        low, up = self.calculte_boundary(self.problem.problem.objectives[1])
+        low = floor(low)
+        up = ceil(up)
+        # set objective
+        w = float(Decimal(1.0) / Decimal(up - low + 1))
+        self.problem.set_objective(w)
+        rhs = up
         while True:
-            self.solver.linear_constraints.set_rhs('obj', rhs)
-            self.solver.solve()
-            solution = self.jmetal_solution(self.solver.solution)
+            # set rhs
+            self.problem.set_rhs(rhs)
+            solution = self.problem.solve()
             if not solution:
                 break
             self.solution_list.append(solution)
-            rhs = int(solution.objectives[1]) - 1
+            rhs = self.to_int(solution.objectives[1]) - 1
         # end for
