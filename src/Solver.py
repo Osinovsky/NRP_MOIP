@@ -7,8 +7,9 @@
 from typing import Dict, Any, List, Union
 from src.NRP import NRPProblem
 from src.Config import Config
-from src.Solvers.EConstraint import EConstraint
-from src.Solvers.CWMOIP import CWMOIP
+# from src.Solvers.EConstraint import EConstraint
+# from src.Solvers.CWMOIP import CWMOIP
+from src.Solvers.BinSolver import EConstraint, CWMOIP
 from src.Solvers.JarSolver import JarSolver
 
 # type
