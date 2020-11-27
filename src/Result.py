@@ -46,7 +46,7 @@ class Result:
         self.sltn_template = join(self.root, '{}/{}/s_{}.txt')
 
         # load task file
-        self.task = Result.load_json(join(self.root, 'task.json'))
+        # self.task = Result.load_json(join(self.root, 'task.json'))
 
         # project names
         self.projects: List[str] = \
