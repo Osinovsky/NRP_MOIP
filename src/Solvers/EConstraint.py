@@ -1,15 +1,15 @@
 #
 # DONG Shi, dongshi@mail.ustc.edu.cn
 # EConstraint.py, created: 2020.11.02
-# last modified: 2020.11.24
+# last modified: 2020.11.28
 #
 
 import math
 from typing import Dict, List, Any, Tuple
 from jmetal.core.solution import BinarySolution
 from src.NRP import NRPProblem
-# from src.Solvers.BaseSolver import BaseSolver
-from src.Solvers.LazyBaseSolver import LazyBaseSolver as BaseSolver
+from src.Solvers.BaseSolver import BaseSolver
+# from src.Solvers.LazyBaseSolver import LazyBaseSolver as BaseSolver
 from src.Solvers.ABCSolver import ABCSolver
 
 
@@ -75,7 +75,7 @@ class EConstraint(ABCSolver):
             # get the up and low bound
             relaxed_up = math.ceil(up[level])
             relaxed_low = math.floor(low[level])
-            constraint_name = 'obj_' + str(level)
+            constraint_name = 'obj' + str(level)
             for rhs in range(relaxed_up, relaxed_low - 1, -1):
                 # update rhs
                 self.solver.set_rhs(constraint_name, rhs)
@@ -101,7 +101,7 @@ class EConstraint(ABCSolver):
         # prepare other objective's constraint
         obj_cst: Dict[str, Dict[Any, Any]] = dict()
         for i in range(1, k):
-            obj_cst['obj_' + str(i)] = objectives[i]
+            obj_cst['obj' + str(i)] = objectives[i]
         self.solver.add_constriants(obj_cst)
 
     def execute(self) -> None:

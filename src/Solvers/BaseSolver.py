@@ -1,9 +1,10 @@
 #
 # DONG Shi, dongshi@mail.ustc.edu.cn
 # BaseSolver.py, created: 2020.11.02
-# last modified: 2020.11.18
+# last modified: 2020.11.28
 #
 
+from math import ceil, floor
 from typing import Dict, Any, List, Union, Tuple
 from cplex import Cplex, SolutionInterface
 from jmetal.util.archive import NonDominatedSolutionsArchive
@@ -35,7 +36,8 @@ class BaseSolver:
         self.solver.set_warning_stream(None)
         self.solver.set_error_stream(None)
         self.solver.parameters.threads.set(1)
-        self.solver.parameters.parallel.set(1)
+        self.solver.parameters.parallel.set(0)
+        self.solver.parameters.emphasis.mip.set(0)
         # add variables
         vars_num = len(problem.variables)
         types = ['B'] * vars_num
@@ -43,8 +45,7 @@ class BaseSolver:
         self.solver.variables.add(obj=None, lb=None, ub=None,
                                   types=types, names=variables)
         # add constraints
-        counter = 0
-        for inequation in problem.inequations:
+        for index, inequation in enumerate(problem.inequations):
             rows = []
             vari = []
             coef = []
@@ -60,8 +61,40 @@ class BaseSolver:
             self.solver.linear_constraints.add(lin_expr=rows,
                                                senses='L',
                                                rhs=[rs],
-                                               names=['c' + str(counter)])
-            counter += 1
+                                               names=['c' + str(index)])
+
+    def add_constriant(self, name: str,
+                       constraint: Dict[int, Any]) -> None:
+        """add_constriant [summary] add one constraint
+
+        Args:
+            name (str): [description]
+            constraint (Dict[int, Any]): [description]
+        """
+        # get the num of variables
+        vars_num = len(self.problem.variables)
+        rows = []
+        vari = []
+        coef = []
+        if vars_num in constraint:
+            rs = float(constraint[vars_num])
+        else:
+            rs = 0.0
+        for key in constraint:
+            if key != vars_num:
+                vari.append('x' + str(key))
+                coef.append(float(constraint[key]))
+        rows.append([vari, coef])
+        self.solver.linear_constraints.add(lin_expr=rows, senses='L',
+                                           rhs=[rs], names=[name])
+
+    def delete_constraint(self, name: str) -> None:
+        """delete_constraint [summary] remove one constraint
+
+        Args:
+            name (str): [description]
+        """
+        self.solver.linear_constraints.delete(name)
 
     def add_constriants(self,
                         constraints: Dict[str, Dict[int, Any]]) -> None:
@@ -71,27 +104,9 @@ class BaseSolver:
             constraints (Dict[str, Dict[int, Any]]): [description]
             constraints, name mapping to constraint
         """
-        # get the num of variables
-        vars_num = len(self.problem.variables)
         # add each constraint
-        for name in constraints:
-            constraint = constraints[name]
-            rows = []
-            vari = []
-            coef = []
-            if vars_num in constraint:
-                rs = constraint[vars_num]
-            else:
-                rs = 0
-            for key in constraint:
-                if key != vars_num:
-                    vari.append('x' + str(key))
-                    coef.append(float(constraint[key]))
-            rows.append([vari, coef])
-            self.solver.linear_constraints.add(lin_expr=rows,
-                                               senses='L',
-                                               rhs=[float(rs)],
-                                               names=[name])
+        for name, constraint in constraints.items():
+            self.add_constriant(name, constraint)
 
     @staticmethod
     def objective_add(left: Dict[int, Any],
@@ -171,6 +186,15 @@ class BaseSolver:
             return True
         else:
             assert False
+
+    @staticmethod
+    def to_int(f: float) -> int:
+        diff_ceil = float(ceil(f)) - f
+        diff_floor = f - float(floor(f))
+        if diff_ceil < diff_floor:
+            return ceil(f)
+        else:
+            return floor(f)
 
     def jmetal_solution(self, cplex_soltuion: SolutionInterface
                         ) -> Union[BinarySolution, None]:
