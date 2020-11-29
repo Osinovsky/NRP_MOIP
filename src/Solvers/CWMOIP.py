@@ -1,7 +1,7 @@
 #
 # DONG Shi, dongshi@mail.ustc.edu.cn
 # CWMOIP.py, created: 2020.11.04
-# last modified: 2020.11.24
+# last modified: 2020.11.29
 #
 
 from decimal import Decimal
@@ -109,6 +109,8 @@ class CWMOIP(ABCSolver):
                 # cannot find solutions anymore
                 if not solutions:
                     break
+                # NOTE: for debug purpose, record rhs to cst
+                self.solver.solution_list[-1].constraints = [rhs]
                 # update next rhs
                 rhs = self.next_rhs(level, list(solutions.values()))
                 # update solutions
@@ -127,6 +129,10 @@ class CWMOIP(ABCSolver):
         objectives = self.problem.objectives
         k = len(objectives)
         self.recuse(objectives[0], Decimal(1.0), objectives, k - 1)
+
+    # NOTE: DEBUG
+    def solution_list(self):
+        return self.solver.archive.solution_list
 
     def solutions(self) -> List[Any]:
         """solutions [summary] get solutions

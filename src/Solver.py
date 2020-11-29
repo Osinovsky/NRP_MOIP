@@ -1,7 +1,7 @@
 #
 # DONG Shi, dongshi@mail.ustc.edu.cn
 # Solver.py, created: 2020.11.02
-# last modified: 2020.11.28
+# last modified: 2020.11.29
 #
 
 from typing import Dict, Any, List, Union
@@ -49,6 +49,10 @@ class Solver:
 
     def variables(self) -> List[Any]:
         return self.solver.variables()
+
+    # NOTE: DEBUG
+    def solution_list(self):
+        return self.solver.solution_list()
 
     def employ_epsilon(self,
                        problem: NRPProblem,

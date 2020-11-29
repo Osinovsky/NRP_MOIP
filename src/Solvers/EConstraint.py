@@ -1,7 +1,7 @@
 #
 # DONG Shi, dongshi@mail.ustc.edu.cn
 # EConstraint.py, created: 2020.11.02
-# last modified: 2020.11.28
+# last modified: 2020.11.29
 #
 
 import math
@@ -80,6 +80,8 @@ class EConstraint(ABCSolver):
                 # update rhs
                 self.solver.set_rhs(constraint_name, rhs)
                 solutions = self.recuse(level - 1, low, up)
+                # NOTE: for debug purpose, record rhs to cst
+                self.solver.solution_list[-1].constraints = [rhs]
                 all_solutions = {**all_solutions, **solutions}
             # end for
             return all_solutions
@@ -110,6 +112,10 @@ class EConstraint(ABCSolver):
         # solver
         k = len(self.problem.objectives)
         self.recuse(k - 1, self.low, self.up)
+
+    # NOTE: DEBUG
+    def solution_list(self):
+        return self.solver.archive.solution_list
 
     def solutions(self) -> List[Any]:
         """solutions [summary] get solutions

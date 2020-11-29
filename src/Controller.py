@@ -1,11 +1,12 @@
 #
 # DONG Shi, dongshi@mail.ustc.edu.cn
 # Controller.py, created: 2020.11.02
-# last modified: 2020.11.19
+# last modified: 2020.11.29
 #
 
 import json
 from time import clock
+from copy import deepcopy
 from typing import Dict, Any, List, Union, Tuple, Set
 from os import makedirs
 from os.path import isdir, join, abspath
@@ -333,6 +334,17 @@ class Controller:
             file_out.close()
 
     @staticmethod
+    def dump_debug(file, solutions):
+        with open(file, 'w+') as fout:
+            for solution in solutions:
+                tmp_list = deepcopy(solution.objectives)
+                tmp_list += solution.constraints
+                if len(tmp_list) != 3:
+                    continue
+                fout.write(str(tuple(tmp_list)) + '\n')
+            fout.close()
+
+    @staticmethod
     def __prepare_task(task: Task) -> bool:
         # load config
         config = Config()
@@ -416,6 +428,9 @@ class Controller:
             variables = solver.variables()
             variables_file = join(method_folder, 'v_' + str(itr) + '.txt')
             Controller.dump_moip_variables(variables_file, variables)
+            # NOTE: dump debug
+            debug_file = join(method_folder, 'db_' + str(itr) + '.txt')
+            Controller.dump_debug(debug_file, solver.solution_list())
             # dump other info
             info_file = join(method_folder, 'i_' + str(itr) + '.json')
             info: Dict[str, Any] = {}
