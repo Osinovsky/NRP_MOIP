@@ -38,6 +38,8 @@ class BaseSolver:
         self.solver.parameters.threads.set(1)
         self.solver.parameters.parallel.set(0)
         self.solver.parameters.emphasis.mip.set(0)
+        self.solver.parameters.mip.tolerances.absmipgap.set(0.0)
+        self.solver.parameters.mip.tolerances.mipgap.set(0.0)
         # add variables
         vars_num = len(problem.variables)
         types = ['B'] * vars_num
