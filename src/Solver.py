@@ -50,10 +50,6 @@ class Solver:
     def variables(self) -> List[Any]:
         return self.solver.variables()
 
-    # NOTE: DEBUG
-    def solution_list(self):
-        return self.solver.solution_list()
-
     def employ_epsilon(self,
                        problem: NRPProblem,
                        option: Dict[str, Any] = None

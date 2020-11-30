@@ -171,7 +171,7 @@ class Controller:
         task_list: List[Task] = []
         # Till here, we got problem_list, methods, modellings
         # Now, make tasks from them
-        for problem in problems_list:
+        for problem in sorted(problems_list):  # TODO: better way than sorting?
             for model in modellings:
                 for method in methods:
                     # create a task
@@ -428,9 +428,6 @@ class Controller:
             variables = solver.variables()
             variables_file = join(method_folder, 'v_' + str(itr) + '.txt')
             Controller.dump_moip_variables(variables_file, variables)
-            # NOTE: dump debug
-            debug_file = join(method_folder, 'db_' + str(itr) + '.txt')
-            Controller.dump_debug(debug_file, solver.solution_list())
             # dump other info
             info_file = join(method_folder, 'i_' + str(itr) + '.json')
             info: Dict[str, Any] = {}

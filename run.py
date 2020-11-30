@@ -4,8 +4,7 @@ from src import Controller
 # from src import Analyzer
 # from src import Comparator
 
-# Controller.run('binary_nsgaii_test.json')
-Controller.run('classic_3_binary.json')
+Controller.run('binary.json')
 
 # Comparator('xuan_binary_nsga').compare()
 
