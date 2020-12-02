@@ -1,20 +1,13 @@
 # HERE IS ON HOW TO GENERATE TASKS AUTOMATICLY
 
 import json
-from copy import deepcopy
 
 file_name = 'bincst_test.json'
 
 object = {
     "name": "xuan_bincst_test",
-    "dataset": "classic_1",
-    "modelling": [
-        {
-            "name": "bincst",
-            "max_cost": 0.5,
-            "min_profit": 0.5
-        }
-    ],
+    "dataset": "classic",
+    "modelling": [],
     "method": [
         {
             "name": "epsilon"
@@ -25,12 +18,21 @@ object = {
     ]
 }
 
-with open(file_name, 'w+') as file:
-    object_list = []
-    for min_profit in [0.3, 0.5, 0.7]:
-        object['modelling'][0]['min_profit'] = min_profit
-        object_list.append(
-            deepcopy(object)
-        )
-    json.dump(object_list, file, indent=4)
-    file.close()
+
+def write_tasks(file_name, template, name, vals):
+    with open(file_name, 'w+') as file:
+        for value in vals:
+            tmp_dict = {"name": "bincst"}
+            tmp_dict[name] = value
+            template['modelling'].append(tmp_dict)
+        json.dump(template, file, indent=4)
+        template['modelling'] = []
+        file.close()
+
+
+write_tasks('bincst_min_profit.json', object, 'min_profit', [0.3, 0.5, 0.7])
+write_tasks('bincst_max_cost.json', object, 'max_cost', [0.3, 0.5, 0.7])
+write_tasks('bincst_min_requirements.json', object,
+            'min_requirements', [0.3, 0.5, 0.7])
+write_tasks('bincst_min_customers.json', object,
+            'min_customers', [0.3, 0.5, 0.7])

@@ -4,7 +4,10 @@ from src import Controller
 # from src import Analyzer
 # from src import Comparator
 
-Controller.run('binary.json')
+Controller.run('bincst_min_profit.json')
+# Controller.run('bincst_max_cost.json')
+# Controller.run('bincst_min_requirements.json')
+# Controller.run('bincst_min_customers.json')
 
 # Comparator('xuan_binary_nsga').compare()
 

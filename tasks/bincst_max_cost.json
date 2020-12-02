@@ -1,0 +1,26 @@
+{
+    "name": "xuan_bincst_test",
+    "dataset": "classic",
+    "modelling": [
+        {
+            "name": "bincst",
+            "max_cost": 0.3
+        },
+        {
+            "name": "bincst",
+            "max_cost": 0.5
+        },
+        {
+            "name": "bincst",
+            "max_cost": 0.7
+        }
+    ],
+    "method": [
+        {
+            "name": "epsilon"
+        },
+        {
+            "name": "cwmoip"
+        }
+    ]
+}
