@@ -1,7 +1,7 @@
 #
 # DONG Shi, dongshi@mail.ustc.edu.cn
 # BaseSolver.py, created: 2020.11.02
-# last modified: 2020.11.28
+# last modified: 2020.12.10
 #
 
 from math import ceil, floor
@@ -187,7 +187,11 @@ class BaseSolver:
         elif BaseSolver.around(f, 1.0):
             return True
         else:
-            assert False
+            result = False
+            if f > 0.5:
+                result = True
+            print(str(f) + 'converted to' + str(result))
+            return result
 
     @staticmethod
     def to_int(f: float) -> int:

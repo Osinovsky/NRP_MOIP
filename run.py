@@ -4,12 +4,14 @@ from src import Controller
 # from src import Analyzer
 # from src import Comparator
 
-Controller.run('bincst_min_profit.json')
+Controller.run('rm3.json')
+
+# Controller.run('bincst_min_profit.json')
 # Controller.run('bincst_max_cost.json')
 # Controller.run('bincst_min_requirements.json')
 # Controller.run('bincst_min_customers.json')
 
-# Comparator('xuan_binary_nsga').compare()
+# Comparator('xuan_binary').quick_compare()
 
 # sheet = Analyzer('xuan_binary_nsga').make_sheet()
 # Analyzer.tabulate('tmp1.csv', sheet)

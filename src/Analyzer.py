@@ -1,10 +1,10 @@
 #
 # DONG Shi, dongshi@mail.ustc.edu.cn
 # Analyzer.py, created: 2020.11.10
-# last modified: 2020.11.12
+# last modified: 2020.12.10
 #
 
-from typing import Dict, List
+from typing import Any, Dict, List
 from os import listdir, makedirs
 from os.path import join, isdir
 import matplotlib.pyplot as plt
@@ -95,6 +95,45 @@ class Comparator:
                         Result.load_result_entry(method_folder, index)
                     )
         # end nest for
+
+    def quick_compare(self, projects: List[str] = [],
+                      methods: List[str] = []) -> None:
+        """quick_compare [summary] just compare infomation files with index 0
+
+        Args:
+            projects (List[str], optional): [description]. Defaults to [].
+            methods (List[str], optional): [description]. Defaults to [].
+        """
+        if not projects:
+            projects = self.result_manager.projects
+        else:
+            projects = \
+                [self.result_manager.project_name(x) for x in projects]
+        if not methods:
+            methods = self.result_manager.methods
+        else:
+            methods = \
+                [self.result_manager.method_name(x) for x in methods]
+        # end if
+        print('{:24}'.format(''), end='')
+        for method in methods:
+            print('{:16}'.format(method + ' t'), end='')
+        for method in methods:
+            print('{:16}'.format(method + ' n'), end='')
+        print()
+        for project in projects:
+            print('{:24}'.format(project), end='')
+            tmp: Dict[str, Dict[str, Any]] = {}
+            for method in methods:
+                tmp[method] = \
+                    Result.load_json(self.result_manager.i(project, method, 0))
+            # end for
+            for method in methods:
+                print('{:14.2f}'.format(tmp[method]['elapsed time']), end='')
+            for method in methods:
+                print('{:16}'.format(tmp[method]['solutions found']), end='')
+            print()
+        # end for
 
     def compare(self, projects: List[str] = [], methods: List[str] = [],
                 indicators: List[str] = [], on_front: bool = True,

@@ -1,0 +1,16 @@
+[
+    {
+        "name": "xuan_binary_rm3",
+        "dataset": "realistic_m3",
+        "modelling": [
+            {
+                "name": "binary"
+            }
+        ],
+        "method":[
+            {
+                "name": "cwmoip"
+            }
+        ]
+    }
+]
