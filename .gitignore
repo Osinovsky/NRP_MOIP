@@ -9,4 +9,4 @@ dump
 .*
 !.gitignore
 !.gitattributes
-!results/xuan_binary
+# !results/xuan_binary
