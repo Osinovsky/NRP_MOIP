@@ -1,7 +1,7 @@
 #
 # DONG Shi, dongshi@mail.ustc.edu.cn
 # Config.py, created: 2020.10.31
-# last modified: 2020.11.11
+# last modified: 2020.12.10
 #
 
 from typing import Dict, List
@@ -37,10 +37,10 @@ class Config:
             ['single', 'sincus', 'binary', 'bincst', 'trireq', 'tricus']
         # solving methods
         self.method = \
-            ['single', 'epsilon', 'cwmoip', 'ncgop', 'NSGAII']
+            ['single', 'epsilon', 'advec', 'cwmoip', 'ncgop', 'NSGAII']
         # moip methods
         self.moip_method = \
-            ['single', 'epsilon', 'cwmoip', 'ncgop']
+            ['single', 'epsilon', 'advec', 'cwmoip', 'ncgop']
         # dump methods(for jar algorithm)
         self.dump_method = \
             ['NSGAII']

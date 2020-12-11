@@ -4,7 +4,7 @@ from src import Controller
 # from src import Analyzer
 # from src import Comparator
 
-Controller.run('rm3.json')
+Controller.run('binary_advec.json')
 
 # Controller.run('bincst_min_profit.json')
 # Controller.run('bincst_max_cost.json')

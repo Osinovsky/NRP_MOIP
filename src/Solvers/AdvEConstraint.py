@@ -1,15 +1,22 @@
+#
+# DONG Shi, dongshi@mail.ustc.edu.cn
+# AdvEConstraint.py, created: 2020.12.10
+# last modified: 2020.12.10
+#
+
+from typing import Dict, Any, List
 import math
-from typing import Dict, List, Any
-from src.NRP import NRPProblem
 from src.Solvers.EConstraint import EConstraint
 from jmetal.core.solution import BinarySolution
 
 
-class CWMOIP(EConstraint):
-    def __init__(self, problem: NRPProblem) -> None:
-        super().__init__(problem)
-        print('Alt CWMOIP used')
-
+class AdvEConstraint(EConstraint):
+    """AdvEConstraint [summary]
+    Inspired by CWMOIP, we developed another AdvConstraint with update rhs
+    without fixed step. Meanwhile, unlike CWMOIP, we still use the same
+    objective with EConstraint, in case of reducing the time as it's solved
+    in practice.
+    """
     def next_rhs(self, objective_index: int,
                  solutions: List[BinarySolution]) -> int:
         """next_rhs [summary] calculate max value on this objective
@@ -42,15 +49,11 @@ class CWMOIP(EConstraint):
         else:
             # prepare all solutions set
             all_solutions: Dict[str, BinarySolution] = {}
-            # get the up and low bound
+            # get the upper bound
             rhs = math.ceil(up[level])
-            # relaxed_low = math.floor(low[level])
-            constraint_name = 'obj_' + str(level)
+            constraint_name = 'obj' + str(level)
             while True:
                 # update rhs
-                fout = open('cwmoip_rhs.txt', 'a')
-                fout.write(str(rhs) + '\n')
-                fout.close()
                 self.solver.set_rhs(constraint_name, rhs)
                 solutions = self.recuse(level - 1, low, up)
                 if not solutions:

@@ -1,13 +1,14 @@
 #
 # DONG Shi, dongshi@mail.ustc.edu.cn
 # Solver.py, created: 2020.11.02
-# last modified: 2020.11.29
+# last modified: 2020.12.10
 #
 
 from typing import Dict, Any, List, Union
 from src.NRP import NRPProblem
 from src.Config import Config
 from src.Solvers.EConstraint import EConstraint
+from src.Solvers.AdvEConstraint import AdvEConstraint
 from src.Solvers.CWMOIP import CWMOIP
 # from src.Solvers.BinSolver import EConstraint, CWMOIP
 from src.Solvers.JarSolver import JarSolver
@@ -55,6 +56,12 @@ class Solver:
                        option: Dict[str, Any] = None
                        ) -> None:
         self.solver = EConstraint(problem)
+
+    def employ_advec(self,
+                     problem: NRPProblem,
+                     option: Dict[str, Any] = None
+                     ) -> None:
+        self.solver = AdvEConstraint(problem)
 
     def employ_cwmoip(self,
                       problem: NRPProblem,
