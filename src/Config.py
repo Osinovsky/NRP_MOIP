@@ -55,8 +55,8 @@ class Config:
         self.task_path = './tasks/'
 
         # java path
-        self.java_exe = 'C:\\Program Files\\Java\\jdk-11.0.8\\bin\\java.exe'
-        # self.java_exe = 'java'
+        # self.java_exe = 'C:\\Program Files\\Java\\jdk-11.0.8\\bin\\java.exe'
+        self.java_exe = 'java'
 
         # cplex threads num, 0 for auto
         self.threads = 0
