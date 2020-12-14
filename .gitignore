@@ -9,4 +9,5 @@ dump
 .*
 !.gitignore
 !.gitattributes
+src/Solvers/NSGAIISolver.jar
 # !results/xuan_binary
