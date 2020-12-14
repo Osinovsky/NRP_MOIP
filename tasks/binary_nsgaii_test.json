@@ -18,5 +18,85 @@
                 "crossover": 0.8
             }
         ]
+    },
+    {
+        "name": "xuan_binary_nsga_test",
+        "dataset": "classic_2",
+        "modelling": [
+            {
+                "name": "binary"
+            }
+        ],
+        "method":[
+            {
+                "name": "NSGAII",
+                "iteration": 40,
+                "population": 500,
+                "max_evaluations": 100000,
+                "patient": 10,
+                "mutation": 0.00089,
+                "crossover": 0.8
+            }
+        ]
+    },
+    {
+        "name": "xuan_binary_nsga_test",
+        "dataset": "classic_3",
+        "modelling": [
+            {
+                "name": "binary"
+            }
+        ],
+        "method":[
+            {
+                "name": "NSGAII",
+                "iteration": 40,
+                "population": 500,
+                "max_evaluations": 100000,
+                "patient": 10,
+                "mutation": 0.0005,
+                "crossover": 0.8
+            }
+        ]
+    },
+    {
+        "name": "xuan_binary_nsga_test",
+        "dataset": "classic_4",
+        "modelling": [
+            {
+                "name": "binary"
+            }
+        ],
+        "method":[
+            {
+                "name": "NSGAII",
+                "iteration": 40,
+                "population": 500,
+                "max_evaluations": 100000,
+                "patient": 10,
+                "mutation": 0.00025,
+                "crossover": 0.8
+            }
+        ]
+    },
+    {
+        "name": "xuan_binary_nsga_test",
+        "dataset": "classic_5",
+        "modelling": [
+            {
+                "name": "binary"
+            }
+        ],
+        "method":[
+            {
+                "name": "NSGAII",
+                "iteration": 40,
+                "population": 500,
+                "max_evaluations": 100000,
+                "patient": 10,
+                "mutation": 0.0004,
+                "crossover": 0.8
+            }
+        ]
     }
 ]
