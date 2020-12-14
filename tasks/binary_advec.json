@@ -1,7 +1,7 @@
 [
     {
         "name": "xuan_binary_advec",
-        "dataset": "xuan",
+        "dataset": "classic",
         "modelling": [
             {
                 "name": "binary"
@@ -10,6 +10,9 @@
         "method":[
             {
                 "name": "advec"
+            },
+            {
+                "name": "epsilon"
             }
         ]
     }

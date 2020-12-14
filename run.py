@@ -6,11 +6,6 @@ from src import Controller
 
 Controller.run('binary_advec.json')
 
-# Controller.run('bincst_min_profit.json')
-# Controller.run('bincst_max_cost.json')
-# Controller.run('bincst_min_requirements.json')
-# Controller.run('bincst_min_customers.json')
-
 # Comparator('xuan_binary').quick_compare()
 
 # sheet = Analyzer('xuan_binary_nsga').make_sheet()
