@@ -1,0 +1,19 @@
+[
+    {
+        "name": "xuan_binary_cwmoip",
+        "dataset": "classic",
+        "modelling": [
+            {
+                "name": "binary"
+            }
+        ],
+        "method":[
+            {
+                "name": "cwmoip"
+            },
+            {
+                "name": "epsilon"
+            }
+        ]
+    }
+]

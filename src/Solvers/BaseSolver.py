@@ -1,7 +1,7 @@
 #
 # DONG Shi, dongshi@mail.ustc.edu.cn
 # BaseSolver.py, created: 2020.11.02
-# last modified: 2020.12.10
+# last modified: 2020.12.14
 #
 
 from math import ceil, floor
@@ -9,6 +9,7 @@ from typing import Dict, Any, List, Union, Tuple
 from cplex import Cplex, SolutionInterface
 from jmetal.util.archive import NonDominatedSolutionsArchive
 from jmetal.core.solution import BinarySolution
+from src.Config import Config
 from src.NRP import NRPProblem
 
 
@@ -31,12 +32,15 @@ class BaseSolver:
         # solution tmp list
         self.solution_list: List[BinarySolution] = []
 
+        # load config
+        config = Config()
+
         # prepare the solver
         self.solver.set_results_stream(None)
         self.solver.set_warning_stream(None)
         self.solver.set_error_stream(None)
-        self.solver.parameters.threads.set(1)
-        self.solver.parameters.parallel.set(0)
+        self.solver.parameters.threads.set(config.threads)
+        # self.solver.parameters.parallel.set(0)
         self.solver.parameters.emphasis.mip.set(0)
         self.solver.parameters.mip.tolerances.absmipgap.set(0.0)
         self.solver.parameters.mip.tolerances.mipgap.set(0.0)
