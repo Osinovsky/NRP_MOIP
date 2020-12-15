@@ -94,6 +94,9 @@ class Analyzer:
         Returns:
             List[List[str]]: [description] sheet
         """
+        config = Config()
+        if not indicators:
+            indicators = config.indicators
         sheet: List[List[str]] = []
         for project in self.result.projects:
             # project, time, found, front, indicator1, indicator2, ...
