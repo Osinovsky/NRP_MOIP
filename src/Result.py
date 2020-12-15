@@ -1,7 +1,7 @@
 #
 # DONG Shi, dongshi@mail.ustc.edu.cn
 # Result.py, created: 2020.11.10
-# last modified: 2020.11.12
+# last modified: 2020.12.15
 #
 
 from typing import Dict, Any, List, Tuple
@@ -13,63 +13,182 @@ from jmetal.util.archive import NonDominatedSolutionsArchive
 from src.Config import Config
 
 
-class ResultEntry:
-    def __init__(self) -> None:
-        """__init__ [summary] record one pareto's all results
-        """
-        # elapsed time
-        self.time: float = 0.0
-        # solutions found
-        self.found: NonDominatedSolutionsArchive = \
-            NonDominatedSolutionsArchive()
-        # solutions on pareto front
-        self.front: NonDominatedSolutionsArchive = \
-            NonDominatedSolutionsArchive()
-        # indicator scores
-        self.score: Dict[str, float] = {}
-
-
 class Result:
-    def __init__(self, result_folder: str) -> None:
+    def __init__(self, result_folder: str,
+                 use_cached_front: bool = True) -> None:
         """__init__ [summary] handle the result folders and files
 
         Args:
             result_folder (str): [description] result root folder
+            use_cached_front (bool): [description] if use .front files
+            if available
         """
         # result root
         config = Config()
         self.root = join(config.result_root_path, result_folder)
+        self.use_cached_front = use_cached_front
 
         # result template string
         self.info_template = join(self.root, '{}/{}/i_{}.json')
         self.vari_template = join(self.root, '{}/{}/v_{}.txt')
         self.sltn_template = join(self.root, '{}/{}/s_{}.txt')
 
-        # load task file
-        # self.task = Result.load_json(join(self.root, 'task.json'))
+        # method pareto front template
+        self.method_front_template = join(self.root, '{}/{}/.front')
+        # project pareto front template
+        self.project_front_template = join(self.root, '{}/.front')
 
         # project names
         self.projects: List[str] = \
-            list(filter(lambda x: '.' not in x and x != 'comparison',
-                        listdir(self.root)))
+            list(filter(lambda x: '.' not in x, listdir(self.root)))
         assert len(self.projects) >= 1
-        # method names
-        first_project = join(self.root, self.projects[0])
-        self.methods: List[str] = listdir(first_project)
-        # iteration num
-        first_method = join(first_project, self.methods[0])
-        first_iterations = len(listdir(first_method))
-        assert first_iterations % 3 == 0
-        self.iterations: int = int(first_iterations / 3)
+        # method names and iteration num
+        self.methods: Dict[str, List[str]] = {}
+        self.iterations: Dict[Tuple[str, str], int] = {}
 
         # check for all files exist
         for p in self.projects:
-            for m in self.methods:
-                for i in range(self.iterations):
+            self.methods[p] = \
+                list(filter(lambda x: not x.startswith('.'),
+                            listdir(join(self.root, p))))
+            for m in self.methods[p]:
+                files = listdir(join(self.root, p, m))
+                iteration = len([f for f in files if f.startswith('i_')])
+                self.iterations[(p, m)] = iteration
+                for i in range(iteration):
                     assert isfile(self.info_template.format(p, m, i))
                     assert isfile(self.vari_template.format(p, m, i))
                     assert isfile(self.sltn_template.format(p, m, i))
         # end nested for
+
+        # infomation
+        self.info: Dict[Tuple[str, str], Dict[str, Any]] = {}
+        self.load_info()
+
+        # prepare non-dominated solutions count
+        self.non_dominated_count: Dict[Tuple[str, str], int] = {}
+
+        # prepare pareto fronts
+        self.project_fronts: Dict[str, NonDominatedSolutionsArchive] = {}
+        self.method_fronts: Dict[Tuple[str, str],
+                                 NonDominatedSolutionsArchive] = {}
+        for project in self.projects:
+            for method in self.methods[project]:
+                print(project, method)
+                self.build_method_front(project, method)
+            self.build_project_front(project)
+        # end for
+
+    def build_method_front(self, project: str, method: str) -> None:
+        """build_method_front [summary] build pareto front for
+        a certain method on a certain project
+
+        Args:
+            project (str): [description]
+            method (str): [description]
+        """
+        # use .front if possible
+        if isfile(self.mf(project, method)) and self.use_cached_front:
+            self.method_fronts[(project, method)] = \
+                self.load_archive(self.mf(project, method))
+            return
+        # build pareto
+        solution_files = []
+        for i in range(self.iterations[(project, method)]):
+            solution_files.append((
+                self.s(project, method, i),
+                self.v(project, method, i)
+            ))
+        self.method_fronts[(project, method)] = \
+            self.build_pareto_front(solution_files)
+        # write into .front file
+        self.dump_archive(join(self.root, project, method, '.front'),
+                          self.method_fronts[(project, method)])
+
+    def build_project_front(self, project: str) -> None:
+        """build_project_front [summary] build pareto front for
+        a certain project, by every solutions found by each method
+
+        Args:
+            project (str): [description]
+        """
+        # use .front if possible
+        if isfile(self.pf(project)) and self.use_cached_front:
+            self.project_fronts[(project)] = \
+                self.load_archive(self.pf(project))
+            # load non dominated count
+            tmp_dict = \
+                self.load_json(self.pf(project) + '.count')
+            for k, v in tmp_dict.items():
+                key = (k.split('|')[0], k.split('|')[1])
+                self.non_dominated_count[key] = int(v)
+            return
+        # use method fronts to build project front
+        archive = NonDominatedSolutionsArchive()
+        for method in self.methods[project]:
+            key = (project, method)
+            assert key in self.method_fronts
+            for solution in self.method_fronts[key].solution_list:
+                nd = archive.add(solution)
+                if nd:
+                    if key not in self.non_dominated_count:
+                        self.non_dominated_count[key] = 1
+                    else:
+                        self.non_dominated_count[key] += 1
+        self.project_fronts[project] = archive
+        # write into .front and .front.count
+        self.dump_archive(self.pf(project), archive)
+        tmp_dict = {k[0] + '|' + k[1]: v for k, v
+                    in self.non_dominated_count.items()}
+        with open(self.pf(project) + '.count', 'w') as fout:
+            json.dump(tmp_dict, fout)
+            fout.close()
+
+    @staticmethod
+    def build_pareto_front(solution_files: List[Tuple[str, str]]
+                           ) -> NonDominatedSolutionsArchive:
+        """build_pareto_front [summary] build pareto front for
+        give solution files.
+        Note that, solution_files are [(s_file, v_file)]
+
+        Args:
+            solution_files (List[Tuple[str, str]]): [description]
+            zip of solution files and variables files
+
+        Returns:
+            NonDominatedSolutionsArchive: [description]
+        """
+        archive = NonDominatedSolutionsArchive()
+        for solution_file in solution_files:
+            solutions = \
+                Result.load_solutions(solution_file[0], solution_file[1])
+            for solution in solutions:
+                archive.add(solution)
+        return archive
+
+    @staticmethod
+    def quick_prob(result_folder: str) -> None:
+        config = Config()
+        root = join(config.result_root_path, result_folder)
+        projects = list(filter(lambda x: '.' not in x, listdir(root)))
+        for project in projects:
+            print(project + ':')
+            methods = list(filter(lambda x: not x.startswith('.'),
+                           listdir(join(root, project))))
+            for method in methods:
+                if len(method) > 10:
+                    method_name = method[:8] + '..'
+                else:
+                    method_name = method
+                print(method_name + '\t', end='')
+                infos = list(filter(lambda x: x.startswith('i_'),
+                             listdir(join(root, project, method))))
+                for i_f in infos:
+                    info = Result.load_json(join(root, project, method, i_f))
+                    time = str(int(info['elapsed time']))
+                    found = str(info['solutions found'])
+                    print(time + '\t' + found + '\t', end='')
+                print()
 
     @staticmethod
     def load_json(file_name: str) -> Dict[str, Any]:
@@ -86,6 +205,21 @@ class Result:
             json_object = json.load(json_file)
             json_file.close()
         return json_object
+
+    def load_info(self) -> None:
+        for p in self.projects:
+            for m in self.methods[p]:
+                tmp_info: Dict[str, Any] = {}
+                tmp_info['found'] = 0
+                tmp_info['time'] = .0
+                for i in range(self.iterations[(p, m)]):
+                    info = Result.load_json(
+                        self.i(p, m, i)
+                    )
+                    tmp_info['found'] += int(info['solutions found'])
+                    tmp_info['time'] += float(info['elapsed time'])
+                self.info[(p, m)] = tmp_info
+        # end nest for
 
     def project_name(self, project: str) -> str:
         """project_name [summary] find real project name
@@ -105,10 +239,11 @@ class Result:
         assert flag
         return real_name
 
-    def method_name(self, method: str) -> str:
+    def method_name(self, project: str, method: str) -> str:
         """method_name [summary] find real method name
 
         Args:
+            project (str): [description]
             method (str): [description]
 
         Returns:
@@ -116,7 +251,7 @@ class Result:
         """
         flag = False
         real_name = ''
-        for method_name in self.methods:
+        for method_name in self.methods[project]:
             if method_name.startswith(method):
                 real_name = method_name
                 flag = True
@@ -138,20 +273,14 @@ class Result:
             Tuple[str, str, int]: [description] three keys
         """
         project = self.project_name(project)
-        method = self.method_name(method)
-        assert iteration >= 0 and iteration < self.iterations
+        assert method in self.methods[project]
+        method = self.method_name(project, method)
+        assert iteration >= 0 \
+            and iteration < self.iterations[(project, method)]
         return project, method, iteration
 
     def s(self, project: str, method: str, iteration: int) -> str:
-        """s [summary] soltution file name
-
-        Args:
-            project (str): [description]
-            method (str): [description]
-            iteration (int): [description]
-
-        Returns:
-            str: [description] soltution file name
+        """ solution file(objectives)
         """
         # check arguments
         project, method, iteration = \
@@ -159,15 +288,7 @@ class Result:
         return self.sltn_template.format(project, method, iteration)
 
     def v(self, project: str, method: str, iteration: int) -> str:
-        """v [summary] variables file name
-
-        Args:
-            project (str): [description]
-            method (str): [description]
-            iteration (int): [description]
-
-        Returns:
-            str: [description] variables file name
+        """ variables file
         """
         # check arguments
         project, method, iteration = \
@@ -175,20 +296,22 @@ class Result:
         return self.vari_template.format(project, method, iteration)
 
     def i(self, project: str, method: str, iteration: int) -> str:
-        """i [summary] infomation file name
-
-        Args:
-            project (str): [description]
-            method (str): [description]
-            iteration (int): [description]
-
-        Returns:
-            str: [description] infomation file name
+        """ infomation file
         """
         # check arguments
         project, method, iteration = \
             self.check_arguments(project, method, iteration)
         return self.info_template.format(project, method, iteration)
+
+    def mf(self, project: str, method: str) -> str:
+        """ method front file
+        """
+        return self.method_front_template.format(project, method)
+
+    def pf(self, project: str) -> str:
+        """ project front file
+        """
+        return self.project_front_template.format(project)
 
     @staticmethod
     def tuple_parse(tuple_str: str, element_type: type) -> Tuple[Any, ...]:
@@ -349,61 +472,3 @@ class Result:
         solution.objectives = objectives
         solution.constraints = constraints
         return solution
-
-    @staticmethod
-    def dump_result_entry(folder: str, index: int, entry: ResultEntry) -> None:
-        """dump_result_entry [summary] dump a result entry into
-        three files: entry_{index}.json, front_{index}.archive,
-        found_{index}.archive
-
-        Args:
-            folder (str): [description] folder name
-            index (int): [description] index of entry in the list
-            entry (ResultEntry): [description]
-        """
-        # dump entry
-        entry_dict: Dict[str, Any] = {}
-        entry_dict['time'] = entry.time
-        entry_dict['score'] = entry.score
-        entry_name = join(folder, 'entry_{}.json'.format(index))
-        with open(entry_name, 'w+') as entry_file:
-            json.dump(entry_dict, entry_file, indent=4)
-            entry_file.close()
-        # dump found
-        Result.dump_archive(
-            join(folder, 'found_{}.archive'.format(index)),
-            entry.found
-        )
-        # dump front
-        Result.dump_archive(
-            join(folder, 'front_{}.archive'.format(index)),
-            entry.front
-        )
-
-    @staticmethod
-    def load_result_entry(folder: str, index: int) -> ResultEntry:
-        """load_result_entry [summary] load result entry
-        from three files: entry_{index}.json, front_{index}.archive,
-        found_{index}.archive
-
-        Args:
-            folder (str): [description]
-            index (int): [description]
-
-        Returns:
-            ResultEntry: [description]
-        """
-        entry = ResultEntry()
-        entry_name = join(folder, 'entry_{}.json'.format(index))
-        with open(entry_name, 'r') as entry_file:
-            entry_dict = json.load(entry_file)
-            entry_file.close()
-        entry.time = entry_dict['time']
-        entry.score = entry_dict['score']
-        entry.found = Result.load_archive(
-            join(folder, 'found_{}.archive'.format(index))
-        )
-        entry.front = Result.load_archive(
-            join(folder, 'front_{}.archive'.format(index))
-        )
-        return entry

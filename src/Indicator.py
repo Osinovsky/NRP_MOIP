@@ -1,39 +1,22 @@
 #
 # DONG Shi, dongshi@mail.ustc.edu.cn
 # Indicator.py, created: 2020.11.10
-# last modified: 2020.11.11
+# last modified: 2020.12.15
 #
 
-from typing import Dict, List
+from typing import Dict, List, Any
 import numpy
 from jmetal.core.solution import BinarySolution
 from jmetal.util.archive import NonDominatedSolutionsArchive
 from jmetal.core.quality_indicator import InvertedGenerationalDistance, \
                                           HyperVolume
-from src.Result import ResultEntry
 from src.util.evenness_indicator import EvennessIndicator
 from src.util.ComprehensivenessIndicator import MeanIndicator, MedianIndicator
 
 
 class Indicator:
-    def __init__(self, results: Dict[str, List[ResultEntry]],
-                 pareto: NonDominatedSolutionsArchive,
-                 methods: List[str], iteration: int) -> None:
-        """__init__ [summary] Indicator helps solutions find their
-        indicator scores, such as ign, hv and evenness
-
-        Args:
-            results (Dict[str, List[ResultEntry]]): [description] results dict
-            pareto (NonDominatedSolutionsArchive): [description] pareto front
-            methods (List[str]): [description] method names
-            iteration (int): [description] iteration times
-        """
-        # store the pareto results, all pareto front
-        # method names, iteration num
-        self.results = results
-        self.pareto = pareto
-        self.methods = methods
-        self.iteration = iteration
+    def __init__(self):
+        print('Indicator should not be instanced.')
 
     @staticmethod
     def numpy_array(solutions: List[BinarySolution]) -> numpy.array:
@@ -68,50 +51,51 @@ class Indicator:
         # return it
         return reference_point
 
-    def compute(self, indicator: str, on_front: bool
-                ) -> Dict[str, List[ResultEntry]]:
+    @staticmethod
+    def compute(indicators: List[str],
+                solution_archive: NonDominatedSolutionsArchive,
+                true_front: NonDominatedSolutionsArchive = None
+                ) -> Dict[str, Any]:
         """compute [summary] compute a indicator score for all in
         result dict
 
         Args:
             indicator (str): [description] indicator name
-            on_front (bool): [description] if compute front or
-            all solutions found
-
-        Returns:
-            Dict[str, List[ResultEntry]]: [description] results
+            solution_archive (NonDominatedSolutionsArchive): [description]
+            true_front (NonDominatedSolutionsArchive): [description]
+            the whole pareto front
         """
-        for method in self.methods:
-            for index in range(self.iteration + 1):
-                if on_front:
-                    solutions = self.results[method][index].front.solution_list
-                else:
-                    solutions = self.results[method][index].found.solution_list
-                # convert to numpy array
-                solution_list = Indicator.numpy_array(solutions)
-                self.results[method][index].score[indicator] = \
-                    getattr(self, 'compute_{}'.format(indicator)
-                            )(solution_list)
-        # end nest for
-        return self.results
+        scores: Dict[str, Any] = {}
+        for indicator in indicators:
+            solutions = Indicator.numpy_array(solution_archive.solution_list)
+            scores[indicator] = \
+                getattr(Indicator, 'compute_{}'.format(indicator))(
+                    solutions, true_front
+                )
+        return scores
 
-    def compute_igd(self, solutions: numpy.array) -> float:
-        pareto_array = Indicator.numpy_array(self.pareto.solution_list)
+    def compute_igd(solutions: numpy.array,
+                    true_front: NonDominatedSolutionsArchive) -> float:
+        pareto_array = Indicator.numpy_array(true_front.solution_list)
         return InvertedGenerationalDistance(pareto_array).compute(solutions)
 
-    def compute_hv(self, solutions: numpy.array) -> float:
+    def compute_hv(solutions: numpy.array,
+                   true_front: NonDominatedSolutionsArchive) -> float:
         reference_point = \
-            Indicator.find_reference_point(self.pareto.solution_list)
+            Indicator.find_reference_point(true_front.solution_list)
         mod = numpy.prod(reference_point)
         return HyperVolume(reference_point).compute(solutions) / mod
 
-    def compute_evenness(self, solutions: numpy.array) -> float:
+    def compute_evenness(solutions: numpy.array,
+                         true_front: NonDominatedSolutionsArchive) -> float:
         reference_point = \
-            Indicator.find_reference_point(self.pareto.solution_list)
+            Indicator.find_reference_point(true_front.solution_list)
         return EvennessIndicator(reference_point).compute(solutions)
 
-    def compute_mean(self, solutions: numpy.array) -> float:
+    def compute_mean(solutions: numpy.array,
+                     true_front: NonDominatedSolutionsArchive) -> float:
         return MeanIndicator().compute(solutions)
 
-    def compute_median(self, solutions: numpy.array) -> float:
+    def compute_median(solutions: numpy.array,
+                       true_front: NonDominatedSolutionsArchive) -> float:
         return MedianIndicator().compute(solutions)
