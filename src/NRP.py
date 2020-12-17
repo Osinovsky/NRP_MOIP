@@ -1,7 +1,7 @@
 #
 # DONG Shi, dongshi@mail.ustc.edu.cn
 # NRP.py, created: 2020.10.31
-# last modified: 2020.11.24
+# last modified: 2020.12.15
 #
 
 import os
@@ -494,6 +494,53 @@ class NextReleaseProblem:
         """
         # basic form
         return self.to_basic_binary_form(option)
+
+    def to_bireq_form(self, option: Dict[str, Any]) -> NRPProblem:
+        """to_bireq_form [summary] bireq form is a binary form, too.
+        But the profit is according to requirements but not customers.
+
+        The profit of each requirement is defined as reversed ranking
+        ordered by the sum of customers profit
+        which request this requirement.
+        profit(x_i) = RevRank(sum(profit(y_j)), forall (x_i, y_j) in Requests)
+
+        It reduces variables and eliminates constraints.
+
+        Args:
+            option (Dict[str, Any]): [description]
+
+        Returns:
+            NRPProblem: [description]
+        """
+        # check dependencies
+        assert not self.nrp.dependencies
+        # prepare the NRPProblem, modelled nrp, mnrp
+        mnrp = NRPProblem()
+        # find sum profit of each requirement
+        req_profit: Dict[int, Any] = {}
+        for request in self.nrp.requests:
+            cus, req = request
+            if req not in req_profit:
+                req_profit[req] = self.nrp.profit[cus]
+            else:
+                req_profit[req] += self.nrp.profit[cus]
+        # prepare find ranking for each raw profit
+        sorted_values = list(sorted(set(req_profit.values())))
+        value_map: Dict[Any, int] = {}
+        for rank, value in enumerate(sorted_values):
+            value_map[value] = rank + 1
+        # prepare objective coefs and variables
+        mnrp.variables = list(self.nrp.cost.keys())
+        max_profit = {k: -value_map[v] for k, v in req_profit.items()}
+        min_cost = {k: v for k, v in self.nrp.cost.items() if k in req_profit}
+        mnrp.objectives = [max_profit, min_cost]
+        # don't forget encode the constant, it always be MAX_CODE + 1
+        constant_id = max(mnrp.variables) + 1
+        assert constant_id not in self.nrp.cost.keys()
+        # there are no constraints anymore
+        mnrp.inequations = []
+        # return
+        return mnrp
 
     def to_bincst_form(self, option: Dict[str, Any]) -> NRPProblem:
         """to_bincst_form [summary] binary form with

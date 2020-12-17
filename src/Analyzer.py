@@ -1,7 +1,7 @@
 #
 # DONG Shi, dongshi@mail.ustc.edu.cn
 # Analyzer.py, created: 2020.11.10
-# last modified: 2020.12.15
+# last modified: 2020.12.16
 #
 
 from typing import Any, Dict, List, Tuple
@@ -110,12 +110,12 @@ class Analyzer:
                                       self.result.method_fronts[key],
                                       self.result.project_fronts[project])
                 # method, time, solutions found, solutions on front, score1, ..
+                method_front = self.result.method_fronts[key].solution_list
                 method_line = [method] \
                     + [str(round(self.result.info[key]['time'], 2))] \
-                    + [str(len(self.result.info[key]['found']))] \
-                    + [str(len(self.result.method_fronts[key]))] \
-                    + [str(round(scores[indicator], 6))
-                       for indicator in indicators]
+                    + [str(self.result.info[key]['found'])] \
+                    + [str(len(method_front))] \
+                    + [str(round(scores[ind], 6)) for ind in indicators]
                 sheet.append(method_line)
         # end for
         return sheet

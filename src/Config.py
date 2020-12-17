@@ -1,7 +1,7 @@
 #
 # DONG Shi, dongshi@mail.ustc.edu.cn
 # Config.py, created: 2020.10.31
-# last modified: 2020.12.14
+# last modified: 2020.12.15
 #
 
 from typing import Dict, List
@@ -34,7 +34,8 @@ class Config:
 
         # model form
         self.modelling = \
-            ['single', 'sincus', 'binary', 'bincst', 'trireq', 'tricus']
+            ['single', 'sincus', 'bireq', 'binary', 'bincst',
+             'trireq', 'tricus']
         # solving methods
         self.method = \
             ['single', 'epsilon', 'advec', 'cwmoip', 'ncgop', 'NSGAII']
