@@ -12,7 +12,7 @@ from jmetal.core.solution import BinarySolution
 from src.Config import Config
 from src.NRP import NRPProblem
 
-from time import time
+# from time import time
 
 
 class BaseSolver:
@@ -279,10 +279,10 @@ class BaseSolver:
         """solve [summary] solve the problem
         """
         # solve
-        start = time()
+        # start = time()
         self.solver.solve()
-        end = time()
-        print('cplex time:', end - start)
+        # end = time()
+        # print('cplex time:', end - start)
         # get solution
         solution = self.jmetal_solution(self.solver.solution)
         if solution:
