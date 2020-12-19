@@ -18,6 +18,7 @@ import org.uma.jmetal.operator.crossover.impl.SinglePointCrossover;
 // import org.uma.jmetal.algorithm.multiobjective.nsgaii.NSGAII;
 
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -40,10 +41,15 @@ public class XuanBinaryNSGAII extends AbstractAlgorithmRunner {
         int patient = (int)config.get("patient");
         double crossoverProbability = (double)config.get("crossover");
         double mutationProbability = (double)config.get("mutation");
-        List<Boolean> seed = null;
+        ArrayList<ArrayList<Boolean>> seeds = new ArrayList<ArrayList<Boolean>>();
+        boolean useSeed = false;
         if (config.containsKey("seeds")) {
-            // TODO: seeds loading
-            System.out.println("seed cannot be loaded, it's not implemented yet");
+            // load seeds
+            String seedFile = (String)config.get("seeds");
+            SeedsLoader seedsLoader = new SeedsLoader(seedFile);
+            System.out.println("This experiment will use seeds");
+            useSeed = true;
+            seeds = seedsLoader.sample(iterationTimes);
         }
 
         // load problem
@@ -53,7 +59,7 @@ public class XuanBinaryNSGAII extends AbstractAlgorithmRunner {
 
         XuanBinaryNRP problem = new XuanBinaryNRP(problemLoader.getCost(), problemLoader.getProfit(),
                                                   problemLoader.getRequests(), problemLoader.getReqDict(),
-                                                  problemLoader.getRvReqDict(), seed);
+                                                  problemLoader.getRvReqDict());
 
         // print iteration times
         System.out.println("iterations: " + Integer.toString(iterationTimes));
@@ -71,12 +77,17 @@ public class XuanBinaryNSGAII extends AbstractAlgorithmRunner {
         for (int itr = 0; itr < iterationTimes; ++ itr) {
             // record time
             long startTime = System.nanoTime();
+            // seed
+            ArrayList<Boolean> seed = new ArrayList<Boolean>();
+            if (useSeed) {
+                seed = seeds.get(itr);
+            }
 
             // the algorithm
-            Algorithm<List<BinarySolution>> algorithm = new IPNSGAII<>(
+            Algorithm<List<BinarySolution>> algorithm = new IPNSGAII(
               problem, maxEvaluations, patient,
               populationSize, populationSize, populationSize,
-              crossover, mutation
+              crossover, mutation, seed
             );
 
             // Algorithm<List<BinarySolution>> algorithm = new NSGAII<>(

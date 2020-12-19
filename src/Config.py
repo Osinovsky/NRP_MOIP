@@ -1,7 +1,7 @@
 #
 # DONG Shi, dongshi@mail.ustc.edu.cn
 # Config.py, created: 2020.10.31
-# last modified: 2020.12.15
+# last modified: 2020.12.19
 #
 
 from typing import Dict, List
@@ -60,7 +60,10 @@ class Config:
         self.java_exe = 'java'
 
         # cplex threads num, 0 for auto
-        self.threads = 0
+        self.threads = 1
+
+        # seed path
+        self.seeds_path = './datasets/seeds/'
 
     def make_classic_index(self) -> None:
         """make_classic_index [summary] make classic datasets

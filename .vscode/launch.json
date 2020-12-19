@@ -6,6 +6,12 @@
     "configurations": [
         {
             "type": "java",
+            "name": "Launch test",
+            "request": "launch",
+            "mainClass": "test"
+        },
+        {
+            "type": "java",
             "name": "java NSGAII",
             "request": "launch",
             "mainClass": "org.osinovsky.XuanBinaryNSGAII",

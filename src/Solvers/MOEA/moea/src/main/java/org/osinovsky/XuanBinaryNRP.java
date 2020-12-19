@@ -19,15 +19,14 @@ public class XuanBinaryNRP extends AbstractBinaryProblem {
     private Map<Integer, ArrayList<Integer>> requests;
     private Map<Integer, Integer> reqDict;
     private Map<Integer, Integer> rvReqDict;
-    private List<Boolean> seed;
+    // private List<Boolean> seed;
 
     // constructor
     public XuanBinaryNRP(Map<Integer, Integer> cost,
                    Map<Integer, Integer> profit,
                    Map<Integer, ArrayList<Integer>> requests,
                    Map<Integer, Integer> reqDict,
-                   Map<Integer, Integer> rvReqDict,
-                   List<Boolean> seed
+                   Map<Integer, Integer> rvReqDict
                    ) {
         // assign to members
         this.cost = cost;
@@ -35,8 +34,8 @@ public class XuanBinaryNRP extends AbstractBinaryProblem {
         this.requests = requests;
         this.reqDict = reqDict;
         this.rvReqDict = rvReqDict;
-        this.seed = seed;
-        if (seed != null) assert this.cost.size() == this.seed.size();
+        // this.seed = seed;
+        // if (seed != null) assert this.cost.size() == this.seed.size();
         // get length of each arguments
         // set some attributes
         setNumberOfVariables(this.cost.size());
