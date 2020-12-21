@@ -3,7 +3,7 @@
 from src import Controller
 # from src import Analyzer
 
-Controller.run('triple_test.json')
+Controller.run('triple_nsgaii_test.json')
 
 # sheet = Analyzer('classic_nsga').make_sheet()
 # Analyzer.tabulate('tmp1.csv', sheet)

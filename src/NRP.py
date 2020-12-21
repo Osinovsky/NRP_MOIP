@@ -622,18 +622,18 @@ class NextReleaseProblem:
         # basic form
         mnrp = self.to_basic_binary_form(option)
         profit = mnrp.objectives[0]
-        cost = mnrp.objectives[1]
-        # check if the third objective is defined in option
-        if 'third_objective' in option:
-            third = option['third_objective']
-            if 'customer' == third:
-                third_objective = {k: -1 for k in profit}
-            elif 'requirement' == third:
-                third_objective = {k: -1 for k in cost}
-            else:
-                print('cannot regonize: ' + str(third))
-                assert False
-        else:
-            third_objective = {k: -1 for k in profit}
+        # cost = mnrp.objectives[1]
+        # # check if the third objective is defined in option
+        # if 'third_objective' in option:
+        #     third = option['third_objective']
+        #     if 'customer' == third:
+        #         third_objective = {k: -1 for k in profit}
+        #     elif 'requirement' == third:
+        #         third_objective = {k: -1 for k in cost}
+        #     else:
+        #         print('cannot regonize: ' + str(third))
+        #         assert False
+        # else:
+        third_objective = {k: -1 for k in profit}
         mnrp.objectives.append(third_objective)
         return mnrp
