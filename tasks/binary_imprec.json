@@ -1,6 +1,6 @@
 [
     {
-        "name": "xuan_binary_advec",
+        "name": "xuan_binary_imprec",
         "dataset": "classic",
         "modelling": [
             {
@@ -9,7 +9,7 @@
         ],
         "method":[
             {
-                "name": "advec"
+                "name": "imprec"
             },
             {
                 "name": "epsilon"

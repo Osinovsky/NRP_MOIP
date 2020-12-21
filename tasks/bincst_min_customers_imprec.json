@@ -1,5 +1,5 @@
 {
-    "name": "xuan_bincst_advec",
+    "name": "xuan_bincst_imprec",
     "dataset": "classic",
     "modelling": [
         {
@@ -20,7 +20,7 @@
             "name": "epsilon"
         },
         {
-            "name": "advec"
+            "name": "imprec"
         }
     ]
 }

@@ -1,7 +1,7 @@
 #
 # DONG Shi, dongshi@mail.ustc.edu.cn
 # NRP.py, created: 2020.10.31
-# last modified: 2020.12.15
+# last modified: 2020.12.21
 #
 
 import os
@@ -449,10 +449,10 @@ class NextReleaseProblem:
         # check dependencies
         assert not self.nrp.dependencies
         # get config
-        if 'profit_cost' in option:
-            profit_cost = option['profit_cost']
-        else:
-            profit_cost = True
+        # if 'profit_cost' in option:
+        #     profit_cost = option['profit_cost']
+        # else:
+        profit_cost = True
         # prepare the NRPProblem, modelled nrp, mnrp
         mnrp = NRPProblem()
         # prepare objective coefs and variables
@@ -603,4 +603,37 @@ class NextReleaseProblem:
             mnrp.inequations.append(inequation)
         # end if
         # return
+        return mnrp
+
+    def to_triple_form(self, option: Dict[str, Any]) -> NRPProblem:
+        """to_triple_form [summary] triple objective NRP,
+        with objectives: profit, cost and the third objective
+
+        The third objective maybe:
+            1. 'customer': customer number
+            2. 'requirement': requirement member
+
+        Args:
+            option (Dict[str, Any]): [description]
+
+        Returns:
+            NRPProblem: [description]
+        """
+        # basic form
+        mnrp = self.to_basic_binary_form(option)
+        profit = mnrp.objectives[0]
+        cost = mnrp.objectives[1]
+        # check if the third objective is defined in option
+        if 'third_objective' in option:
+            third = option['third_objective']
+            if 'customer' == third:
+                third_objective = {k: -1 for k in profit}
+            elif 'requirement' == third:
+                third_objective = {k: -1 for k in cost}
+            else:
+                print('cannot regonize: ' + str(third))
+                assert False
+        else:
+            third_objective = {k: -1 for k in profit}
+        mnrp.objectives.append(third_objective)
         return mnrp

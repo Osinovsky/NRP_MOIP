@@ -1,7 +1,7 @@
 #
 # DONG Shi, dongshi@mail.ustc.edu.cn
 # Config.py, created: 2020.10.31
-# last modified: 2020.12.19
+# last modified: 2020.12.21
 #
 
 from typing import Dict, List
@@ -35,13 +35,13 @@ class Config:
         # model form
         self.modelling = \
             ['single', 'sincus', 'bireq', 'binary', 'bincst',
-             'trireq', 'tricus']
+             'triple']
         # solving methods
         self.method = \
-            ['single', 'epsilon', 'advec', 'cwmoip', 'ncgop', 'NSGAII']
+            ['single', 'epsilon', 'imprec', 'cwmoip', 'ncgop', 'NSGAII']
         # moip methods
         self.moip_method = \
-            ['single', 'epsilon', 'advec', 'cwmoip', 'ncgop']
+            ['single', 'epsilon', 'imprec', 'cwmoip', 'ncgop']
         # dump methods(for jar algorithm)
         self.dump_method = \
             ['NSGAII']

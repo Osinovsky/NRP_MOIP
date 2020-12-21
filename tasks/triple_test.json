@@ -1,0 +1,22 @@
+[
+    {
+        "name": "xuan_triple",
+        "dataset": ["classic_1", "classic_2", "classic_3"],
+        "modelling": [
+            {
+                "name": "triple"
+            }
+        ],
+        "method":[
+            {
+                "name": "epsilon"
+            },
+            {
+                "name": "imprec"
+            },
+            {
+                "name": "cwmoip"
+            }
+        ]
+    }
+]

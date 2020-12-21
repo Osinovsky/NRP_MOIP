@@ -1,6 +1,6 @@
 #
 # DONG Shi, dongshi@mail.ustc.edu.cn
-# AdvEConstraint.py, created: 2020.12.10
+# ImprovedEC.py, created: 2020.12.10
 # last modified: 2020.12.10
 #
 
@@ -10,8 +10,8 @@ from src.Solvers.EConstraint import EConstraint
 from jmetal.core.solution import BinarySolution
 
 
-class AdvEConstraint(EConstraint):
-    """AdvEConstraint [summary]
+class ImprovedEC(EConstraint):
+    """ImprovedEC [summary]
     Inspired by CWMOIP, we developed another AdvConstraint with update rhs
     without fixed step. Meanwhile, unlike CWMOIP, we still use the same
     objective with EConstraint, in case of reducing the time as it's solved

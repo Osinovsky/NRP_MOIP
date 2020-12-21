@@ -8,7 +8,7 @@ from typing import Dict, Any, List, Union
 from src.NRP import NRPProblem
 from src.Config import Config
 from src.Solvers.EConstraint import EConstraint
-from src.Solvers.AdvEConstraint import AdvEConstraint
+from src.Solvers.ImprovedEC import ImprovedEC
 from src.Solvers.CWMOIP import CWMOIP
 # from src.Solvers.BinSolver import EConstraint, CWMOIP
 from src.Solvers.JarSolver import JarSolver
@@ -57,11 +57,11 @@ class Solver:
                        ) -> None:
         self.solver = EConstraint(problem)
 
-    def employ_advec(self,
-                     problem: NRPProblem,
-                     option: Dict[str, Any] = None
-                     ) -> None:
-        self.solver = AdvEConstraint(problem)
+    def employ_imprec(self,
+                      problem: NRPProblem,
+                      option: Dict[str, Any] = None
+                      ) -> None:
+        self.solver = ImprovedEC(problem)
 
     def employ_cwmoip(self,
                       problem: NRPProblem,
