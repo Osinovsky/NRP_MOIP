@@ -1,7 +1,7 @@
 #
 # DONG Shi, dongshi@mail.ustc.edu.cn
 # ObjectiveSpace.py, created: 2020.12.24
-# last modified: 2020.12.24
+# last modified: 2020.12.25
 #
 
 from typing import List, Any, Dict, Tuple
@@ -122,6 +122,8 @@ class ObjectiveSpace3D:
                 customer = k
             elif v == -1:
                 requirement = k
+        if not (customer >= 0 and requirement >= 0):
+            print(inequation)
         assert customer >= 0 and requirement >= 0
         return (customer, requirement)
 

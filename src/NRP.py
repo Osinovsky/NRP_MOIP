@@ -322,25 +322,33 @@ class NextReleaseProblem:
                     self.nrp.cost[present] += self.nrp.cost[e]
                     self.nrp.profit[present] += self.nrp.profit[e]
                     self.nrp.risk[present] += self.nrp.risk[e]
-        # re encode precedes
-        tmp_dep = []
-        for r1, r2 in self.nrp.dependencies:
-            if r1 in reduce:
-                r1 = reduce[r1]
-            if r2 in reduce:
-                r2 = reduce[r2]
-            tmp_dep.append((r1, r2))
-        self.nrp.dependencies = tmp_dep
         # re arrange the profit and the risk and the cost
         left = list(range(len(self.nrp.cost)))
         for reduced in reduce:
             left.remove(reduced)
+        rename: Dict[int, int] = {}
+        for ind, var in enumerate(left):
+            rename[var] = ind
+        # rename dependenciesW
+        tmp_dep = []
+        for r1, r2 in self.nrp.dependencies:
+            if r1 in reduce:
+                r1 = rename[reduce[r1]]
+            else:
+                r1 = rename[r1]
+            if r2 in reduce:
+                r2 = rename[reduce[r2]]
+            else:
+                r2 = rename[r2]
+            tmp_dep.append((r1, r2))
+        self.nrp.dependencies = tmp_dep
+        # rearrange profit, cost, risk
         self.nrp.profit = \
-            [e for i, e in enumerate(self.nrp.profit) if i in left]
+            [e for i, e in enumerate(self.nrp.profit) if i not in reduce]
         self.nrp.risk = \
-            [e for i, e in enumerate(self.nrp.risk) if i in left]
+            [e for i, e in enumerate(self.nrp.risk) if i not in reduce]
         self.nrp.cost = \
-            [e for i, e in enumerate(self.nrp.cost) if i in left]
+            [e for i, e in enumerate(self.nrp.cost) if i not in reduce]
         # delete couplings
         self.nrp.couplings = []
 
@@ -735,14 +743,28 @@ class NextReleaseProblem:
         # return
         return mnrp
 
+    def to_basic_triple_form(self, option: Dict[str, Any]) -> NRPProblem:
+        assert isinstance(self.nrp, RPNRP)
+        # prepare the NRPProblem, modelled nrp, mnrp
+        mnrp = NRPProblem()
+        # prepare objective coefs and variables
+        mnrp.variables = list(range(len(self.nrp.cost)))
+        max_profit = {k: -v for k, v in enumerate(self.nrp.profit)}
+        min_cost = {k: v for k, v in enumerate(self.nrp.cost)}
+        min_risk = {k: v for k, v in enumerate(self.nrp.risk)}
+        mnrp.objectives = [max_profit, min_cost, min_risk]
+        # don't forget encode the constant, it always be MAX_CODE + 1
+        constant_id = len(mnrp.variables)
+        assert constant_id not in mnrp.variables
+        # convert denpendencies, (x_i, x_j) => x_j <= x_i <=> - x_i + x_j <= 0
+        for req in self.nrp.dependencies:
+            mnrp.inequations.append({req[0]: -1, req[1]: 1, constant_id: 0})
+        # return
+        return mnrp
+
     def to_triple_form(self, option: Dict[str, Any]) -> NRPProblem:
         """to_triple_form [summary] triple objective NRP,
-        with objectives: profit, cost and the third objective
-
-        The third objective maybe:
-            1. 'customer': customer number
-            2. 'requirement': requirement member
-
+        with objectives: profit, cost and the risk
         Args:
             option (Dict[str, Any]): [description]
 
@@ -750,20 +772,4 @@ class NextReleaseProblem:
             NRPProblem: [description]
         """
         # basic form
-        mnrp = self.to_basic_binary_form(option)
-        profit = mnrp.objectives[0]
-        # cost = mnrp.objectives[1]
-        # # check if the third objective is defined in option
-        # if 'third_objective' in option:
-        #     third = option['third_objective']
-        #     if 'customer' == third:
-        #         third_objective = {k: -1 for k in profit}
-        #     elif 'requirement' == third:
-        #         third_objective = {k: -1 for k in cost}
-        #     else:
-        #         print('cannot regonize: ' + str(third))
-        #         assert False
-        # else:
-        third_objective = {k: -1 for k in profit}
-        mnrp.objectives.append(third_objective)
-        return mnrp
+        return self.to_basic_triple_form(option)

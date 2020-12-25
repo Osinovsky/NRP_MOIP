@@ -226,10 +226,13 @@ class NRPTest(unittest.TestCase):
             ori.risk = \
                 [e for i, e in enumerate(ori.risk) if i not in reduced]
             # update dependencies
-            ori.dependencies = list(set(list(ori.dependencies)))
+            rn = {}
+            for ind, var in enumerate(reqs):
+                rn[var] = ind
+            tmp_dep = []
             for r1, r2 in ori.dependencies:
-                assert r1 not in reduced
-                assert r2 not in reduced
+                tmp_dep.append((rn[r1], rn[r2]))
+            ori.dependencies = list(set(list(tmp_dep)))
             # check
             assert not problem.nrp.couplings
             assert NRPTest.equal_flist(problem.nrp.cost, ori.cost)
