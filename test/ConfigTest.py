@@ -1,7 +1,7 @@
 #
 # DONG Shi, dongshi@mail.ustc.edu.cn
 # ConfigTest.py, created: 2020.10.31
-# last modified: 2020.11.04
+# last modified: 2020.12.25
 #
 
 import unittest
@@ -16,7 +16,7 @@ class ConfigTest(unittest.TestCase):
         # check if each file path is accessable
         for name in config.dataset:
             file_name = config.dataset[name]
-            assert os.path.isfile(file_name)
+            assert os.path.isfile(file_name) or os.path.isdir(file_name)
 
     def test_keyword(self):
         config = Config()

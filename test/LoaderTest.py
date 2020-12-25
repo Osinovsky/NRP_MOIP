@@ -1,7 +1,7 @@
 #
 # DONG Shi, dongshi@mail.ustc.edu.cn
 # LoaderTest.py, created: 2020.10.31
-# last modified: 2020.10.31
+# last modified: 2020.12.25
 #
 
 import unittest
@@ -40,6 +40,29 @@ class LoaderTest(unittest.TestCase):
                         if flag:
                             break
                     assert flag
+
+    def test_load_rp(self):
+        config = Config()
+        loader = Loader()
+        for name in config.get_index_dict(['MSWord', 'ReleasePlanner']):
+            problem = loader.load(name)
+            # check problem
+            # get requirement size
+            req_num = len(problem.cost)
+            # get stakeholder size
+            sth_num = len(problem.weight)
+            # check couplings
+            for r1, r2 in problem.couplings:
+                assert r1 in range(req_num)
+                assert r2 in range(req_num)
+            # check precedes
+            for r1, r2 in problem.precedes:
+                assert r1 in range(req_num)
+                assert r2 in range(req_num)
+            # check profit
+            for req, sth, _ in problem.profit:
+                assert req in range(req_num)
+                assert sth in range(sth_num)
 
 
 if __name__ == '__main__':

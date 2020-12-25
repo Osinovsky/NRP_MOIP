@@ -1,7 +1,7 @@
 #
 # DONG Shi, dongshi@mail.ustc.edu.cn
 # Config.py, created: 2020.10.31
-# last modified: 2020.12.21
+# last modified: 2020.12.25
 #
 
 from typing import Dict, List
@@ -24,7 +24,9 @@ class Config:
         # keywords, sub-dataset name: dataset name
         self.keywords = {
             'classic': 'xuan',
-            'realistic': 'xuan'
+            'realistic': 'xuan',
+            'MSWord': 'rp',
+            'ReleasePlanner': 'rp'
         }
 
         # prepare datasets
@@ -88,6 +90,18 @@ class Config:
                 name = name_left + name_right
                 self.dataset[realistic_name.format(name)] = \
                     path.join(self.dataset_path, realistic_format.format(name))
+
+    def make_MSWord_index(self) -> None:
+        """make_MSWord_index [summary] make MSWord datasets index
+        in self.dataset
+        """
+        self.dataset['MSWord'] = path.join(self.dataset_path, 'rp/ms')
+
+    def make_ReleasePlanner_index(self) -> None:
+        """make_ReleasePlanner_index [summary] make ReleasePlanner
+        datasets index in self.dataset
+        """
+        self.dataset['ReleasePlanner'] = path.join(self.dataset_path, 'rp/rp')
 
     def get_index_dict(self, keywords: List[str]) -> Dict[str, str]:
         """get_index_dict [summary] get given keywords dataset subset

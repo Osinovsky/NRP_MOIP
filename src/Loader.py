@@ -1,10 +1,12 @@
 #
 # DONG Shi, dongshi@mail.ustc.edu.cn
 # Loader.py, created: 2020.10.31
-# last modified: 2020.10.31
+# last modified: 2020.12.25
 #
 
-from typing import List, Tuple, Union
+from typing import List, Tuple, Union, Dict
+from os.path import join
+from csv import reader
 from src.Config import Config
 
 
@@ -31,8 +33,26 @@ class XuanProblem:
         self.customers: XuanCustomer = []
 
 
+class RealsePlannerProblem:
+    """ [summary] record MS Word and ReleasePlanner Problem
+    """
+    def __init__(self) -> None:
+        """__init__ [summary] define members
+        """
+        # costs of requirements
+        self.cost: List[int] = []
+        # weight of stakeholders
+        self.weight: List[int] = []
+        # coupling
+        self.couplings: List[Tuple[int, int]] = []
+        # requirements precedes, xi -> xj pair
+        self.precedes: List[Tuple[int, int]] = []
+        # profit, (requirement, stakeholder) -> value
+        self.profit: List[Tuple[int, int, int]] = []
+
+
 # dataset types
-ProblemType = Union[XuanProblem]
+ProblemType = Union[XuanProblem, RealsePlannerProblem]
 
 
 class Loader:
@@ -152,4 +172,115 @@ class Loader:
             # close file in the end of courses
             fin.close()
         # end with open
+        return problem
+
+    @staticmethod
+    def load_MSWord(name: str) -> RealsePlannerProblem:
+        """load_MSWord [summary] load MSWord NRP instance
+
+        Args:
+            name (str): [description] file path
+
+        Returns:
+            RealsePlannerProblem: [description]
+        """
+        return Loader.load_rp(name)
+
+    @staticmethod
+    def load_ReleasePlanner(name: str) -> RealsePlannerProblem:
+        """load_ReleasePlanner [summary] load ReleasePlanner NRP instance
+
+        Args:
+            name (str): [description] file path
+
+        Returns:
+            RealsePlannerProblem: [description]
+        """
+        return Loader.load_rp(name)
+
+    @staticmethod
+    def parse_comma_list(line: str) -> List[str]:
+        return [e for e in line.strip(' ').split(',') if e]
+
+    @staticmethod
+    def load_rp(name: str) -> RealsePlannerProblem:
+        """load_rp [summary] load MSWord and ReleasePlanner datasets
+
+        Args:
+            name (str): [description] dataset file path
+
+        Returns:
+            RealsePlannerProblem: [description] the raw problem
+        """
+        # prepare the problem
+        problem = RealsePlannerProblem()
+        # find the data set path
+        data_path = name
+        # prepare three files
+        requirement_file = join(data_path, 'requirements.csv')
+        stakeholder_file = join(data_path, 'stakeholders.csv')
+        value_file = join(data_path, 'value.csv')
+        # read requirement file and make cost, couplings and precedes
+        tmp_cost: Dict[str, int] = {}
+        tmp_couplings: Dict[str, List[str]] = {}
+        tmp_precedes: Dict[str, List[str]] = {}
+        with open(requirement_file, 'r') as req_file:
+            csv = reader(req_file, delimiter='|', skipinitialspace=True)
+            for row in csv:
+                if not row:
+                    break
+                row = [e.strip(' ') for e in row]
+                name, cost, couplings, precedes = row
+                # check name
+                assert name not in tmp_cost
+                assert name not in tmp_couplings
+                assert name not in tmp_precedes
+                # add into tmp dicts
+                tmp_cost[name] = int(cost)
+                tmp_couplings[name] = Loader.parse_comma_list(couplings)
+                tmp_precedes[name] = Loader.parse_comma_list(precedes)
+            req_file.close()
+        # encode requirments with code and make cost
+        remap: Dict[str, int] = {}
+        for index, req in enumerate(tmp_cost):
+            remap[req] = index
+            problem.cost.append(tmp_cost[req])
+        for req in tmp_cost:
+            assert problem.cost[remap[req]] == tmp_cost[req]
+        # make coupling
+        for req in tmp_couplings:
+            if not tmp_couplings[req]:
+                continue
+            for coupling in tmp_couplings[req]:
+                if coupling not in remap:
+                    print()
+                    print(coupling)
+                    print(remap)
+                problem.couplings.append((remap[req], remap[coupling]))
+        # make precedes
+        for req in tmp_precedes:
+            if not tmp_precedes[req]:
+                continue
+            for precede in tmp_precedes[req]:
+                problem.precedes.append((remap[req], remap[precede]))
+        # read stakeholder file and make weight
+        with open(stakeholder_file, 'r') as sh_file:
+            csv = reader(sh_file, delimiter='|', skipinitialspace=True)
+            for index, row in enumerate(csv):
+                if not row:
+                    break
+                row = [e.strip(' ') for e in row]
+                problem.weight.append(int(row[0]))
+        # read value file and make profit
+        with open(value_file, 'r') as val_file:
+            csv = reader(val_file, delimiter='|', skipinitialspace=True)
+            for row in csv:
+                if not row:
+                    break
+                row = [e.strip(' ') for e in row]
+                for stakeholder in range(len(problem.weight)):
+                    profit_triple = \
+                        (remap[row[0]], stakeholder, int(row[stakeholder + 1]))
+                    problem.profit.append(profit_triple)
+        # return
         return problem
