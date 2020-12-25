@@ -33,7 +33,7 @@ class XuanProblem:
         self.customers: XuanCustomer = []
 
 
-class RealsePlannerProblem:
+class ReleasePlannerProblem:
     """ [summary] record MS Word and ReleasePlanner Problem
     """
     def __init__(self) -> None:
@@ -52,7 +52,7 @@ class RealsePlannerProblem:
 
 
 # dataset types
-ProblemType = Union[XuanProblem, RealsePlannerProblem]
+ProblemType = Union[XuanProblem, ReleasePlannerProblem]
 
 
 class Loader:
@@ -175,7 +175,7 @@ class Loader:
         return problem
 
     @staticmethod
-    def load_MSWord(name: str) -> RealsePlannerProblem:
+    def load_MSWord(name: str) -> ReleasePlannerProblem:
         """load_MSWord [summary] load MSWord NRP instance
 
         Args:
@@ -187,7 +187,7 @@ class Loader:
         return Loader.load_rp(name)
 
     @staticmethod
-    def load_ReleasePlanner(name: str) -> RealsePlannerProblem:
+    def load_ReleasePlanner(name: str) -> ReleasePlannerProblem:
         """load_ReleasePlanner [summary] load ReleasePlanner NRP instance
 
         Args:
@@ -203,7 +203,7 @@ class Loader:
         return [e for e in line.strip(' ').split(',') if e]
 
     @staticmethod
-    def load_rp(name: str) -> RealsePlannerProblem:
+    def load_rp(name: str) -> ReleasePlannerProblem:
         """load_rp [summary] load MSWord and ReleasePlanner datasets
 
         Args:
@@ -213,7 +213,7 @@ class Loader:
             RealsePlannerProblem: [description] the raw problem
         """
         # prepare the problem
-        problem = RealsePlannerProblem()
+        problem = ReleasePlannerProblem()
         # find the data set path
         data_path = name
         # prepare three files

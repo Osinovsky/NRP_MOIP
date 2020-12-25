@@ -1,7 +1,7 @@
 #
 # DONG Shi, dongshi@mail.ustc.edu.cn
 # LoaderTest.py, created: 2020.11.02
-# last modified: 2020.11.21
+# last modified: 2020.12.25
 #
 
 import unittest
@@ -9,7 +9,7 @@ from copy import deepcopy
 from random import randint
 from functools import partial, reduce
 from src.Config import Config
-from src.NRP import NRPProblem, NextReleaseProblem
+from src.NRP import NRPProblem, NextReleaseProblem, RPNRP
 
 
 class NRPTest(unittest.TestCase):
@@ -154,6 +154,89 @@ class NRPTest(unittest.TestCase):
                         assert key not in objs[i]
                     else:
                         assert attrs[i][key] == objs[i][key]
+
+    @staticmethod
+    def equal_float(f1, f2):
+        return abs(f2 - f1) <= 1e-6
+
+    @staticmethod
+    def equal_flist(l1, l2):
+        assert len(l1) == len(l2)
+        return all([NRPTest.equal_float(l1[i], l2[i]) for i in range(len(l1))])
+
+    def test_rp_premodel(self):
+        config = Config()
+        for name in config.get_index_dict(['MSWord', 'ReleasePlanner']):
+            problem = NextReleaseProblem(name)
+            assert isinstance(problem.nrp, RPNRP)
+            ori = deepcopy(problem.nrp)
+            problem.premodel({})
+            # calculate profit and risk
+            ori.weight = [w/sum(ori.weight) for w in ori.weight]
+            for req in range(len(ori.cost)):
+                req_profit = 0
+                req_risk = 0
+                for sh in range(len(ori.weight)):
+                    req_profit += ori.weight[sh] * ori.value[(req, sh)]
+                ori.profit.append(req_profit)
+                for sh in range(len(ori.weight)):
+                    req_risk += \
+                        ori.weight[sh] * ((ori.value[(req, sh)]-req_profit)**2)
+                ori.risk.append(req_risk/len(ori.weight))
+            # eliminate couplings
+            reduced = dict()
+            eq_sl = []
+            for r1, r2 in ori.couplings:
+                flag = True
+                for index, s in enumerate(eq_sl):
+                    if r1 in s or r2 in s:
+                        eq_sl[index].add(r1)
+                        eq_sl[index].add(r2)
+                        flag = False
+                        break
+                if flag:
+                    eq_sl.append(set([r1, r2]))
+            for s in eq_sl:
+                rd = min(s)
+                for e in s:
+                    if e != rd:
+                        reduced[e] = rd
+            for rfrom, rto in reduced.items():
+                # profit, cost, risk
+                ori.profit[rto] += ori.profit[rfrom]
+                ori.cost[rto] += ori.cost[rfrom]
+                ori.risk[rto] += ori.risk[rfrom]
+                tmp_dep = []
+                for d1, d2 in ori.dependencies:
+                    if d1 == rfrom:
+                        d1 = rto
+                    if d2 == rfrom:
+                        d2 = rto
+                    tmp_dep.append((d1, d2))
+                ori.dependencies = tmp_dep
+            # reduce requirements
+            size = len(ori.cost)
+            reqs = list(range(size))
+            reqs = [e for e in reqs if e not in reduced]
+            # update profit, cost, risk
+            ori.profit = \
+                [e for i, e in enumerate(ori.profit) if i not in reduced]
+            ori.cost = \
+                [e for i, e in enumerate(ori.cost) if i not in reduced]
+            ori.risk = \
+                [e for i, e in enumerate(ori.risk) if i not in reduced]
+            # update dependencies
+            ori.dependencies = list(set(list(ori.dependencies)))
+            for r1, r2 in ori.dependencies:
+                assert r1 not in reduced
+                assert r2 not in reduced
+            # check
+            assert not problem.nrp.couplings
+            assert NRPTest.equal_flist(problem.nrp.cost, ori.cost)
+            assert set(problem.nrp.dependencies) == set(ori.dependencies)
+            assert NRPTest.equal_flist(problem.nrp.weight, ori.weight)
+            assert NRPTest.equal_flist(problem.nrp.profit, ori.profit)
+            assert NRPTest.equal_flist(problem.nrp.risk, ori.risk)
 
 
 if __name__ == '__main__':

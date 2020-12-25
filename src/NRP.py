@@ -1,7 +1,7 @@
 #
 # DONG Shi, dongshi@mail.ustc.edu.cn
 # NRP.py, created: 2020.10.31
-# last modified: 2020.12.21
+# last modified: 2020.12.25
 #
 
 import os
@@ -10,7 +10,7 @@ from copy import deepcopy
 from functools import reduce
 from math import ceil, floor
 from typing import Dict, Tuple, List, Union, Set, Any
-from src.Loader import Loader, XuanProblem
+from src.Loader import Loader, XuanProblem, ReleasePlannerProblem
 from src.Config import Config
 from src.util.moipProb import MOIPProblem
 
@@ -27,6 +27,27 @@ class XuanNRP:
         self.dependencies: List[Tuple[int, int]] = []
         # requests, customer -> requirement
         self.requests: List[Tuple[int, int]] = []
+
+
+class RPNRP:
+    def __init__(self) -> None:
+        """__init__ [summary] record members for ReleasePlanner NRP
+        """
+        # weight of stakeholders
+        self.weight: List[Any] = []
+        # cost of requirements
+        self.cost: List[Any] = []
+        # value, (requirement, stakeholder) -> value
+        self.value: Dict[Tuple[int, int], Any] = dict()
+        # dependencies, (x_i, x_j) denotes x_i -> x_j, x_i is precursor of x_j
+        self.dependencies: List[Tuple[int, int]] = []
+        # couplings, (x_i, x_j) denotes x_i = x_j
+        self.couplings: List[Tuple[int, int]] = []
+
+        # profit with requirements
+        self.profit: List[Any] = []
+        # risk with requirements
+        self.risk: List[Any] = []
 
 
 class NRPProblem:
@@ -57,7 +78,7 @@ class NRPProblem:
 
 
 # Type
-NRPType = Union[XuanNRP]
+NRPType = Union[XuanNRP, RPNRP]
 
 
 class NextReleaseProblem:
@@ -90,7 +111,9 @@ class NextReleaseProblem:
         """
         # load from dataset
         loader = Loader()
-        raw_problem: XuanProblem = loader.load(project)
+        tmp_problem = loader.load(project)
+        assert isinstance(tmp_problem, XuanProblem)
+        raw_problem: XuanProblem = tmp_problem
         # prepare cost, profit, dependencies, requests
         nrp = XuanNRP()
         # constrcut from loader to nrp
@@ -162,6 +185,36 @@ class NextReleaseProblem:
         self.nrp.requests = neo_requests
         self.nrp.dependencies.clear()
 
+    @staticmethod
+    def construct_from_rp(project: str) -> RPNRP:
+        """construct_from_rp [summary] construct RPNRP from rp datasets,
+        they are MSWord and ReleasePlanner
+
+        Args:
+            project (str): [description] project name
+
+        Returns:
+            RPNRP: [description]
+        """
+        # load from files
+        loader = Loader()
+        tmp_problem = loader.load(project)
+        assert isinstance(tmp_problem, ReleasePlannerProblem)
+        raw_problem: ReleasePlannerProblem = tmp_problem
+        # prepare RPNRP
+        nrp = RPNRP()
+        # assign weight of stakeholders
+        nrp.weight = raw_problem.weight
+        # make profit dict
+        for req, sh, value in raw_problem.profit:
+            nrp.value[(req, sh)] = value
+        # assign dependencies and couplings and cost
+        nrp.dependencies = raw_problem.precedes
+        nrp.couplings = raw_problem.couplings
+        nrp.cost = raw_problem.cost
+        # return
+        return nrp
+
     def reencode_xuan(self) -> Tuple[Dict[int, int], Dict[int, int]]:
         """reencode_xuan [summary] classic and realistic reencode, single objective
             encoding will be compact and from 0
@@ -225,6 +278,83 @@ class NextReleaseProblem:
             premodel the realistic keyword dataset
         """
         self.reencode_xuan()
+
+    def rp_premodel(self, option: Dict[str, Any]) -> None:
+        assert isinstance(self.nrp, RPNRP)
+        # make sum weight == 1
+        base = sum(self.nrp.weight)
+        self.nrp.weight = [w / base for w in self.nrp.weight]
+        # calculate the profit according to the requirements
+        self.nrp.profit = [0] * len(self.nrp.cost)
+        for (req, sh), val in self.nrp.value.items():
+            self.nrp.profit[req] += self.nrp.weight[sh] * val
+        # calculate the risk of each requirement
+        self.nrp.risk = [0] * len(self.nrp.cost)
+        for (req, sh), val in self.nrp.value.items():
+            self.nrp.risk[req] += \
+                self.nrp.weight[sh] * ((val - self.nrp.profit[req]) ** 2)
+        self.nrp.risk = [e / len(self.nrp.weight) for e in self.nrp.risk]
+        # elimate couplings
+        self.eliminate_couplings()
+
+    def eliminate_couplings(self) -> None:
+        assert isinstance(self.nrp, RPNRP)
+        # find the equivalent set
+        equivalent: List[Set[int]] = []
+        for r1, r2 in self.nrp.couplings:
+            flag = False
+            for s in equivalent:
+                if r1 in s or r2 in s:
+                    s.add(r1)
+                    s.add(r2)
+                    flag = True
+            if not flag:
+                equivalent.append(set([r1, r2]))
+        # choose min requirement represent the equivalent set
+        reduce: Dict[int, int] = {}
+        for s in equivalent:
+            present = min(s)
+            for e in s:
+                if e == present:
+                    continue
+                else:
+                    reduce[e] = present
+                    self.nrp.cost[present] += self.nrp.cost[e]
+                    self.nrp.profit[present] += self.nrp.profit[e]
+                    self.nrp.risk[present] += self.nrp.risk[e]
+        # re encode precedes
+        tmp_dep = []
+        for r1, r2 in self.nrp.dependencies:
+            if r1 in reduce:
+                r1 = reduce[r1]
+            if r2 in reduce:
+                r2 = reduce[r2]
+            tmp_dep.append((r1, r2))
+        self.nrp.dependencies = tmp_dep
+        # re arrange the profit and the risk and the cost
+        left = list(range(len(self.nrp.cost)))
+        for reduced in reduce:
+            left.remove(reduced)
+        self.nrp.profit = \
+            [e for i, e in enumerate(self.nrp.profit) if i in left]
+        self.nrp.risk = \
+            [e for i, e in enumerate(self.nrp.risk) if i in left]
+        self.nrp.cost = \
+            [e for i, e in enumerate(self.nrp.cost) if i in left]
+        # delete couplings
+        self.nrp.couplings = []
+
+    def MSWord_premodel(self, option: Dict[str, Any]) -> None:
+        """MSWord_premodel [summary]
+            premodel the MSWord dataset
+        """
+        self.rp_premodel(option)
+
+    def ReleasePlanner_premodel(self, option: Dict[str, Any]) -> None:
+        """ReleasePlanner_premodel [summary]
+            premodel the ReleasePlanner dataset
+        """
+        self.rp_premodel(option)
 
     @staticmethod
     def dump(
