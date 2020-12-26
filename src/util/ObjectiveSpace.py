@@ -1,7 +1,7 @@
 #
 # DONG Shi, dongshi@mail.ustc.edu.cn
 # ObjectiveSpace.py, created: 2020.12.24
-# last modified: 2020.12.25
+# last modified: 2020.12.26
 #
 
 from typing import List, Any, Dict, Tuple
@@ -14,6 +14,109 @@ import matplotlib.pyplot as plt
 from matplotlib import cm
 from src.Config import Config
 from src.NRP import NRPProblem
+
+
+class RPObjectiveSpace:
+    max_offset = 1e-3
+
+    def __init__(self, problem: NRPProblem) -> None:
+        # only support 3D objective space
+        assert len(problem.objectives) == 3
+        self.dimension = len(problem.objectives)
+
+        # sort the variables
+        problem.variables = sorted(problem.variables)
+        # store the problem members
+        self.binary_index: Dict[int, int] = {}
+        for index, var in enumerate(problem.variables):
+            self.binary_index[var] = index
+        self.binary_variables = \
+            ['x' + str(v) for v in range(len(problem.variables))]
+        self.object_variables = \
+            ['o' + str(o) for o in range(len(problem.objectives))]
+        # convert objectives into vectors
+        self.objectives: List[array] = []
+        for objective in problem.objectives:
+            obj: List[Any] = []
+            for var in problem.variables:
+                if var in objective:
+                    obj.append(objective[var])
+                else:
+                    obj.append(0.0)
+            self.objectives.append(array(obj))
+        # end for
+        # prepare the solver
+        self.solver = Cplex()
+        # set solver with config
+        config = Config()
+        self.solver.set_results_stream(None)
+        self.solver.set_warning_stream(None)
+        self.solver.set_error_stream(None)
+        self.solver.parameters.threads.set(config.threads)
+
+        # add variables
+        self.solver.variables.add(names=self.binary_variables,
+                                  types='B' * len(self.binary_variables))
+        self.solver.variables.add(names=self.object_variables + ['l'],
+                                  types='C' * (self.dimension + 1),
+                                  lb=[-infinity] * self.dimension + [0.0],
+                                  ub=[infinity] * (self.dimension + 1))
+        # add binary constraints
+        pairs: List[SparsePair] = []
+        for inequation in problem.inequations:
+            c, r = ObjectiveSpace3D.parse_request(inequation)
+            c = self.binary_index[c]
+            r = self.binary_index[r]
+            pair = SparsePair(ind=['x' + str(c), 'x' + str(r)],
+                              val=[1, -1])
+            pairs.append(pair)
+        names = ['req' + str(i) for i in range(len(pairs))]
+        self.solver.linear_constraints.add(lin_expr=pairs,
+                                           senses='L'*len(pairs),
+                                           rhs=[0.0]*len(pairs),
+                                           names=names)
+        # add objective as constraints
+        pairs = []
+        for ind, obj in enumerate(self.objectives):
+            pair = SparsePair(ind=self.binary_variables + ['o' + str(ind)],
+                              val=[float(e) for e in list(obj)] + [-1.0])
+            pairs.append(pair)
+        names = ['obj' + str(i) for i in range(len(pairs))]
+        self.solver.linear_constraints.add(lin_expr=pairs,
+                                           senses='E'*len(pairs),
+                                           rhs=[0.0]*len(pairs),
+                                           names=names)
+        # calculate anchors
+        self.anchors: List[array] = []
+        for obj_name in self.object_variables:
+            self.solver.objective.set_linear([(obj_name, 1)])
+            self.solver.solve()
+            status = self.solver.solution.get_status_string()
+            assert 'optimal' in status
+            anchor = self.solver.solution.get_values(self.object_variables)
+            # reset objective
+            self.solver.objective.set_linear([(obj_name, 0)])
+            self.anchors.append(array(anchor))
+
+    def uniform_sampling(self, size: int) -> List[array]:
+        direction = self.anchors[0] - self.anchors[1]
+        step = direction / (size - 1)
+        point = self.anchors[1]
+        points: List[array] = [point]
+        for _ in range(size):
+            point = point + step
+            points.append(point)
+        return points
+
+    def plot(self, points: List[array]) -> None:
+        fig = plt.figure()
+        ax = fig.gca(projection='3d')
+        plt.plot([self.anchors[0][0], self.anchors[1][0]],
+                 [self.anchors[0][1], self.anchors[1][1]],
+                 [self.anchors[0][2], self.anchors[1][2]], 'ro-')
+        for point in points:
+            ax.plot(point[0], point[1], point[2], 'bo')
+        plt.show()
 
 
 class ObjectiveSpace3D:
