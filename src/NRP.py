@@ -815,3 +815,25 @@ class NextReleaseProblem:
         # objectives
         mnrp.objectives = [profit, cost, urgency]
         return mnrp
+
+    @staticmethod
+    def MOIP(nrp: NRPProblem) -> MOIPProblem:
+        # use objectives make attribute matrix
+        attribute_matrix = []
+        for objective in nrp.objectives:
+            line = [0] * (len(nrp.variables))
+            for key, value in objective.items():
+                line[key] = value
+            # there was a constant_id = max_id + 1, then api do not work
+            # so I assume there's no constant in objective
+            attribute_matrix.append(line)
+        # load into the MOIP
+        # construct MOIP
+        MOIP = MOIPProblem(len(nrp.objectives), len(nrp.variables), 0)
+        # call load
+        MOIP.load(nrp.objectives, nrp.inequations, None, False, None)
+        # ...load manually
+        MOIP.sparseInequationSensesList = ['L'] * len(nrp.inequations)
+        MOIP.attributeMatrix = attribute_matrix
+        # return
+        return MOIP

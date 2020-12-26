@@ -17,7 +17,7 @@ from src.NRP import NRPProblem
 
 
 class ObjectiveSpace3D:
-    max_offset = 1e-5
+    max_offset = 1e-3
 
     def __init__(self, problem: NRPProblem) -> None:
         # only support 3D objective space
@@ -99,12 +99,10 @@ class ObjectiveSpace3D:
             # reset objective
             self.solver.objective.set_linear([(obj_name, 0)])
             self.anchors.append(array(anchor))
-
         # calculate utopia plane, assume plane: a1x1 + a2x2 + ... = 1
         # X = [anchor1; anchor2; ...], AX = [1;1;...]
         # A = X^-1. plane is the normal vector of utopia plane
         X = matrix(self.anchors)
-        print(X)
         k = np.ones((self.dimension, 1))
         self.plane = \
             np.squeeze(np.asarray(np.transpose(linalg.inv(X).dot(k))))
@@ -114,7 +112,10 @@ class ObjectiveSpace3D:
         self.centre = self.centre / self.centre.dot(self.plane)
         self.base_vector = self.anchors[0] - self.centre
         self.base_vector = self.base_vector / linalg.norm(self.base_vector)
-        self.point = self.centre
+        init_objs = \
+            matrix(self.objectives).dot(array([0]*len(self.binary_variables)))
+        init_point = np.squeeze(np.asarray(np.transpose(init_objs)))
+        self.point = self.project_on_plane(init_point)
 
     @staticmethod
     def parse_request(inequation: Dict[int, int]) -> Tuple[int, int]:
@@ -130,8 +131,12 @@ class ObjectiveSpace3D:
         assert customer >= 0 and requirement >= 0
         return (customer, requirement)
 
+    def project_on_plane(self, point: array) -> array:
+        dist = self.distance_from_plane(point)
+        return point + dist * self.plane
+
     def distance_from_plane(self, point: array) -> float:
-        return (point.dot(self.plane) + 1.0) / linalg.norm(self.plane)
+        return (1.0 - point.dot(self.plane)) / sum([e**2 for e in self.plane])
 
     def HR_sample(self) -> Tuple[bool, array]:
         # generate a deflection angle theta
@@ -144,7 +149,7 @@ class ObjectiveSpace3D:
         pairs: List[SparsePair] = []
         for dim in range(self.dimension):
             pair = SparsePair(ind=['l', self.object_variables[dim]],
-                              val=[direction[dim], -1])
+                              val=[direction[dim], -1.0])
             pairs.append(pair)
         names = ['sample' + str(i) for i in range(self.dimension)]
         self.solver.linear_constraints.add(lin_expr=pairs,
@@ -161,9 +166,9 @@ class ObjectiveSpace3D:
             # have bounded solution
             l_max = self.solver.solution.get_values('l')
         elif 'unbounded' in status:
-            # inf, TODO: just set 1.0 maybe not suitable
-            print('unbounded set to 1.0 in H&R sampling')
-            l_max = 1.0
+            # inf, TODO: just set 0.0 maybe not suitable
+            print('unbounded set to 0.0 in H&R sampling')
+            l_max = 0.0
         elif 'infeasible' in status:
             print(status)
             return (False, array([]))
@@ -178,7 +183,7 @@ class ObjectiveSpace3D:
         self.point = \
             self.point + l_flake8_does_not_accept_too_short_name * direction
         # check if point is far away from the plane
-        dist = self.distance_from_plane(self.point)
+        dist = abs(self.distance_from_plane(self.point))
         if abs(dist) > self.max_offset:
             print('fix point on the plane')
             self.point = self.point - (dist/linalg.norm(self.plane))
