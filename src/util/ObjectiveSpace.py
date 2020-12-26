@@ -53,6 +53,8 @@ class ObjectiveSpace3D:
         self.solver.set_warning_stream(None)
         self.solver.set_error_stream(None)
         self.solver.parameters.threads.set(config.threads)
+        self.solver.parameters.timelimit.set(1000)
+        self.solver.parameters.dettimelimit.set(1000)
 
         # add variables
         self.solver.variables.add(names=self.binary_variables,

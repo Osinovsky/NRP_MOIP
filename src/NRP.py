@@ -8,6 +8,7 @@ import os
 import json
 from copy import deepcopy
 from functools import reduce
+from statistics import median
 from math import ceil, floor
 from typing import Dict, Tuple, List, Union, Set, Any
 from src.Loader import Loader, XuanProblem, ReleasePlannerProblem
@@ -61,7 +62,7 @@ class NRPProblem:
         # variables
         self.variables: List[int] = []
         # objectives
-        self.objectives: List[Dict[int, int]] = []
+        self.objectives: List[Dict[int, Any]] = []
         # inequations, lhs <= rhs
         self.inequations: List[Dict[int, int]] = []
 
@@ -802,5 +803,15 @@ class NextReleaseProblem:
         """
         # basic form
         mnrp = self.to_basic_rp_form(option)
-        mnrp.objectives = mnrp.objectives[:2] + mnrp.objectives[-1:]
+        profit = deepcopy(mnrp.objectives[0])
+        # cost translation
+        cost = deepcopy(mnrp.objectives[1])
+        mid = median(cost.values())
+        cost = {k: v - mid for k, v in cost.items()}
+        # urgency translation
+        urgency = deepcopy(mnrp.objectives[3])
+        mid = median(urgency.values())
+        urgency = {k: v - mid for k, v in urgency.items()}
+        # objectives
+        mnrp.objectives = [profit, cost, urgency]
         return mnrp
