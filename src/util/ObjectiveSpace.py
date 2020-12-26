@@ -79,7 +79,7 @@ class ObjectiveSpace3D:
         pairs = []
         for ind, obj in enumerate(self.objectives):
             pair = SparsePair(ind=self.binary_variables + ['o' + str(ind)],
-                              val=list(obj) + [-1.0])
+                              val=[float(e) for e in list(obj)] + [-1.0])
             pairs.append(pair)
         names = ['obj' + str(i) for i in range(len(pairs))]
         self.solver.linear_constraints.add(lin_expr=pairs,
@@ -102,6 +102,7 @@ class ObjectiveSpace3D:
         # X = [anchor1; anchor2; ...], AX = [1;1;...]
         # A = X^-1. plane is the normal vector of utopia plane
         X = matrix(self.anchors)
+        print(X)
         k = np.ones((self.dimension, 1))
         self.plane = \
             np.squeeze(np.asarray(np.transpose(linalg.inv(X).dot(k))))

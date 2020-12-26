@@ -171,11 +171,15 @@ class NRPTest(unittest.TestCase):
             assert isinstance(problem.nrp, RPNRP)
             ori = deepcopy(problem.nrp)
             problem.premodel({})
-            # calculate profit and risk
+            # calculate profit and risk and urgency
             ori.weight = [w/sum(ori.weight) for w in ori.weight]
             for req in range(len(ori.cost)):
                 req_profit = 0
                 req_risk = 0
+                req_urgency = 0
+                for sh in range(len(ori.weight)):
+                    req_urgency += ori.weight[sh] * ori.importance[(req, sh)]
+                ori.urgency.append(req_urgency)
                 for sh in range(len(ori.weight)):
                     req_profit += ori.weight[sh] * ori.value[(req, sh)]
                 ori.profit.append(req_profit)
@@ -206,6 +210,7 @@ class NRPTest(unittest.TestCase):
                 ori.profit[rto] += ori.profit[rfrom]
                 ori.cost[rto] += ori.cost[rfrom]
                 ori.risk[rto] += ori.risk[rfrom]
+                ori.urgency[rto] += ori.urgency[rfrom]
                 tmp_dep = []
                 for d1, d2 in ori.dependencies:
                     if d1 == rfrom:
@@ -218,13 +223,15 @@ class NRPTest(unittest.TestCase):
             size = len(ori.cost)
             reqs = list(range(size))
             reqs = [e for e in reqs if e not in reduced]
-            # update profit, cost, risk
+            # update profit, cost, risk and urgency
             ori.profit = \
                 [e for i, e in enumerate(ori.profit) if i not in reduced]
             ori.cost = \
                 [e for i, e in enumerate(ori.cost) if i not in reduced]
             ori.risk = \
                 [e for i, e in enumerate(ori.risk) if i not in reduced]
+            ori.urgency = \
+                [e for i, e in enumerate(ori.urgency) if i not in reduced]
             # update dependencies
             rn = {}
             for ind, var in enumerate(reqs):
@@ -240,6 +247,7 @@ class NRPTest(unittest.TestCase):
             assert NRPTest.equal_flist(problem.nrp.weight, ori.weight)
             assert NRPTest.equal_flist(problem.nrp.profit, ori.profit)
             assert NRPTest.equal_flist(problem.nrp.risk, ori.risk)
+            assert NRPTest.equal_flist(problem.nrp.urgency, ori.urgency)
 
 
 if __name__ == '__main__':

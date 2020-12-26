@@ -63,6 +63,10 @@ class LoaderTest(unittest.TestCase):
             for req, sth, _ in problem.profit:
                 assert req in range(req_num)
                 assert sth in range(sth_num)
+            # check importance
+            for req, sth, _ in problem.urgency:
+                assert req in range(req_num)
+                assert sth in range(sth_num)
 
 
 if __name__ == '__main__':

@@ -1,7 +1,7 @@
 #
 # DONG Shi, dongshi@mail.ustc.edu.cn
 # Loader.py, created: 2020.10.31
-# last modified: 2020.12.25
+# last modified: 2020.12.26
 #
 
 from typing import List, Tuple, Union, Dict
@@ -49,6 +49,8 @@ class ReleasePlannerProblem:
         self.precedes: List[Tuple[int, int]] = []
         # profit, (requirement, stakeholder) -> value
         self.profit: List[Tuple[int, int, int]] = []
+        # urgency, (requirement, stakeholder) -> value
+        self.urgency: List[Tuple[int, int, int]] = []
 
 
 # dataset types
@@ -220,6 +222,7 @@ class Loader:
         requirement_file = join(data_path, 'requirements.csv')
         stakeholder_file = join(data_path, 'stakeholders.csv')
         value_file = join(data_path, 'value.csv')
+        urgency_file = join(data_path, 'urgency.csv')
         # read requirement file and make cost, couplings and precedes
         tmp_cost: Dict[str, int] = {}
         tmp_couplings: Dict[str, List[str]] = {}
@@ -282,5 +285,16 @@ class Loader:
                     profit_triple = \
                         (remap[row[0]], stakeholder, int(row[stakeholder + 1]))
                     problem.profit.append(profit_triple)
+        # read urgency file and make profit
+        with open(urgency_file, 'r') as urg_file:
+            csv = reader(urg_file, delimiter='|', skipinitialspace=True)
+            for row in csv:
+                if not row:
+                    break
+                row = [e.strip(' ') for e in row]
+                for stakeholder in range(len(problem.weight)):
+                    urgency_triple = \
+                        (remap[row[0]], stakeholder, int(row[stakeholder + 1]))
+                    problem.urgency.append(urgency_triple)
         # return
         return problem

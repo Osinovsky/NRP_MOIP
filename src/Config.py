@@ -37,7 +37,7 @@ class Config:
         # model form
         self.modelling = \
             ['single', 'sincus', 'bireq', 'binary', 'bincst',
-             'triple']
+             'trisk', 'triurgency']
         # solving methods
         self.method = \
             ['single', 'epsilon', 'imprec', 'cwmoip', 'ncgop', 'NSGAII']

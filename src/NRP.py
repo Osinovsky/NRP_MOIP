@@ -1,7 +1,7 @@
 #
 # DONG Shi, dongshi@mail.ustc.edu.cn
 # NRP.py, created: 2020.10.31
-# last modified: 2020.12.25
+# last modified: 2020.12.26
 #
 
 import os
@@ -39,6 +39,8 @@ class RPNRP:
         self.cost: List[Any] = []
         # value, (requirement, stakeholder) -> value
         self.value: Dict[Tuple[int, int], Any] = dict()
+        # importance, (requirement, stakeholder) -> value
+        self.importance: Dict[Tuple[int, int], Any] = dict()
         # dependencies, (x_i, x_j) denotes x_i -> x_j, x_i is precursor of x_j
         self.dependencies: List[Tuple[int, int]] = []
         # couplings, (x_i, x_j) denotes x_i = x_j
@@ -46,6 +48,8 @@ class RPNRP:
 
         # profit with requirements
         self.profit: List[Any] = []
+        # urgency with requirements
+        self.urgency: List[Any] = []
         # risk with requirements
         self.risk: List[Any] = []
 
@@ -208,6 +212,9 @@ class NextReleaseProblem:
         # make profit dict
         for req, sh, value in raw_problem.profit:
             nrp.value[(req, sh)] = value
+        # make urgency dict
+        for req, sh, value in raw_problem.profit:
+            nrp.importance[(req, sh)] = value
         # assign dependencies and couplings and cost
         nrp.dependencies = raw_problem.precedes
         nrp.couplings = raw_problem.couplings
@@ -284,6 +291,10 @@ class NextReleaseProblem:
         # make sum weight == 1
         base = sum(self.nrp.weight)
         self.nrp.weight = [w / base for w in self.nrp.weight]
+        # calculate the urgency for each requirement
+        self.nrp.urgency = [0] * len(self.nrp.cost)
+        for (req, sh), val in self.nrp.importance.items():
+            self.nrp.urgency[req] += self.nrp.weight[sh] * val
         # calculate the profit according to the requirements
         self.nrp.profit = [0] * len(self.nrp.cost)
         for (req, sh), val in self.nrp.value.items():
@@ -320,6 +331,7 @@ class NextReleaseProblem:
                 else:
                     reduce[e] = present
                     self.nrp.cost[present] += self.nrp.cost[e]
+                    self.nrp.urgency[present] += self.nrp.urgency[e]
                     self.nrp.profit[present] += self.nrp.profit[e]
                     self.nrp.risk[present] += self.nrp.risk[e]
         # re arrange the profit and the risk and the cost
@@ -342,13 +354,15 @@ class NextReleaseProblem:
                 r2 = rename[r2]
             tmp_dep.append((r1, r2))
         self.nrp.dependencies = tmp_dep
-        # rearrange profit, cost, risk
+        # rearrange profit, cost, risk and urgency
         self.nrp.profit = \
             [e for i, e in enumerate(self.nrp.profit) if i not in reduce]
         self.nrp.risk = \
             [e for i, e in enumerate(self.nrp.risk) if i not in reduce]
         self.nrp.cost = \
             [e for i, e in enumerate(self.nrp.cost) if i not in reduce]
+        self.nrp.urgency = \
+            [e for i, e in enumerate(self.nrp.urgency) if i not in reduce]
         # delete couplings
         self.nrp.couplings = []
 
@@ -743,7 +757,7 @@ class NextReleaseProblem:
         # return
         return mnrp
 
-    def to_basic_triple_form(self, option: Dict[str, Any]) -> NRPProblem:
+    def to_basic_rp_form(self, option: Dict[str, Any]) -> NRPProblem:
         assert isinstance(self.nrp, RPNRP)
         # prepare the NRPProblem, modelled nrp, mnrp
         mnrp = NRPProblem()
@@ -752,7 +766,8 @@ class NextReleaseProblem:
         max_profit = {k: -v for k, v in enumerate(self.nrp.profit)}
         min_cost = {k: v for k, v in enumerate(self.nrp.cost)}
         min_risk = {k: v for k, v in enumerate(self.nrp.risk)}
-        mnrp.objectives = [max_profit, min_cost, min_risk]
+        max_urgency = {k: -v for k, v in enumerate(self.nrp.urgency)}
+        mnrp.objectives = [max_profit, min_cost, min_risk, max_urgency]
         # don't forget encode the constant, it always be MAX_CODE + 1
         constant_id = len(mnrp.variables)
         assert constant_id not in mnrp.variables
@@ -762,8 +777,8 @@ class NextReleaseProblem:
         # return
         return mnrp
 
-    def to_triple_form(self, option: Dict[str, Any]) -> NRPProblem:
-        """to_triple_form [summary] triple objective NRP,
+    def to_trisk_form(self, option: Dict[str, Any]) -> NRPProblem:
+        """to_trisk_form [summary] triple objective NRP,
         with objectives: profit, cost and the risk
         Args:
             option (Dict[str, Any]): [description]
@@ -772,4 +787,20 @@ class NextReleaseProblem:
             NRPProblem: [description]
         """
         # basic form
-        return self.to_basic_triple_form(option)
+        mnrp = self.to_basic_rp_form(option)
+        mnrp.objectives = mnrp.objectives[:3]
+        return mnrp
+
+    def to_triurgency_form(self, option: Dict[str, Any]) -> NRPProblem:
+        """to_trisk_form [summary] triple objective NRP,
+        with objectives: profit, cost and the urgency
+        Args:
+            option (Dict[str, Any]): [description]
+
+        Returns:
+            NRPProblem: [description]
+        """
+        # basic form
+        mnrp = self.to_basic_rp_form(option)
+        mnrp.objectives = mnrp.objectives[:2] + mnrp.objectives[-1:]
+        return mnrp
