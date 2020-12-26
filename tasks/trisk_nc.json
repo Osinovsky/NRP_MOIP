@@ -1,0 +1,16 @@
+[
+    {
+        "name": "trisk_test",
+        "dataset": ["MSWord", "ReleasePlanner"],
+        "modelling": [
+            {
+                "name": "trisk"
+            }
+        ],
+        "method":[
+            {
+                "name": "normal"
+            }
+        ]
+    }
+]

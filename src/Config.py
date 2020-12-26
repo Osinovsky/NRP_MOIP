@@ -40,10 +40,10 @@ class Config:
              'trisk', 'triurgency']
         # solving methods
         self.method = \
-            ['single', 'epsilon', 'imprec', 'cwmoip', 'ncgop', 'NSGAII']
+            ['single', 'epsilon', 'imprec', 'cwmoip', 'normal', 'NSGAII']
         # moip methods
         self.moip_method = \
-            ['single', 'epsilon', 'imprec', 'cwmoip', 'ncgop']
+            ['single', 'epsilon', 'imprec', 'cwmoip', 'normal']
         # dump methods(for jar algorithm)
         self.dump_method = \
             ['NSGAII']
@@ -68,7 +68,7 @@ class Config:
         self.seeds_path = './datasets/seeds/'
 
         # sampling size for normal constraint
-        self.sampling_size = 1000
+        self.sampling_size = 200
 
     def make_classic_index(self) -> None:
         """make_classic_index [summary] make classic datasets

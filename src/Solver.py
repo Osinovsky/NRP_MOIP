@@ -1,7 +1,7 @@
 #
 # DONG Shi, dongshi@mail.ustc.edu.cn
 # Solver.py, created: 2020.11.02
-# last modified: 2020.12.10
+# last modified: 2020.12.26
 #
 
 from typing import Dict, Any, List, Union
@@ -10,7 +10,7 @@ from src.Config import Config
 from src.Solvers.EConstraint import EConstraint
 from src.Solvers.ImprovedEC import ImprovedEC
 from src.Solvers.CWMOIP import CWMOIP
-# from src.Solvers.BinSolver import EConstraint, CWMOIP
+from src.Solvers.NormalConstraint import NormalConstraint
 from src.Solvers.JarSolver import JarSolver
 
 # type
@@ -68,6 +68,12 @@ class Solver:
                       option: Dict[str, Any] = None
                       ) -> None:
         self.solver = CWMOIP(problem)
+
+    def employ_normal(self,
+                      problem: NRPProblem,
+                      option: Dict[str, Any] = None
+                      ) -> None:
+        self.solver = NormalConstraint(problem)
 
     def employ_NSGAII(self,
                       problem: str,
