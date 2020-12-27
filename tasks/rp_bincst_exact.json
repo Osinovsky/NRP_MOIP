@@ -1,0 +1,65 @@
+[
+    {
+        "name": "rp_bincst",
+        "dataset": "rp",
+        "modelling": [
+            {
+                "name": "bincst",
+                "bound": 0.3
+            }
+        ],
+        "method":[
+            {
+                "name": "epsilon"
+            },
+            {
+                "name": "imprec"
+            },
+            {
+                "name": "cwmoip"
+            }
+        ]
+    },
+    {
+        "name": "rp_bincst",
+        "dataset": "rp",
+        "modelling": [
+            {
+                "name": "bincst",
+                "bound": 0.5
+            }
+        ],
+        "method":[
+            {
+                "name": "epsilon"
+            },
+            {
+                "name": "imprec"
+            },
+            {
+                "name": "cwmoip"
+            }
+        ]
+    },
+    {
+        "name": "rp_bincst",
+        "dataset": "rp",
+        "modelling": [
+            {
+                "name": "bincst",
+                "bound": 0.7
+            }
+        ],
+        "method":[
+            {
+                "name": "epsilon"
+            },
+            {
+                "name": "imprec"
+            },
+            {
+                "name": "cwmoip"
+            }
+        ]
+    }
+]

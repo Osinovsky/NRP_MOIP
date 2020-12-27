@@ -1,0 +1,22 @@
+[
+    {
+        "name": "triurgency_exact",
+        "dataset": ["MSWord", "ReleasePlanner"],
+        "modelling": [
+            {
+                "name": "triurgency"
+            }
+        ],
+        "method":[
+            {
+                "name": "epsilon"
+            },
+            {
+                "name": "imprec"
+            },
+            {
+                "name": "cwmoip"
+            }
+        ]
+    }
+]

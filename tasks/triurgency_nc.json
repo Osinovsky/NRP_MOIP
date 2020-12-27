@@ -1,0 +1,16 @@
+[
+    {
+        "name": "triurgency_test",
+        "dataset": ["MSWord", "ReleasePlanner"],
+        "modelling": [
+            {
+                "name": "triurgency"
+            }
+        ],
+        "method":[
+            {
+                "name": "normal"
+            }
+        ]
+    }
+]

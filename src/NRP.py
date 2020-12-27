@@ -9,7 +9,7 @@ import json
 from copy import deepcopy
 from functools import reduce
 # from statistics import median
-from math import ceil, floor
+# from math import ceil, floor
 from typing import Dict, Tuple, List, Union, Set, Any
 from src.Loader import Loader, XuanProblem, ReleasePlannerProblem
 from src.Config import Config
@@ -630,6 +630,27 @@ class NextReleaseProblem:
         # return
         return mnrp
 
+    def to_rp_binary_form(self, option: Dict[str, Any]) -> NRPProblem:
+        assert isinstance(self.nrp, RPNRP)
+        # prepare the NRPProblem, modelled nrp, mnrp
+        mnrp = NRPProblem()
+        # prepare objective coefs and variables
+        mnrp.variables = list(range(len(self.nrp.cost)))
+        max_profit = {k: -v for k, v in enumerate(self.nrp.profit)}
+        min_cost = {k: v for k, v in enumerate(self.nrp.cost)}
+        mnrp.objectives = [max_profit, min_cost]
+        # don't forget encode the constant, it always be MAX_CODE + 1
+        constant_id = len(mnrp.variables)
+        assert constant_id not in range(len(self.nrp.cost))
+        # convert requirements
+        # use requirements, y <= x
+        for req in self.nrp.dependencies:
+            # (i, j): xi precedes xj, xj <= xi
+            # req[1] - req[0] <= 0
+            mnrp.inequations.append({req[1]: 1, req[0]: -1, constant_id: 0})
+        # return
+        return mnrp
+
     def to_binary_form(self, option: Dict[str, Any]) -> NRPProblem:
         """to_binary_form [summary]
         form as binary-objective form as metioned in
@@ -638,6 +659,7 @@ class NextReleaseProblem:
         and bi-objective Next Release Problem, NadarajenVeerapen
         https://doi.org/10.1016/j.infsof.2015.03.008
 
+        And Risk-Aware with profit and cost binary form
 
         Args:
             option (Dict[str, Any]): [description]
@@ -645,8 +667,12 @@ class NextReleaseProblem:
         Returns:
             NRPProblem: [description]
         """
-        # basic form
-        return self.to_basic_binary_form(option)
+        if isinstance(self.nrp, XuanNRP):
+            return self.to_basic_binary_form(option)
+        elif isinstance(self.nrp, RPNRP):
+            return self.to_rp_binary_form(option)
+        else:
+            assert False
 
     def to_bireq_form(self, option: Dict[str, Any]) -> NRPProblem:
         """to_bireq_form [summary] bireq form is a binary form, too.
@@ -696,9 +722,8 @@ class NextReleaseProblem:
         return mnrp
 
     def to_bincst_form(self, option: Dict[str, Any]) -> NRPProblem:
-        """to_bincst_form [summary] binary form with
-        addtional constraints, there are four constraints could be chosen:
-        max_cost, min_profit, min_requirements, min_customers
+        """to_bincst_form [summary] ReleasePlanner binary form
+        with risk as its thrid objective constraint
 
         Args:
             option (Dict[str, Any]): [description]
@@ -706,55 +731,20 @@ class NextReleaseProblem:
         Returns:
             NRPProblem: [description]
         """
+        assert isinstance(self.nrp, RPNRP)
         # basic form
-        mnrp = self.to_basic_binary_form(option)
+        mnrp = self.to_rp_binary_form(option)
         # constant
         constant_id = len(mnrp.variables)
-        # put more inequations
-        if 'max_cost' in option:
-            # sum cost <= max_cost
-            max_cost = option['max_cost']
-            inequation = {k: v for k, v in self.nrp.cost.items()}
-            if isinstance(max_cost, int):
-                inequation[constant_id] = max_cost
-            else:
-                inequation[constant_id] = \
-                    ceil(max_cost * sum(list(self.nrp.cost.values())))
-            mnrp.inequations.append(inequation)
-        # end if
-        if 'min_profit' in option:
-            # sum profit >= min_profit
-            min_profit = option['min_profit']
-            inequation = {k: -v for k, v in self.nrp.profit.items()}
-            if isinstance(min_profit, int):
-                inequation[constant_id] = - min_profit
-            else:
-                inequation[constant_id] = \
-                    - floor(min_profit * sum(list(self.nrp.profit.values())))
-            mnrp.inequations.append(inequation)
-        # end if
-        if 'min_requirements' in option:
-            # |requirements| >= min_requirements
-            min_requirements = option['min_requirements']
-            inequation = {k: -1 for k in self.nrp.cost}
-            if isinstance(min_requirements, int):
-                inequation[constant_id] = - min_requirements
-            else:
-                inequation[constant_id] = \
-                    - floor(min_requirements * len(self.nrp.cost))
-            mnrp.inequations.append(inequation)
-        # end if
-        if 'min_customers' in option:
-            # |requirements| >= min_requirements
-            min_requirements = option['min_customers']
-            inequation = {k: -1 for k in self.nrp.profit}
-            if isinstance(min_requirements, int):
-                inequation[constant_id] = - min_requirements
-            else:
-                inequation[constant_id] = \
-                    - floor(min_requirements * len(self.nrp.profit))
-            mnrp.inequations.append(inequation)
-        # end if
+        # # convert the risk as the constraint
+        # risk_cst = {k: v for k, v in enumerate(self.nrp.risk)}
+        # convert the urgency as the constraint
+        urgency_cst = {k: -v for k, v in enumerate(self.nrp.urgency)}
+        # find the bound
+        assert 'bound' in option
+        sum_risk = sum(urgency_cst.values())
+        urgency_cst[constant_id] = sum_risk * option['bound']
+        mnrp.inequations.append(urgency_cst)
         # return
         return mnrp
 
