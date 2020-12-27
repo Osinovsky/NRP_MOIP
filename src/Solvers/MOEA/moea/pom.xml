@@ -20,11 +20,6 @@
 
   <dependencies>
 
-    <dependency>
-      <groupId>org.uma.jmetal</groupId>
-      <artifactId>jmetal-exec</artifactId>
-      <version>5.9</version>
-    </dependency>
 
 
     <dependency>

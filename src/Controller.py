@@ -381,8 +381,13 @@ class Controller:
         nrp_problem.premodel(task.modelling[1])
         # dump problem
         problem_file = abspath(join(config.dump_path, project_name + '.json'))
-        # TODO: more than dump xuan
-        NextReleaseProblem.dump_xuan(problem_file, nrp_problem.nrp)
+        # xuan_binary dump for itself
+        if config.parse_dataset_keyword(task.problem) == 'xuan' \
+                and task.modelling[0] == 'binary':
+            NextReleaseProblem.dump_xuan(problem_file, nrp_problem.nrp)
+        else:
+            problem = nrp_problem.model(task.modelling[0], task.modelling[1])
+            NextReleaseProblem.dump_nrp(problem_file, problem)
         option = task.method[1]
         if 'iteration' not in option:
             option['iteration'] = 1

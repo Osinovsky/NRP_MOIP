@@ -1,7 +1,7 @@
 #
 # DONG Shi, dongshi@mail.ustc.edu.cn
 # NRP.py, created: 2020.10.31
-# last modified: 2020.12.26
+# last modified: 2020.12.27
 #
 
 import os
@@ -380,48 +380,32 @@ class NextReleaseProblem:
         self.rp_premodel(option)
 
     @staticmethod
-    def dump(
-        file_name: str,
-        variables: List[int],
-        objectives: List[Dict[int, int]],
-        inequations: List[Dict[int, int]],
-    ) -> None:
-        """dump [summary] dump problem
-
-        Args:
-            file_name (str): [description] where to store
-            variables (List[int]): [description] variables
-            objectives (List[Dict[int, int]]): [description] objectives
-            inequations (List[Dict[int, int]]): [description] inequations
-        """
-        # load config
-        config = Config()
-        # prepare a dict for storing all
-        result: Dict[str, Any] = dict()
-        # turn variables into dict
-        result['variables'] = variables
-        # for index, variable in enumerate(variables):
-        #     result['variables'][str(index)] = variable
-        # turn objectives into dict
-        result['objectives'] = objectives
-        # for index, objective in enumerate(objectives):
-        #     result['objectives'][str(index)] = objective
-        # turn inequations into dict
-        result['inequations'] = inequations
-        # for index, inequation in enumerate(inequations):
-        #     result['inequations'][str(index)] = inequation
-        # see if folder exists
-        if not os.path.exists(config.dump_path):
-            os.makedirs(config.dump_path)
-        # add file_name on path
-        # file_name = os.path.join(config.dump_path, file_name)
-        # open output file
-        with open(file_name, 'w+') as out_file:
-            # dump
-            json_object = json.dumps(result, indent=4)
-            out_file.write(json_object)
-            # close the file
-            out_file.close()
+    def dump_nrp(file_name: str, nrp: NRPProblem) -> None:
+        # sort variables
+        vrs = sorted(nrp.variables)
+        index = {k: i for i, k in enumerate(vrs)}
+        # reorder objectives
+        objs = []
+        for obj in nrp.objectives:
+            objs.append([float(obj[var]) for var in vrs])
+        # remap inequations
+        csts = []
+        if nrp.inequations:
+            constant = len(vrs)
+            for var in nrp.inequations[0]:
+                if var not in vrs:
+                    index[var] = constant
+                    break
+            for ineq in nrp.inequations:
+                csts.append({index[k]: float(v) for k, v in ineq.items()})
+        # prepare a dict for dumpping
+        dumpping = {
+            'objectives': objs,
+            'inequations': csts
+        }
+        with open(file_name, 'w') as fout:
+            json.dump(dumpping, fout, indent=4)
+            fout.close()
 
     @staticmethod
     def dump_xuan(file_name: str, nrp: XuanNRP) -> None:

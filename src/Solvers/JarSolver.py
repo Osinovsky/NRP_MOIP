@@ -1,7 +1,7 @@
 #
 # DONG Shi, dongshi@mail.ustc.edu.cn
 # JarSolver.py, created: 2020.11.05
-# last modified: 2020.12.21
+# last modified: 2020.12.27
 #
 
 from typing import Dict, Any
@@ -40,18 +40,13 @@ class JarSolver:
             file_out.write(json_object)
             file_out.close()
         # prepare command
-        if 'objectives' in self.option:
-            objs = self.option['objectives']
-            if objs == 2:
+        if 'xuan_binary' in self.option:
+            if self.option['xuan_binary']:
                 solver_name = 'NSGAIIBinarySolver'
-            elif objs == 3:
-                solver_name = 'NSGAIITripleSolver'
             else:
-                print('illegal value of objectives: ' + str(objs))
-                assert False
+                solver_name = 'NSGAIISolver'
         else:
-            # binary by default
-            solver_name = 'NSGAIIBinarySolver'
+            solver_name = 'NSGAIISolver'
         jar_file = join('src/Solvers/', '{}.jar'.format(solver_name))
         config = Config()
         self.cmd = self.cmd.format(config.java_exe,
