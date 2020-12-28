@@ -1,7 +1,7 @@
 #
 # DONG Shi, dongshi@mail.ustc.edu.cn
 # BaseSolver.py, created: 2020.11.02
-# last modified: 2020.12.14
+# last modified: 2020.12.28
 #
 
 from math import ceil, floor
@@ -300,7 +300,11 @@ class BaseSolver:
         Returns:
             Any: [description] objective value
         """
-        return self.solver.solution.get_objective_value()
+        status = self.solver.solution.get_status_string()
+        if 'infeasible' in status:
+            return None
+        else:
+            return self.solver.solution.get_objective_value()
 
     def get_objectives(self) -> List[Tuple[float, ...]]:
         """get_objectives [summary] get the pareto solutions objectives

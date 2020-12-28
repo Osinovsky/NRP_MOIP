@@ -1,7 +1,7 @@
 #
 # DONG Shi, dongshi@mail.ustc.edu.cn
 # CWMOIP.py, created: 2020.11.04
-# last modified: 2020.11.29
+# last modified: 2020.12.28
 #
 
 from decimal import Decimal
@@ -86,8 +86,12 @@ class CWMOIP(ABCSolver):
             self.solver.set_objective(only_objective, True)
             return self.solver.solve()
         else:
+            # prepare all solutions set
+            all_solutions: Dict[str, BinarySolution] = {}
             # solve boundaries
             low_f, up_f = self.calculte_boundary(objectives[level])
+            if low_f is None or up_f is None:
+                return all_solutions
             low = BaseSolver.to_int(low_f)
             up = BaseSolver.to_int(up_f)
             w_level = w / Decimal(MOOUtility.round(up - low + 1))
@@ -97,8 +101,6 @@ class CWMOIP(ABCSolver):
             constraint_name = 'obj' + str(level)
             # set constraint of objective
             self.solver.add_constriant(constraint_name, objectives[level])
-            # prepare all solutions set
-            all_solutions: Dict[str, BinarySolution] = {}
             # initialize rhs
             rhs = up
             while True:
