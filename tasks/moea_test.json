@@ -1,21 +1,21 @@
 [
     {
-        "name": "nsga_test",
-        "dataset": "MSWord",
+        "name": "moea_test",
+        "dataset": "classic_1",
         "modelling": [
             {
-                "name": "triurgency"
+                "name": "binary"
             }
         ],
         "method":[
             {
-                "name": "NSGAII",
-                "xuan_binary": false,
+                "name": "IBEA",
+                "xuan_binary": true,
                 "iteration": 10,
                 "population": 200,
                 "max_evaluations": 50000,
                 "patient": 10,
-                "mutation": 0.25,
+                "mutation": 0.0416,
                 "crossover": 0.8
             }
         ]

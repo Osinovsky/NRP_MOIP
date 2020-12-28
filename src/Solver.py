@@ -1,7 +1,7 @@
 #
 # DONG Shi, dongshi@mail.ustc.edu.cn
 # Solver.py, created: 2020.11.02
-# last modified: 2020.12.26
+# last modified: 2020.12.29
 #
 
 from typing import Dict, Any, List, Union
@@ -14,7 +14,7 @@ from src.Solvers.NormalConstraint import NormalConstraint
 from src.Solvers.JarSolver import JarSolver
 
 # type
-SolverType = Union[EConstraint, CWMOIP, JarSolver]
+SolverType = Union[EConstraint, CWMOIP, NormalConstraint, JarSolver]
 
 
 class Solver:
@@ -80,3 +80,9 @@ class Solver:
                       option: Dict[str, Any] = {}
                       ) -> None:
         self.solver = JarSolver('NSGAII', option)
+
+    def employ_IBEA(self,
+                      problem: str,
+                      option: Dict[str, Any] = {}
+                      ) -> None:
+        self.solver = JarSolver('IBEA', option)

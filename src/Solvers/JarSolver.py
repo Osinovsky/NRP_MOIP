@@ -1,7 +1,7 @@
 #
 # DONG Shi, dongshi@mail.ustc.edu.cn
 # JarSolver.py, created: 2020.11.05
-# last modified: 2020.12.27
+# last modified: 2020.12.28
 #
 
 from typing import Dict, Any
@@ -40,13 +40,10 @@ class JarSolver:
             file_out.write(json_object)
             file_out.close()
         # prepare command
-        if 'xuan_binary' in self.option:
-            if self.option['xuan_binary']:
-                solver_name = 'NSGAIIBinarySolver'
-            else:
-                solver_name = 'NSGAIISolver'
+        if 'xuan_binary' in self.option and self.option['xuan_binary']:
+            solver_name = '{}BinarySolver'.format(self.method.upper())
         else:
-            solver_name = 'NSGAIISolver'
+            solver_name = '{}Solver'.format(self.method.upper())
         jar_file = join('src/Solvers/', '{}.jar'.format(solver_name))
         config = Config()
         self.cmd = self.cmd.format(config.java_exe,

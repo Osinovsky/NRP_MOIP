@@ -1,7 +1,7 @@
 #
 # DONG Shi, dongshi@mail.ustc.edu.cn
 # Config.py, created: 2020.10.31
-# last modified: 2020.12.26
+# last modified: 2020.12.28
 #
 
 from typing import Dict, List
@@ -40,13 +40,13 @@ class Config:
              'trisk', 'triurgency']
         # solving methods
         self.method = \
-            ['single', 'epsilon', 'imprec', 'cwmoip', 'normal', 'NSGAII']
+            ['single', 'epsilon', 'imprec', 'cwmoip', 'normal', 'NSGAII', 'IBEA']
         # moip methods
         self.moip_method = \
             ['single', 'epsilon', 'imprec', 'cwmoip', 'normal']
         # dump methods(for jar algorithm)
         self.dump_method = \
-            ['NSGAII']
+            ['NSGAII', 'IBEA']
         # indicators
         self.indicators = ['igd', 'hv', 'evenness', 'mean', 'median']
 

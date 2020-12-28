@@ -1,7 +1,6 @@
 package org.osinovsky;
 
 import org.uma.jmetal.algorithm.Algorithm;
-import org.uma.jmetal.util.AbstractAlgorithmRunner;
 import org.uma.jmetal.example.AlgorithmRunner;
 import org.uma.jmetal.operator.crossover.CrossoverOperator;
 import org.uma.jmetal.operator.mutation.MutationOperator;
@@ -9,22 +8,13 @@ import org.uma.jmetal.solution.binarysolution.BinarySolution;
 import org.uma.jmetal.operator.mutation.impl.BitFlipMutation;
 import org.uma.jmetal.operator.crossover.impl.SinglePointCrossover;
 
-// import org.uma.jmetal.util.comparator.DominanceComparator;
-// import org.uma.jmetal.util.evaluator.SolutionListEvaluator;
-// import org.uma.jmetal.operator.selection.impl.BinaryTournamentSelection;
-// import org.uma.jmetal.util.comparator.RankingAndCrowdingDistanceComparator;
-// import org.uma.jmetal.util.evaluator.impl.SequentialSolutionListEvaluator;
-// import org.uma.jmetal.algorithm.multiobjective.nsgaii.NSGAIIBuilder;
-// import org.uma.jmetal.algorithm.multiobjective.nsgaii.NSGAII;
-
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class XuanTripleNSGAII extends AbstractAlgorithmRunner {
-    // entrance for using NSGAII
-    public static void main(String[] args) {
+public class CMOIBEA {
+    public static void main(String[] args){
         // handle the arugments
         assert args.length == 1;
         // first arg is the config file
@@ -54,13 +44,11 @@ public class XuanTripleNSGAII extends AbstractAlgorithmRunner {
 
         // load problem
         String problemFile = Paths.get((String)config.get("dump_path"),
-                                       (String)config.get("problem_name")+".json").toString();
-        XuanProblemLoader problemLoader = new XuanProblemLoader(problemFile);
+                                        (String)config.get("problem_name")+".json").toString();
+        NRPProblemLoader problemLoader = new NRPProblemLoader(problemFile);
+        ConstrainedMONRP problem = new ConstrainedMONRP(problemLoader.getObjectives(), problemLoader.getInequations());
 
-        XuanTripleNRP problem = new XuanTripleNRP(problemLoader.getCost(), problemLoader.getProfit(),
-                                                  problemLoader.getRequests(), problemLoader.getReqDict(),
-                                                  problemLoader.getRvReqDict());
-
+        System.out.println("IBEA, standing by.");
         // print iteration times
         System.out.println("iterations: " + Integer.toString(iterationTimes));
         // print configs
@@ -84,18 +72,10 @@ public class XuanTripleNSGAII extends AbstractAlgorithmRunner {
             }
 
             // the algorithm
-            Algorithm<List<BinarySolution>> algorithm = new IPNSGAII(
-              problem, maxEvaluations, patient,
-              populationSize, populationSize, populationSize,
-              crossover, mutation, seed
+            Algorithm<List<BinarySolution>> algorithm = new IPIBEA(
+                problem, patient, populationSize, populationSize, maxEvaluations,
+                crossover, mutation, seed
             );
-
-            // Algorithm<List<BinarySolution>> algorithm = new NSGAII<>(
-            // problem, maxEvaluations, populationSize, populationSize, populationSize,
-            // crossover, mutation,
-            // new BinaryTournamentSelection<BinarySolution>(new RankingAndCrowdingDistanceComparator<BinarySolution>()),
-            // new DominanceComparator<BinarySolution>(),
-            // new SequentialSolutionListEvaluator<BinarySolution>());
 
             // run the algorithm
             new AlgorithmRunner.Executor(algorithm).execute();
@@ -105,15 +85,28 @@ public class XuanTripleNSGAII extends AbstractAlgorithmRunner {
 
             // get the result
             List<BinarySolution> population = algorithm.getResult();
+            List<BinarySolution> pureSolutions = new ArrayList<BinarySolution>();
+            for (BinarySolution solution : population) {
+                boolean flag = true;
+                for (double cst : solution.getConstraints()) {
+                    if (cst < 0.0) {
+                        flag = false;
+                        break;
+                    }
+                }
+                if (flag) {
+                    pureSolutions.add(solution);
+                }
+            }
             // long computingTime = algorithmRunner.getComputingTime();
             long computingTime = (long)((endTime - startTime)/1000_000);
             // print infomation
             System.out.println("round: " + Integer.toString(itr));
             System.out.println("execution time: " + computingTime + "ms");
-            System.out.println("solutions found: " + population.size());
+            System.out.println("solutions found: " + pureSolutions.size());
 
             // dump result
-            new Dumper(resultPath, itr, population, computingTime);
+            new Dumper(resultPath, itr, pureSolutions, computingTime);
         }
     }
 }

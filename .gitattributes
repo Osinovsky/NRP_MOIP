@@ -1,3 +1,5 @@
 src/Solvers/NSGAIIBinarySolver.jar filter=lfs diff=lfs merge=lfs -text
 src/Solvers/NSGAIISolver.jar filter=lfs diff=lfs merge=lfs -text
+src/Solvers/IBEABinarySolver.jar filter=lfs diff=lfs merge=lfs -text
+src/Solvers/IBEASolver.jar filter=lfs diff=lfs merge=lfs -text
 datasets/seeds/binary/*.txt filter=lfs diff=lfs merge=lfs -text
