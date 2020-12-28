@@ -3,7 +3,7 @@
 from src import Controller
 from src import Analyzer, Result
 
-Controller.run('triurgency_exact.json')
+Controller.run('ibea_binary.json')
 
 # Result.quick_prob('rp_bincst')
 
