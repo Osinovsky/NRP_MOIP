@@ -1,7 +1,7 @@
 #
 # DONG Shi, dongshi@mail.ustc.edu.cn
 # Result.py, created: 2020.11.10
-# last modified: 2020.12.15
+# last modified: 2020.12.28
 #
 
 from typing import Dict, Any, List, Tuple
@@ -170,7 +170,7 @@ class Result:
     def quick_prob(result_folder: str) -> None:
         config = Config()
         root = join(config.result_root_path, result_folder)
-        projects = list(filter(lambda x: '.' not in x, listdir(root)))
+        projects = [x for x in listdir(root) if not isfile(x)]
         for project in projects:
             print(project + ':')
             methods = list(filter(lambda x: not x.startswith('.'),
@@ -185,7 +185,7 @@ class Result:
                              listdir(join(root, project, method))))
                 for i_f in infos:
                     info = Result.load_json(join(root, project, method, i_f))
-                    time = str(int(info['elapsed time']))
+                    time = str(round(info['elapsed time'], 2))
                     found = str(info['solutions found'])
                     print(time + '\t' + found + '\t', end='')
                 print()
