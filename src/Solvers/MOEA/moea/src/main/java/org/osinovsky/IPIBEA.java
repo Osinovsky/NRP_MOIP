@@ -91,7 +91,7 @@ public class IPIBEA extends IBEA<BinarySolution>{
         BinarySolution first = problem.createSolution();
         // if seed is not empty, it would be used
         if (this.seed.size() > 0) {
-            System.out.println("seed used, from IPNSGAII");
+            System.out.println("seed used, from IPIBEA");
             for (int index = 0; index < this.seed.size(); ++ index) {
                 BinarySet bset = new BinarySet(1);
                 bset.set(0, this.seed.get(index));
