@@ -159,7 +159,8 @@ class Analyzer:
         labels = []
         for method in methods:
             key = (project, method)
-            objectives = self.get_objectives(self.result.method_fronts[key])
+            solution_list = self.result.method_fronts[key].solution_list
+            objectives = self.get_objectives(solution_list)
             handle = \
                 plt.scatter(objectives[0], objectives[1],
                             label=method, alpha=0.5)
