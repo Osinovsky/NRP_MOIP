@@ -40,7 +40,8 @@ class Config:
              'trisk', 'triurgency']
         # solving methods
         self.method = \
-            ['single', 'epsilon', 'imprec', 'cwmoip', 'normal', 'NSGAII', 'IBEA']
+            ['single', 'epsilon', 'imprec', 'cwmoip', 'normal',
+             'NSGAII', 'IBEA']
         # moip methods
         self.moip_method = \
             ['single', 'epsilon', 'imprec', 'cwmoip', 'normal']

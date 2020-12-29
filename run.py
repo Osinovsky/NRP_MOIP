@@ -5,7 +5,7 @@ from src import Analyzer, Result
 
 Controller.run('ibea_binary.json')
 
-# Result.quick_prob('rp_bincst')
+# Result.quick_prob('triurgency_exact')
 
 # sheet = Analyzer('classic_nsga').make_sheet()
 # Analyzer.tabulate('tmp1.csv', sheet)

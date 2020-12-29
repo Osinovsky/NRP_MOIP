@@ -1,13 +1,14 @@
 #
 # DONG Shi, dongshi@mail.ustc.edu.cn
 # NRP.py, created: 2020.10.31
-# last modified: 2020.12.27
+# last modified: 2020.12.29
 #
 
 import os
 import json
 from copy import deepcopy
 from functools import reduce
+from os.path import join
 # from statistics import median
 # from math import ceil, floor
 from typing import Dict, Tuple, List, Union, Set, Any
@@ -715,28 +716,41 @@ class NextReleaseProblem:
         Returns:
             NRPProblem: [description]
         """
-        assert isinstance(self.nrp, RPNRP)
-        # basic form
-        mnrp = self.to_rp_binary_form(option)
-        # constant
-        constant_id = len(mnrp.variables)
-        # # convert the risk as the constraint
-        # risk_cst = {k: v for k, v in enumerate(self.nrp.risk)}
-        # convert the urgency as the constraint
-        urgency_cst = {k: -v for k, v in enumerate(self.nrp.urgency)}
-        # find the bound
-        assert 'bound' in option
-        sum_risk = sum(urgency_cst.values())
-        urgency_cst[constant_id] = sum_risk * option['bound']
-        mnrp.inequations.append(urgency_cst)
-        # return
-        return mnrp
+        if isinstance(self.nrp, XuanNRP):
+            mnrp = self.to_xuan_triple_form(option)
+            urgency_cst = deepcopy(mnrp.objectives[2])
+            del mnrp.objectives[2]
+            # constant
+            constant_id = len(mnrp.variables)
+            assert 'bound' in option
+            sum_urgency = sum(urgency_cst.values())
+            urgency_cst[constant_id] = sum_urgency * option['bound']
+            mnrp.inequations.append(urgency_cst)
+            # return
+            return mnrp
+        elif isinstance(self.nrp, RPNRP):
+            # basic form
+            mnrp = self.to_rp_binary_form(option)
+            # convert the urgency as the constraint
+            urgency_cst = {k: -v for k, v in enumerate(self.nrp.urgency)}
+            # constant
+            constant_id = len(mnrp.variables)
+            # find the bound
+            assert 'bound' in option
+            sum_urgency = sum(urgency_cst.values())
+            urgency_cst[constant_id] = sum_urgency * option['bound']
+            mnrp.inequations.append(urgency_cst)
+            # return
+            return mnrp
+        else:
+            assert False
 
     def to_basic_rp_form(self, option: Dict[str, Any]) -> NRPProblem:
         assert isinstance(self.nrp, RPNRP)
         # prepare the NRPProblem, modelled nrp, mnrp
         mnrp = NRPProblem()
         # prepare objective coefs and variables
+        # TODO: maybe should convert float to int
         mnrp.variables = list(range(len(self.nrp.cost)))
         max_profit = {k: -v for k, v in enumerate(self.nrp.profit)}
         min_cost = {k: v for k, v in enumerate(self.nrp.cost)}
@@ -750,6 +764,35 @@ class NextReleaseProblem:
         for req in self.nrp.dependencies:
             mnrp.inequations.append({req[0]: -1, req[1]: 1, constant_id: 0})
         # return
+        return mnrp
+
+    def to_xuan_triple_form(self, option: Dict[str, Any]) -> NRPProblem:
+        """to_xuan_triple_form [summary] xuan binary -> triple,
+        with random generated urgency value related to requirements
+
+        Args:
+            option (Dict[str, Any]): [description]
+
+        Returns:
+            NRPProblem: [description]
+        """
+        mnrp = self.to_basic_binary_form(option)
+        # load urgency
+        # TODO: maybe config in Config
+        path = './datasets/xuan/urgency/'
+        urgency_file = join(path, self.__project + '.json')
+        max_urgency: Dict[int, int] = {}
+        with open(urgency_file, 'r') as fin:
+            urgency_value = json.load(fin)
+            assert isinstance(urgency_value, list)
+            # check if second objective is cost
+            assert list(mnrp.objectives[1].values())[0] >= 0
+            # make urgency
+            assert len(mnrp.objectives[1]) == len(urgency_value)
+            for index, req in enumerate(mnrp.objectives[1]):
+                max_urgency[req] = - urgency_value[index]
+            mnrp.objectives.append(max_urgency)
+            fin.close()
         return mnrp
 
     def to_trisk_form(self, option: Dict[str, Any]) -> NRPProblem:
@@ -775,6 +818,8 @@ class NextReleaseProblem:
         Returns:
             NRPProblem: [description]
         """
+        if isinstance(self.nrp, XuanNRP):
+            return self.to_xuan_triple_form(option)
         # basic form
         mnrp = self.to_basic_rp_form(option)
         profit = deepcopy(mnrp.objectives[0])
