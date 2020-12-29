@@ -9,3 +9,7 @@ Controller.run('ibea_binary.json')
 
 # sheet = Analyzer('classic_nsga').make_sheet()
 # Analyzer.tabulate('tmp1.csv', sheet)
+# analyzer = Analyzer('classic_binary_moea')
+# for index in range(1, 6):
+#     project = 'classic_' + str(index)
+#     analyzer.plot_2D_pareto(project, [], project)

@@ -16,7 +16,8 @@
                 "max_evaluations": 100000,
                 "patient": 10,
                 "mutation": 0.00416,
-                "crossover": 0.8
+                "crossover": 0.8,
+                "seeds": "./datasets/seeds/binary/classic_1.txt"
             }
         ]
     },
@@ -37,7 +38,8 @@
                 "max_evaluations": 100000,
                 "patient": 10,
                 "mutation": 0.00089,
-                "crossover": 0.8
+                "crossover": 0.8,
+                "seeds": "./datasets/seeds/binary/classic_2.txt"
             }
         ]
     },
@@ -58,7 +60,8 @@
                 "max_evaluations": 100000,
                 "patient": 10,
                 "mutation": 0.0005,
-                "crossover": 0.8
+                "crossover": 0.8,
+                "seeds": "./datasets/seeds/binary/classic_3.txt"
             }
         ]
     },
@@ -79,7 +82,8 @@
                 "max_evaluations": 100000,
                 "patient": 10,
                 "mutation": 0.00025,
-                "crossover": 0.8
+                "crossover": 0.8,
+                "seeds": "./datasets/seeds/binary/classic_4.txt"
             }
         ]
     },
@@ -100,7 +104,8 @@
                 "max_evaluations": 100000,
                 "patient": 10,
                 "mutation": 0.0004,
-                "crossover": 0.8
+                "crossover": 0.8,
+                "seeds": "./datasets/seeds/binary/classic_5.txt"
             }
         ]
     }
