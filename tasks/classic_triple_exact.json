@@ -1,0 +1,22 @@
+[
+    {
+        "name": "classic_triple_exact",
+        "dataset": "classic",
+        "modelling": [
+            {
+                "name": "triurgency"
+            }
+        ],
+        "method":[
+            {
+                "name": "epsilon"
+            },
+            {
+                "name": "imprec"
+            },
+            {
+                "name": "cwmoip"
+            }
+        ]
+    }
+]
