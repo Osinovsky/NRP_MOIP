@@ -1,7 +1,7 @@
 #
 # DONG Shi, dongshi@mail.ustc.edu.cn
 # ObjectiveSpace.py, created: 2020.12.24
-# last modified: 2020.12.26
+# last modified: 2020.12.30
 #
 
 from typing import List, Any, Dict, Tuple
@@ -100,7 +100,7 @@ class RPObjectiveSpace:
 
     def uniform_sampling(self, size: int) -> List[array]:
         direction = self.anchors[0] - self.anchors[1]
-        step = direction / (size - 1)
+        step = direction / (size + 1)
         point = self.anchors[1]
         points: List[array] = [point]
         for _ in range(size):
