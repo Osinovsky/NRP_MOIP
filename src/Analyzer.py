@@ -157,17 +157,19 @@ class Analyzer:
                 [self.result.method_name(project, x) for x in methods]
         handles = []
         labels = []
+        fig, ax = plt.subplots()
         for method in methods:
             key = (project, method)
             solution_list = self.result.method_fronts[key].solution_list
             objectives = self.get_objectives(solution_list)
             handle = \
-                plt.scatter(objectives[0], objectives[1],
-                            label=method, alpha=0.5)
+                ax.scatter(objectives[0], objectives[1],
+                           label=method, alpha=0.5)
             handles.append(handle)
             labels.append(method)
         if file_name:
-            plt.savefig(file_name)
+            fig.savefig(file_name, dpi=300)
+            plt.close(fig)
         else:
             plt.legend(handles, labels)
             plt.show()
