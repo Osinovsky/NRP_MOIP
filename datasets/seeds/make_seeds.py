@@ -67,11 +67,10 @@ req_dict = {
     'realistic_m4': 3643
 }
 
-# name = 'classic_5'
-
-tasks = ['realistic_e2', 'realistic_e3', 'realistic_e4',
+tasks = ['realistic_e1', 'realistic_e2', 'realistic_e3', 'realistic_e4',
          'realistic_g1', 'realistic_g2', 'realistic_g3', 'realistic_g4',
          'realistic_m1', 'realistic_m2', 'realistic_m3', 'realistic_m4']
-for name in tasks:
-    cut_head(join(root, name + '.txt'), cut_dict[name])
-    check_seed(join(root, name + '.txt'), req_dict[name])
+# for name in tasks:
+name = 'realistic_m4'
+cut_head(join(root, name + '.txt'), cut_dict[name])
+check_seed(join(root, name + '.txt'), req_dict[name])
