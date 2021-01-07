@@ -1,11 +1,10 @@
 [
     {
-        "name": "classic_bincst_exact_5",
-        "dataset": "classic",
+        "name": "rp_triurgency_exact",
+        "dataset": "rp",
         "modelling": [
             {
-                "name": "bincst",
-                "bound": 0.5
+                "name": "triurgency"
             }
         ],
         "method":[
@@ -13,10 +12,10 @@
                 "name": "epsilon"
             },
             {
-                "name": "imprec"
+                "name": "cwmoip"
             },
             {
-                "name": "cwmoip"
+                "name": "imprec"
             }
         ]
     }

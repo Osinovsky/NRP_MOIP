@@ -3,7 +3,7 @@
 from src import Controller
 from src import Analyzer, Result
 
-Controller.run('realistic_binary_.json')
+Controller.run('binary/rp.json')
 
 # Result.quick_prob('triurgency_exact')
 

@@ -1,6 +1,6 @@
 [
     {
-        "name": "rp_bincst",
+        "name": "rp_bincst_exact",
         "dataset": "rp",
         "modelling": [
             {
@@ -13,15 +13,15 @@
                 "name": "epsilon"
             },
             {
-                "name": "imprec"
+                "name": "cwmoip"
             },
             {
-                "name": "cwmoip"
+                "name": "imprec"
             }
         ]
     },
     {
-        "name": "rp_bincst",
+        "name": "rp_bincst_exact",
         "dataset": "rp",
         "modelling": [
             {
@@ -34,15 +34,15 @@
                 "name": "epsilon"
             },
             {
-                "name": "imprec"
+                "name": "cwmoip"
             },
             {
-                "name": "cwmoip"
+                "name": "imprec"
             }
         ]
     },
     {
-        "name": "rp_bincst",
+        "name": "rp_bincst_exact",
         "dataset": "rp",
         "modelling": [
             {
@@ -55,10 +55,10 @@
                 "name": "epsilon"
             },
             {
-                "name": "imprec"
+                "name": "cwmoip"
             },
             {
-                "name": "cwmoip"
+                "name": "imprec"
             }
         ]
     }

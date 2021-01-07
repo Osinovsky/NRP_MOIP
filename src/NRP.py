@@ -1,7 +1,7 @@
 #
 # DONG Shi, dongshi@mail.ustc.edu.cn
 # NRP.py, created: 2020.10.31
-# last modified: 2020.12.29
+# last modified: 2021.01.02
 #
 
 import os
@@ -307,6 +307,11 @@ class NextReleaseProblem:
             self.nrp.risk[req] += \
                 self.nrp.weight[sh] * ((val - self.nrp.profit[req]) ** 2)
         self.nrp.risk = [e / len(self.nrp.weight) for e in self.nrp.risk]
+        # convert each value into integer
+        self.nrp.profit = [round(x) for x in self.nrp.profit]
+        self.nrp.cost = [round(x) for x in self.nrp.cost]
+        self.nrp.risk = [round(x) for x in self.nrp.risk]
+        self.nrp.urgency = [round(x) for x in self.nrp.urgency]
         # elimate couplings
         self.eliminate_couplings()
 

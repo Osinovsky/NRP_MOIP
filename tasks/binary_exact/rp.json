@@ -1,7 +1,7 @@
 [
     {
-        "name": "xuan_binary_cwmoip",
-        "dataset": "classic",
+        "name": "rp_binary_exact",
+        "dataset": "rp",
         "modelling": [
             {
                 "name": "binary"
@@ -9,10 +9,13 @@
         ],
         "method":[
             {
+                "name": "epsilon"
+            },
+            {
                 "name": "cwmoip"
             },
             {
-                "name": "epsilon"
+                "name": "imprec"
             }
         ]
     }
