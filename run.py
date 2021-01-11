@@ -3,7 +3,7 @@
 from src import Controller
 from src import Analyzer, Result
 
-Controller.run('binary/rp.json')
+Controller.run('binary_moea/classic_nsga.json')
 
 # Result.quick_prob('triurgency_exact')
 

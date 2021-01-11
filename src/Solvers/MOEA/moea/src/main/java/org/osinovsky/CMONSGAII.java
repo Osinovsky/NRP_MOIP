@@ -38,6 +38,7 @@ public class CMONSGAII {
         int populationSize = (int)config.get("population");
         int maxEvaluations = (int)config.get("max_evaluations");
         int patient = (int)config.get("patient");
+        int tournamentSize = (int)config.get("tournament");
         double crossoverProbability = (double)config.get("crossover");
         double mutationProbability = (double)config.get("mutation");
         ArrayList<ArrayList<Boolean>> seeds = new ArrayList<ArrayList<Boolean>>();
@@ -63,6 +64,7 @@ public class CMONSGAII {
         System.out.println("population: " + Integer.toString(populationSize));
         System.out.println("max_evaluations: " + Integer.toString(maxEvaluations));
         System.out.println("patient: " + Integer.toString(patient));
+        System.out.println("tournament: " + Integer.toString(tournamentSize));
         System.out.println("crossover: " + Double.toString(crossoverProbability));
         System.out.println("mutation: " + Double.toString(mutationProbability));
 
@@ -83,6 +85,7 @@ public class CMONSGAII {
             Algorithm<List<BinarySolution>> algorithm = new IPNSGAII(
                 problem, maxEvaluations, patient,
                 populationSize, populationSize, populationSize,
+                tournamentSize,
                 crossover, mutation, seed
             );
 

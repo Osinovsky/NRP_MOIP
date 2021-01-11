@@ -6,7 +6,7 @@ import org.uma.jmetal.operator.mutation.MutationOperator;
 import org.uma.jmetal.problem.Problem;
 import org.uma.jmetal.solution.binarysolution.BinarySolution;
 import org.uma.jmetal.util.binarySet.BinarySet;
-import org.uma.jmetal.operator.selection.impl.BinaryTournamentSelection;
+import org.uma.jmetal.operator.selection.impl.NaryTournamentSelection;
 import org.uma.jmetal.util.comparator.RankingAndCrowdingDistanceComparator;
 import java.util.ArrayList;
 import java.util.List;
@@ -29,12 +29,13 @@ public class IPIBEA extends IBEA<BinarySolution>{
     public IPIBEA(
         Problem<BinarySolution> problem, int patient,
         int populationSize, int archiveSize, int maxEvaluations,
+        int tournamentSize,
         CrossoverOperator<BinarySolution> crossoverOperator,
         MutationOperator<BinarySolution> mutationOperator,
         ArrayList<Boolean> seed
     ) {
         super(problem, populationSize, archiveSize, maxEvaluations,
-            new BinaryTournamentSelection<BinarySolution>(new RankingAndCrowdingDistanceComparator<BinarySolution>()),
+            new NaryTournamentSelection<>(tournamentSize, new RankingAndCrowdingDistanceComparator<BinarySolution>()),
             crossoverOperator, mutationOperator);
         this.maxEva = maxEvaluations;
         this.patient = patient;
@@ -109,14 +110,18 @@ public class IPIBEA extends IBEA<BinarySolution>{
     }
     
     protected boolean isStoppingConditionReached(List<BinarySolution> population, int evaluations) {
-        if (this.updateLast(population)) {
-            if (this.sameOld >= this.patient) {
-                System.out.println("lose patient at: " + Integer.toString(evaluations));
+        if (this.patient == 0){
+            return evaluations >= this.maxEva;
+        } else {
+            if (this.updateLast(population)) {
+                if (this.sameOld >= this.patient) {
+                    System.out.println("lose patient at: " + Integer.toString(evaluations));
+                }
+                return (evaluations >= this.maxEva
+                ||  this.sameOld >= this.patient);
+            }else{
+                return false;
             }
-            return (evaluations >= this.maxEva
-            ||  this.sameOld >= this.patient);
-        }else{
-            return false;
         }
     }
 

@@ -8,7 +8,7 @@ import org.uma.jmetal.problem.Problem;
 import org.uma.jmetal.solution.binarysolution.BinarySolution;
 import org.uma.jmetal.util.binarySet.BinarySet;
 import org.uma.jmetal.util.comparator.DominanceComparator;
-import org.uma.jmetal.operator.selection.impl.BinaryTournamentSelection;
+import org.uma.jmetal.operator.selection.impl.NaryTournamentSelection;
 import org.uma.jmetal.util.comparator.RankingAndCrowdingDistanceComparator;
 import org.uma.jmetal.util.evaluator.impl.SequentialSolutionListEvaluator;
 
@@ -34,6 +34,7 @@ public class IPNSGAII extends NSGAII<BinarySolution>{
     public IPNSGAII(
         Problem<BinarySolution> problem, int maxEvaluations, int patient,
         int populationSize, int matingPoolSize, int offspringPopulationSize,
+        int tournamentSize,
         CrossoverOperator<BinarySolution> crossoverOperator,
         MutationOperator<BinarySolution> mutationOperator,
         ArrayList<Boolean> seed
@@ -44,7 +45,8 @@ public class IPNSGAII extends NSGAII<BinarySolution>{
         
         super(problem, maxEvaluations, populationSize, matingPoolSize, offspringPopulationSize,
         crossoverOperator, mutationOperator,
-        new BinaryTournamentSelection<BinarySolution>(new RankingAndCrowdingDistanceComparator<BinarySolution>()),
+        new NaryTournamentSelection<>(tournamentSize, new RankingAndCrowdingDistanceComparator<BinarySolution>()),
+        // new BinaryTournamentSelection<BinarySolution>(new RankingAndCrowdingDistanceComparator<BinarySolution>()),
         new DominanceComparator<BinarySolution>(),
         new SequentialSolutionListEvaluator<BinarySolution>());
 
@@ -125,14 +127,18 @@ public class IPNSGAII extends NSGAII<BinarySolution>{
     }
 
     @Override protected boolean isStoppingConditionReached() {
-        if (this.updateLast(this.getPopulation())) {
-            if (this.sameOld >= this.patient) {
-                System.out.println("lose patient at: " + Integer.toString(this.evaluations));
+        if (this.patient == 0){
+            return this.evaluations >= this.maxEva;
+        } else {
+            if (this.updateLast(this.getPopulation())) {
+                if (this.sameOld >= this.patient) {
+                    System.out.println("lose patient at: " + Integer.toString(this.evaluations));
+                }
+                return (this.evaluations >= this.maxEva
+                ||  this.sameOld >= this.patient);
+            }else{
+                return false;
             }
-            return (this.evaluations >= this.maxEva
-            ||  this.sameOld >= this.patient);
-        }else{
-            return false;
         }
     }
 }

@@ -1,0 +1,24 @@
+[
+    {
+        "name": "moea_test",
+        "dataset": "classic_1",
+        "modelling": [
+            {
+                "name": "binary"
+            }
+        ],
+        "method":[
+            {
+                "name": "NSGAII",
+                "xuan_binary": true,
+                "iteration": 10,
+                "population": 200,
+                "max_evaluations": 50000,
+                "patient": 0,
+                "tournament": 5,
+                "mutation": 0.0416,
+                "crossover": 0.8
+            }
+        ]
+    }
+]

@@ -1,0 +1,112 @@
+[
+    {
+        "name": "classic_binary_ibea",
+        "dataset": "classic_1",
+        "modelling": [
+            {
+                "name": "binary"
+            }
+        ],
+        "method":[
+            {
+                "name": "IBEA",
+                "xuan_binary": true,
+                "iteration": 30,
+                "population": 500,
+                "max_evaluations": 100000,
+                "patient": 0,
+                "tournament": 5,
+                "mutation": 0.00714,
+                "crossover": 0.8
+            }
+        ]
+    },
+    {
+        "name": "classic_binary_ibea",
+        "dataset": "classic_2",
+        "modelling": [
+            {
+                "name": "binary"
+            }
+        ],
+        "method":[
+            {
+                "name": "IBEA",
+                "xuan_binary": true,
+                "iteration": 30,
+                "population": 500,
+                "max_evaluations": 100000,
+                "patient": 0,
+                "tournament": 5,
+                "mutation": 0.00161,
+                "crossover": 0.8
+            }
+        ]
+    },
+    {
+        "name": "classic_binary_ibea",
+        "dataset": "classic_3",
+        "modelling": [
+            {
+                "name": "binary"
+            }
+        ],
+        "method":[
+            {
+                "name": "IBEA",
+                "xuan_binary": true,
+                "iteration": 30,
+                "population": 500,
+                "max_evaluations": 100000,
+                "patient": 0,
+                "tournament": 5,
+                "mutation": 0.000667,
+                "crossover": 0.8
+            }
+        ]
+    },
+    {
+        "name": "classic_binary_ibea",
+        "dataset": "classic_4",
+        "modelling": [
+            {
+                "name": "binary"
+            }
+        ],
+        "method":[
+            {
+                "name": "IBEA",
+                "xuan_binary": true,
+                "iteration": 30,
+                "population": 500,
+                "max_evaluations": 100000,
+                "patient": 0,
+                "tournament": 5,
+                "mutation": 0.000308,
+                "crossover": 0.8
+            }
+        ]
+    },
+    {
+        "name": "classic_binary_ibea",
+        "dataset": "classic_5",
+        "modelling": [
+            {
+                "name": "binary"
+            }
+        ],
+        "method":[
+            {
+                "name": "IBEA",
+                "xuan_binary": true,
+                "iteration": 30,
+                "population": 500,
+                "max_evaluations": 100000,
+                "patient": 0,
+                "tournament": 5,
+                "mutation": 0.000667,
+                "crossover": 0.8
+            }
+        ]
+    }
+]
