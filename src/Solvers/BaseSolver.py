@@ -1,7 +1,7 @@
 #
 # DONG Shi, dongshi@mail.ustc.edu.cn
 # BaseSolver.py, created: 2020.11.02
-# last modified: 2020.12.28
+# last modified: 2021.01.12
 #
 
 from math import ceil, floor
@@ -46,6 +46,7 @@ class BaseSolver:
         self.solver.parameters.emphasis.mip.set(0)
         self.solver.parameters.mip.tolerances.absmipgap.set(0.0)
         self.solver.parameters.mip.tolerances.mipgap.set(0.0)
+        self.solver.parameters.workmem.set(config.work_memory)
         # add variables
         vars_num = len(problem.variables)
         types = ['B'] * vars_num
