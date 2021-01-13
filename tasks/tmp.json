@@ -1,23 +1,20 @@
 [
     {
-        "name": "moea_test",
-        "dataset": "classic_1",
+        "name": "bincst_addon",
+        "dataset": "classic_4",
         "modelling": [
             {
-                "name": "binary"
+                "name": "bincst",
+                "bound": 0.3
+            },
+            {
+                "name": "bincst",
+                "bound": 0.5
             }
         ],
         "method":[
             {
-                "name": "NSGAII",
-                "xuan_binary": true,
-                "iteration": 10,
-                "population": 200,
-                "max_evaluations": 50000,
-                "patient": 0,
-                "tournament": 5,
-                "mutation": 0.0416,
-                "crossover": 0.8
+                "name": "cwmoip"
             }
         ]
     }
