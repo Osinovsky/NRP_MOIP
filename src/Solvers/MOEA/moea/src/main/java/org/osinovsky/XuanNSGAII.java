@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class XuanBinaryNSGAII extends AbstractAlgorithmRunner {
+public class XuanNSGAII extends AbstractAlgorithmRunner {
     // entrance for using NSGAII
     public static void main(String[] args) {
         // handle the arugments
@@ -42,6 +42,7 @@ public class XuanBinaryNSGAII extends AbstractAlgorithmRunner {
         int tournamentSize = (int)config.get("tournament");
         double crossoverProbability = (double)config.get("crossover");
         double mutationProbability = (double)config.get("mutation");
+        double bound = (double)config.get("xuan");
         ArrayList<ArrayList<Boolean>> seeds = new ArrayList<ArrayList<Boolean>>();
         boolean useSeed = false;
         if (config.containsKey("seeds")) {
@@ -58,9 +59,11 @@ public class XuanBinaryNSGAII extends AbstractAlgorithmRunner {
                                        (String)config.get("problem_name")+".json").toString();
         XuanProblemLoader problemLoader = new XuanProblemLoader(problemFile);
 
-        XuanBinaryNRP problem = new XuanBinaryNRP(problemLoader.getCost(), problemLoader.getProfit(),
-                                                  problemLoader.getRequests(), problemLoader.getReqDict(),
-                                                  problemLoader.getRvReqDict());
+        XuanNRP problem = new XuanNRP(bound,
+                                      problemLoader.getCost(), problemLoader.getProfit(),
+                                      problemLoader.getUrgency(),
+                                      problemLoader.getRequests(), problemLoader.getReqDict(),
+                                      problemLoader.getRvReqDict());
 
         // print iteration times
         System.out.println("iterations: " + Integer.toString(iterationTimes));

@@ -1,7 +1,7 @@
 #
 # DONG Shi, dongshi@mail.ustc.edu.cn
 # Controller.py, created: 2020.11.02
-# last modified: 2020.11.29
+# last modified: 2021.01.14
 #
 
 import json
@@ -382,9 +382,17 @@ class Controller:
         # dump problem
         problem_file = abspath(join(config.dump_path, project_name + '.json'))
         # xuan_binary dump for itself
-        if config.parse_dataset_keyword(task.problem) == 'xuan' \
-                and task.modelling[0] == 'binary':
-            NextReleaseProblem.dump_xuan(problem_file, nrp_problem.nrp)
+        sub_option: Dict[str, Any] = {}
+        if config.parse_dataset_keyword(task.problem) == 'xuan':
+            # TODO: could be better
+            NextReleaseProblem.dump_xuan(problem_file, task.problem,
+                                         nrp_problem.nrp)
+            if task.modelling[0] == 'bincst':
+                sub_option['xuan'] = task.modelling[1]['bound']
+            elif task.modelling[0] == 'binary':
+                sub_option['xuan'] = -1.0
+            elif task.modelling[0] == 'triurgency':
+                sub_option['xuan'] = -10.0
         else:
             problem = nrp_problem.model(task.modelling[0], task.modelling[1])
             NextReleaseProblem.dump_nrp(problem_file, problem)
@@ -394,6 +402,7 @@ class Controller:
         option['problem_name'] = project_name
         option['dump_path'] = abspath(config.dump_path)
         option['result_path'] = abspath(method_folder)
+        option.update(sub_option)
         # employ a solver
         solver = Solver(task.method[0], option, problem_file)
         solver.prepare()

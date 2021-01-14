@@ -12,6 +12,7 @@ public class XuanProblemLoader {
     // members
     private Map<Integer, Integer> cost = new HashMap<>();
     private Map<Integer, Integer> profit = new HashMap<>();
+    private Map<Integer, Integer> urgency = new HashMap<>();
     private Map<Integer, ArrayList<Integer>> requests = new HashMap<Integer, ArrayList<Integer>>();
     // reqDict map index to requirement id
     private Map<Integer, Integer> reqDict = new HashMap<>(); // index -> req id
@@ -24,6 +25,10 @@ public class XuanProblemLoader {
     // get profit
     public Map<Integer, Integer> getProfit() {
         return this.profit;
+    }
+    // get urgency
+    public Map<Integer, Integer> getUrgency() {
+        return this.urgency;
     }
     // get requests
     public Map<Integer, ArrayList<Integer>> getRequests() {
@@ -108,6 +113,13 @@ public class XuanProblemLoader {
                 yaRequestList.add(req);
             }
             this.requests.put(key, yaRequestList);
+        }
+
+        // urgency
+        Map<String, Integer> urgencyMap = (Map<String, Integer>)value.get("urgency");
+        for (String keyStr : urgencyMap.keySet()) {
+            int key = Integer.parseInt(keyStr);
+            this.urgency.put(key, urgencyMap.get(keyStr));
         }
     }
 }

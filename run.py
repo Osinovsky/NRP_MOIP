@@ -3,7 +3,7 @@
 from src import Controller
 from src import Analyzer, Result
 
-Controller.run('binary_moea/realistic_random.json')
+Controller.run('tmp.json')
 
 # Result.quick_prob('triurgency_exact')
 

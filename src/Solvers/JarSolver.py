@@ -40,8 +40,10 @@ class JarSolver:
             file_out.write(json_object)
             file_out.close()
         # prepare command
-        if 'xuan_binary' in self.option and self.option['xuan_binary']:
-            solver_name = '{}BinarySolver'.format(self.method.upper())
+        if 'xuan' in self.option:
+            solver_name = '{}XuanSolver'.format(self.method.upper())
+        # if 'xuan_binary' in self.option and self.option['xuan_binary']:
+        #     solver_name = '{}BinarySolver'.format(self.method.upper())
         else:
             solver_name = '{}Solver'.format(self.method.upper())
         jar_file = join('src/Solvers/', '{}.jar'.format(solver_name))

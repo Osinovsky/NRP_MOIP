@@ -82,7 +82,7 @@ class Solver:
         self.solver = JarSolver('NSGAII', option)
 
     def employ_IBEA(self,
-                      problem: str,
-                      option: Dict[str, Any] = {}
-                      ) -> None:
+                    problem: str,
+                    option: Dict[str, Any] = {}
+                    ) -> None:
         self.solver = JarSolver('IBEA', option)

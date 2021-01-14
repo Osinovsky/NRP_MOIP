@@ -1,7 +1,7 @@
 #
 # DONG Shi, dongshi@mail.ustc.edu.cn
 # NRP.py, created: 2020.10.31
-# last modified: 2021.01.02
+# last modified: 2021.01.14
 #
 
 import os
@@ -414,7 +414,7 @@ class NextReleaseProblem:
             fout.close()
 
     @staticmethod
-    def dump_xuan(file_name: str, nrp: XuanNRP) -> None:
+    def dump_xuan(file_name: str, project_name: str, nrp: XuanNRP) -> None:
         assert not nrp.dependencies
         # load config
         config = Config()
@@ -424,6 +424,9 @@ class NextReleaseProblem:
         result['cost'] = nrp.cost
         # customers profits
         result['profit'] = nrp.profit
+        # TODO: temp load here
+        result['urgency'] = \
+            NextReleaseProblem.load_xuan_urgency(project_name, nrp.cost)
         # requests
         # result['request'] = nrp.requests
         neo_requests: Dict[str, List[int]] = {}
@@ -813,6 +816,26 @@ class NextReleaseProblem:
         mnrp = self.to_basic_rp_form(option)
         mnrp.objectives = mnrp.objectives[:3]
         return mnrp
+
+    @staticmethod
+    def load_xuan_urgency(project: str,
+                          cost: Dict[int, int]) -> Dict[int, int]:
+        # load urgency value for xuan dataset
+        # TODO: move it into problem loading
+        # load urgency
+        # TODO: maybe config in Config
+        path = './datasets/xuan/urgency/'
+        urgency_file = join(path, project + '.json')
+        max_urgency: Dict[int, int] = {}
+        with open(urgency_file, 'r') as fin:
+            urgency_value = json.load(fin)
+            assert isinstance(urgency_value, list)
+            # make urgency
+            assert len(cost) == len(urgency_value)
+            for index, req in enumerate(cost):
+                max_urgency[req] = urgency_value[index]
+            fin.close()
+        return max_urgency
 
     def to_triurgency_form(self, option: Dict[str, Any]) -> NRPProblem:
         """to_trisk_form [summary] triple objective NRP,
