@@ -1,0 +1,16 @@
+[
+    {
+        "name": "realistic_e2_binary",
+        "dataset": "realistic_e2",
+        "modelling": [
+            {
+                "name": "binary"
+            }
+        ],
+        "method":[
+            {
+                "name": "imprec"
+            }
+        ]
+    }
+]
