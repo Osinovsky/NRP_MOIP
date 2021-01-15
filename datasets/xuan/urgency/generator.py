@@ -22,7 +22,7 @@ requirement_num = {
 }
 
 for project, req_num in requirement_num.items():
-    if project.startswith('classic'):
+    if project.startswith('realistic'):
         urgency = [randint(1, 9) for _ in range(req_num)]
         with open(project + '.json', 'w') as fout:
             dump(urgency, fout)
