@@ -1,0 +1,16 @@
+[
+    {
+        "name": "rp_triurgency_nc",
+        "dataset": "rp",
+        "modelling": [
+            {
+                "name": "triurgency"
+            }
+        ],
+        "method":[
+            {
+                "name": "normal"
+            }
+        ]
+    }
+]

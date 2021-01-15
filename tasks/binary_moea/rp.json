@@ -1,0 +1,64 @@
+[
+    {
+        "name": "binary_rp_moea",
+        "dataset": "MSWord",
+        "modelling": [
+            {
+                "name": "binary"
+            }
+        ],
+        "method":[
+            {
+                "name": "NSGAII",
+                "iteration": 30,
+                "population": 500,
+                "max_evaluations": 50000,
+                "patient": 0,
+                "tournament": 5,
+                "mutation": 0.02,
+                "crossover": 0.8
+            },
+            {
+                "name": "IBEA",
+                "iteration": 30,
+                "population": 500,
+                "max_evaluations": 50000,
+                "patient": 0,
+                "tournament": 5,
+                "mutation": 0.02,
+                "crossover": 0.8
+            }
+        ]
+    },
+    {
+        "name": "binary_rp_moea",
+        "dataset": "ReleasePlanner",
+        "modelling": [
+            {
+                "name": "binary"
+            }
+        ],
+        "method":[
+            {
+                "name": "NSGAII",
+                "iteration": 30,
+                "population": 500,
+                "max_evaluations": 50000,
+                "patient": 0,
+                "tournament": 5,
+                "mutation": 0.04,
+                "crossover": 0.8
+            },
+            {
+                "name": "IBEA",
+                "iteration": 30,
+                "population": 500,
+                "max_evaluations": 50000,
+                "patient": 0,
+                "tournament": 5,
+                "mutation": 0.04,
+                "crossover": 0.8
+            }
+        ]
+    }
+]

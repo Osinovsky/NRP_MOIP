@@ -1,0 +1,16 @@
+[
+    {
+        "name": "classic_triurgency_nc",
+        "dataset": "classic",
+        "modelling": [
+            {
+                "name": "triurgency"
+            }
+        ],
+        "method":[
+            {
+                "name": "normal"
+            }
+        ]
+    }
+]
