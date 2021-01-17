@@ -1,15 +1,16 @@
 [
     {
-        "name": "realistic_e2_binary",
-        "dataset": "realistic_e2",
+        "name": "c4_bincst_5",
+        "dataset": "classic_4",
         "modelling": [
             {
-                "name": "binary"
+                "name": "bincst",
+                "bound": 0.5
             }
         ],
         "method":[
             {
-                "name": "imprec"
+                "name": "cwmoip"
             }
         ]
     }
