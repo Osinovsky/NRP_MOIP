@@ -71,7 +71,7 @@ class Config:
         self.seeds_path = './datasets/seeds/'
 
         # sampling size for normal constraint
-        self.sampling_size = 200
+        self.sampling_size = 1000
 
     def make_classic_index(self) -> None:
         """make_classic_index [summary] make classic datasets
