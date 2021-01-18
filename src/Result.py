@@ -77,9 +77,6 @@ class Result:
                 print(project, method)
                 self.build_method_front(project, method)
             self.build_project_front(project)
-            for method in self.methods[project]:
-                print(project, method)
-                self.update_method_front(project, method)
         # end for
 
     def update_method_front(self, project: str, method: str) -> None:
@@ -148,12 +145,16 @@ class Result:
             key = (project, method)
             assert key in self.method_fronts
             for solution in self.method_fronts[key].solution_list:
-                nd = archive.add(solution)
-                if nd:
-                    if key not in self.non_dominated_count:
-                        self.non_dominated_count[key] = 1
-                    else:
+                archive.add(solution)
+        for method in self.methods[project]:
+            key = (project, method)
+            self.non_dominated_count[key] = 0
+            for solution in self.method_fronts[key].solution_list:
+                s_obj = solution.objectives
+                for pareto_solution in archive.solution_list:
+                    if s_obj == pareto_solution.objectives:
                         self.non_dominated_count[key] += 1
+                        break
         self.project_fronts[project] = archive
         # write into .front and .front.count
         self.dump_archive(self.pf(project), archive)

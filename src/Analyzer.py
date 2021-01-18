@@ -139,6 +139,7 @@ class Analyzer:
                     methods.append(method.split('-')[0])
         # prepare the header
         header = ['datasets'] \
+            + [m + '-found' for m in methods] \
             + [m + '-front' for m in methods] \
             + [m + '-time' for m in methods]
         for indicator in indicators:
@@ -165,6 +166,7 @@ class Analyzer:
                 # method, solutions on front, time, score1, ..
                 method_front = self.result.method_fronts[key].solution_list
                 method_line = [str(len(method_front))] \
+                    + [str(self.result.non_dominated_count[key])] \
                     + [str(round(self.result.info[key]['time'], 2))] \
                     + [str(round(scores[ind], 6)) for ind in indicators]
                 method_lines.append(method_line)
