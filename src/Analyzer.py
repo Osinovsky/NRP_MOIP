@@ -1,7 +1,7 @@
 #
 # DONG Shi, dongshi@mail.ustc.edu.cn
 # Analyzer.py, created: 2020.11.10
-# last modified: 2020.12.16
+# last modified: 2021.01.18
 #
 
 from typing import Any, Dict, List, Tuple
@@ -117,6 +117,63 @@ class Analyzer:
                     + [str(len(method_front))] \
                     + [str(round(scores[ind], 6)) for ind in indicators]
                 sheet.append(method_line)
+        # end for
+        return sheet
+
+    def make_better_sheet(self, methods: List[str] = [],
+                          indicators: List[str] = []) -> List[List[str]]:
+        """make_better_sheet [summary] make better sheet for each method
+
+        Args:
+            indicators (List[str]): [description]
+
+        Returns:
+            List[List[str]]: [description] sheet
+        """
+        config = Config()
+        if not indicators:
+            indicators = config.indicators
+        if not methods:
+            for project in self.result.projects:
+                for method in self.result.methods[project]:
+                    methods.append(method.split('-')[0])
+        # prepare the header
+        header = ['datasets'] \
+            + [m + '-front' for m in methods] \
+            + [m + '-time' for m in methods]
+        for indicator in indicators:
+            for method in methods:
+                header.append(method + '-' + indicator)
+        # prepare the sheet
+        sheet: List[List[str]] = [header]
+        for project in self.result.projects:
+            # prepare the method order according to input
+            real_methods = [''] * len(methods)
+            for method in self.result.methods[project]:
+                for index, short_name in enumerate(methods):
+                    if method.startswith(short_name):
+                        real_methods[index] = method
+            # collect each method line
+            method_lines = []
+            for method in real_methods:
+                key = (project, method)
+                # calculate indicator scores
+                scores = \
+                    Indicator.compute(indicators,
+                                      self.result.method_fronts[key],
+                                      self.result.project_fronts[project])
+                # method, solutions on front, time, score1, ..
+                method_front = self.result.method_fronts[key].solution_list
+                method_line = [str(len(method_front))] \
+                    + [str(round(self.result.info[key]['time'], 2))] \
+                    + [str(round(scores[ind], 6)) for ind in indicators]
+                method_lines.append(method_line)
+            # prepare project line
+            line = [project.split('-')[0]]
+            for index in range(len(method_lines[0])):
+                for method_line in method_lines:
+                    line.append(method_line[index])
+            sheet.append(line)
         # end for
         return sheet
 

@@ -8,8 +8,9 @@ Controller.run('.json')
 
 gc.collect()
 
-sheet = Analyzer('').make_sheet()
-Analyzer.tabulate('.csv', sheet)
+folder = ''
+sheet = Analyzer(folder).make_better_sheet(methods=[], indicators=['igd', 'hv', 'evenness'])
+Analyzer.tabulate(folder + '.csv', sheet)
 
 # Result.quick_prob('triurgency_exact')
 
