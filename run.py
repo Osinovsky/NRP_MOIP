@@ -5,6 +5,9 @@ from src import Controller
 from src import Analyzer, Result
 
 Controller.run('.json')
+
+gc.collect()
+
 sheet = Analyzer('').make_sheet()
 Analyzer.tabulate('.csv', sheet)
 
