@@ -93,7 +93,21 @@ public class XuanIBEA extends AbstractAlgorithmRunner {
             long endTime = System.nanoTime();
 
             // get the result
-            List<BinarySolution> population = algorithm.getResult();
+            List<BinarySolution> tmp_population = algorithm.getResult();
+            List<BinarySolution> population = new ArrayList<BinarySolution>();
+            for (BinarySolution solution : tmp_population) {
+                problem.evaluate(solution);
+                boolean feasible = true;
+                for (double cst : solution.getConstraints()) {
+                    if (cst < -1e-6) {
+                        feasible = false;
+                        break;
+                    }
+                }
+                if (feasible) {
+                    population.add(solution);
+                }
+            }
             // long computingTime = algorithmRunner.getComputingTime();
             long computingTime = (long)((endTime - startTime)/1000_000);
             // print infomation

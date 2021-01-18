@@ -1,7 +1,7 @@
 #
 # DONG Shi, dongshi@mail.ustc.edu.cn
 # Result.py, created: 2020.11.10
-# last modified: 2020.12.28
+# last modified: 2021.01.17
 #
 
 from typing import Dict, Any, List, Tuple
@@ -40,7 +40,7 @@ class Result:
 
         # project names
         self.projects: List[str] = \
-            list(filter(lambda x: '.' not in x, listdir(self.root)))
+            list(filter(lambda x: not x.startswith('.'), listdir(self.root)))
         assert len(self.projects) >= 1
         # method names and iteration num
         self.methods: Dict[str, List[str]] = {}
@@ -77,7 +77,26 @@ class Result:
                 print(project, method)
                 self.build_method_front(project, method)
             self.build_project_front(project)
+            for method in self.methods[project]:
+                print(project, method)
+                self.update_method_front(project, method)
         # end for
+
+    def update_method_front(self, project: str, method: str) -> None:
+        assert self.project_fronts[project]
+        solutions: List[BinarySolution] = \
+            self.method_fronts[(project, method)].solution_list
+        new_method_front = NonDominatedSolutionsArchive()
+        for solution in solutions:
+            for pareto_solution in self.project_fronts[project].solution_list:
+                if solution.objectives == pareto_solution.objectives:
+                    new_method_front.add(solution)
+                    break
+        # update method front
+        self.method_fronts[(project, method)] = new_method_front
+        # write into .front file
+        self.dump_archive(join(self.root, project, method, '.front'),
+                          self.method_fronts[(project, method)])
 
     def build_method_front(self, project: str, method: str) -> None:
         """build_method_front [summary] build pareto front for

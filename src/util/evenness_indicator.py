@@ -18,6 +18,8 @@ class EvennessIndicator(QualityIndicator):
 
     def compute(self, solutions) -> float:
         size = len(solutions)
+        if size <= 1:
+            return -1.0
         neighbourPair : Dict[int, int] = {}
         neighbourDist : Dict[int, float] = {}
         

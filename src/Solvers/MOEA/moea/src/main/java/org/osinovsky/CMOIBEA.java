@@ -87,18 +87,20 @@ public class CMOIBEA {
             long endTime = System.nanoTime();
 
             // get the result
-            List<BinarySolution> population = algorithm.getResult();
-            List<BinarySolution> pureSolutions = new ArrayList<BinarySolution>();
-            for (BinarySolution solution : population) {
-                boolean flag = true;
+            // get the result
+            List<BinarySolution> tmp_population = algorithm.getResult();
+            List<BinarySolution> population = new ArrayList<BinarySolution>();
+            for (BinarySolution solution : tmp_population) {
+                problem.evaluate(solution);
+                boolean feasible = true;
                 for (double cst : solution.getConstraints()) {
-                    if (cst < 0.0) {
-                        flag = false;
+                    if (cst < -1e-6) {
+                        feasible = false;
                         break;
                     }
                 }
-                if (flag) {
-                    pureSolutions.add(solution);
+                if (feasible) {
+                    population.add(solution);
                 }
             }
             // long computingTime = algorithmRunner.getComputingTime();
@@ -106,10 +108,10 @@ public class CMOIBEA {
             // print infomation
             System.out.println("round: " + Integer.toString(itr));
             System.out.println("execution time: " + computingTime + "ms");
-            System.out.println("solutions found: " + pureSolutions.size());
+            System.out.println("solutions found: " + population.size());
 
             // dump result
-            new Dumper(resultPath, itr, pureSolutions, computingTime);
+            new Dumper(resultPath, itr, population, computingTime);
         }
     }
 }

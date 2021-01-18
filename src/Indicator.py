@@ -1,7 +1,7 @@
 #
 # DONG Shi, dongshi@mail.ustc.edu.cn
 # Indicator.py, created: 2020.11.10
-# last modified: 2020.12.15
+# last modified: 2021.01.17
 #
 
 from typing import Dict, List, Any
@@ -83,8 +83,8 @@ class Indicator:
                    true_front: NonDominatedSolutionsArchive) -> float:
         reference_point = \
             Indicator.find_reference_point(true_front.solution_list)
-        mod = numpy.prod(reference_point)
-        return HyperVolume(reference_point).compute(solutions) / mod
+        # mod = numpy.prod(reference_point)
+        return HyperVolume(reference_point).compute(solutions)
 
     def compute_evenness(solutions: numpy.array,
                          true_front: NonDominatedSolutionsArchive) -> float:
