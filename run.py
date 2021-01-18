@@ -1,9 +1,12 @@
 # HERE IS ON HOW TO LOAD TASKS AND RUN THEM
 
+import gc
 from src import Controller
 from src import Analyzer, Result
 
-Controller.run('tmp.json')
+Controller.run('.json')
+sheet = Analyzer('').make_sheet()
+Analyzer.tabulate('.csv', sheet)
 
 # Result.quick_prob('triurgency_exact')
 

@@ -1,6 +1,6 @@
 [
     {
-        "name": "classic_binary_moea",
+        "name": "classic_bincst_3",
         "dataset": "classic_1",
         "modelling": [
             {
@@ -32,7 +32,7 @@
         ]
     },
     {
-        "name": "classic_binary_moea",
+        "name": "classic_bincst_3",
         "dataset": "classic_2",
         "modelling": [
             {
@@ -64,7 +64,7 @@
         ]
     },
     {
-        "name": "classic_binary_moea",
+        "name": "classic_bincst_3",
         "dataset": "classic_3",
         "modelling": [
             {
@@ -96,7 +96,7 @@
         ]
     },
     {
-        "name": "classic_binary_moea",
+        "name": "classic_bincst_3",
         "dataset": "classic_4",
         "modelling": [
             {
@@ -128,7 +128,7 @@
         ]
     },
     {
-        "name": "classic_binary_moea",
+        "name": "classic_bincst_3",
         "dataset": "classic_5",
         "modelling": [
             {

@@ -1,6 +1,6 @@
 [
     {
-        "name": "bincst_rp_moea",
+        "name": "rp_bincst",
         "dataset": "MSWord",
         "modelling": [
             {
@@ -32,7 +32,7 @@
         ]
     },
     {
-        "name": "bincst_rp_moea",
+        "name": "rp_bincst",
         "dataset": "MSWord",
         "modelling": [
             {
@@ -64,7 +64,7 @@
         ]
     },
     {
-        "name": "bincst_rp_moea",
+        "name": "rp_bincst",
         "dataset": "MSWord",
         "modelling": [
             {
@@ -96,7 +96,7 @@
         ]
     },
     {
-        "name": "bincst_rp_moea",
+        "name": "rp_bincst",
         "dataset": "ReleasePlanner",
         "modelling": [
             {
@@ -128,7 +128,7 @@
         ]
     },
     {
-        "name": "bincst_rp_moea",
+        "name": "rp_bincst",
         "dataset": "ReleasePlanner",
         "modelling": [
             {
@@ -160,7 +160,7 @@
         ]
     },
     {
-        "name": "bincst_rp_moea",
+        "name": "rp_bincst",
         "dataset": "ReleasePlanner",
         "modelling": [
             {

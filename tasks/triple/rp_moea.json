@@ -1,6 +1,6 @@
 [
     {
-        "name": "triurgency_rp_moea",
+        "name": "rp_triple_moea",
         "dataset": "MSWord",
         "modelling": [
             {
@@ -31,7 +31,7 @@
         ]
     },
     {
-        "name": "triurgency_rp_moea",
+        "name": "rp_triple_moea",
         "dataset": "ReleasePlanner",
         "modelling": [
             {

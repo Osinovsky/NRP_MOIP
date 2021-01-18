@@ -1,6 +1,6 @@
 [
     {
-        "name": "binary_rp_moea",
+        "name": "rp_binary_moea",
         "dataset": "MSWord",
         "modelling": [
             {
@@ -31,7 +31,7 @@
         ]
     },
     {
-        "name": "binary_rp_moea",
+        "name": "rp_binary_moea",
         "dataset": "ReleasePlanner",
         "modelling": [
             {
