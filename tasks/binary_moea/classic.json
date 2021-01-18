@@ -118,7 +118,7 @@
                 "max_evaluations": 100000,
                 "patient": 0,
                 "tournament": 5,
-                "mutation": 0.000667,
+                "mutation": 0.000308,
                 "crossover": 0.8
             }
         ]
