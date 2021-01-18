@@ -169,7 +169,7 @@ class Analyzer:
                     + [str(round(scores[ind], 6)) for ind in indicators]
                 method_lines.append(method_line)
             # prepare project line
-            line = [project.split('-')[0]]
+            line = [project]
             for index in range(len(method_lines[0])):
                 for method_line in method_lines:
                     line.append(method_line[index])
