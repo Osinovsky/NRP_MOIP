@@ -4,13 +4,16 @@ import gc
 from src import Controller
 from src import Analyzer, Result
 
-Controller.run('tmp.json')
+# Controller.run('c_binary.json')
+# Controller.run('c_bincst.json')
+# Controller.run('e_binary.json')
+# Controller.run('e_binary.json')
 
-# gc.collect()
+gc.collect()
 
-# folder = ''
-# sheet = Analyzer(folder).make_better_sheet(methods=[], indicators=['igd', 'hv', 'evenness'])
-# Analyzer.tabulate(folder + '.csv', sheet)
+folder = 'tmp'
+sheet = Analyzer(folder).make_better_sheet(methods=['epsilon', 'NSGAII'], indicators=['igd', 'hv', 'evenness'])
+Analyzer.tabulate(folder + '.csv', sheet)
 
 # Result.quick_prob('triurgency_exact')
 
