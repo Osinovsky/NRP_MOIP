@@ -6,6 +6,7 @@
 
 from typing import Dict, Any, List, Tuple
 import json
+from copy import deepcopy
 from os.path import join, isfile
 from os import listdir
 from jmetal.core.solution import BinarySolution
@@ -92,7 +93,7 @@ class Result:
             key = (project, method)
             for solution in self.method_fronts[key].solution_list:
                 if not point:
-                    point = solution.objectives
+                    point = deepcopy(solution.objectives)
                 else:
                     for dim in range(len(point)):
                         obj = solution.objectives[dim]
@@ -157,20 +158,22 @@ class Result:
             assert key in self.method_fronts
             for solution in self.method_fronts[key].solution_list:
                 archive.add(solution)
+        this_count: Dict[Tuple[str, str], int] = {}
         for method in self.methods[project]:
             key = (project, method)
-            self.non_dominated_count[key] = 0
+            this_count[key] = 0
             for solution in self.method_fronts[key].solution_list:
                 s_obj = solution.objectives
                 for pareto_solution in archive.solution_list:
                     if s_obj == pareto_solution.objectives:
-                        self.non_dominated_count[key] += 1
+                        this_count[key] += 1
                         break
         self.project_fronts[project] = archive
+        self.non_dominated_count.update(this_count)
         # write into .front and .front.count
         self.dump_archive(self.pf(project), archive)
         tmp_dict = {k[0] + '|' + k[1]: v for k, v
-                    in self.non_dominated_count.items()}
+                    in this_count.items()}
         with open(self.pf(project) + '.count', 'w') as fout:
             json.dump(tmp_dict, fout)
             fout.close()
