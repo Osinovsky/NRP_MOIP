@@ -137,6 +137,7 @@ class Analyzer:
             for project in self.result.projects:
                 for method in self.result.methods[project]:
                     methods.append(method.split('-')[0])
+                break
         # prepare the header
         header = ['datasets'] \
             + [m + '-found' for m in methods] \

@@ -1,7 +1,7 @@
 #
 # DONG Shi, dongshi@mail.ustc.edu.cn
 # Indicator.py, created: 2020.11.10
-# last modified: 2021.01.17
+# last modified: 2021.01.19
 #
 
 from typing import Dict, List, Any
@@ -10,6 +10,7 @@ from jmetal.core.solution import BinarySolution
 from jmetal.util.archive import NonDominatedSolutionsArchive
 from jmetal.core.quality_indicator import InvertedGenerationalDistance, \
                                           HyperVolume
+from pygmo import hypervolume
 from src.util.evenness_indicator import EvennessIndicator
 from src.util.ComprehensivenessIndicator import MeanIndicator, MedianIndicator
 
@@ -85,6 +86,12 @@ class Indicator:
             Indicator.find_reference_point(true_front.solution_list)
         # mod = numpy.prod(reference_point)
         return HyperVolume(reference_point).compute(solutions)
+
+    def compute_pghv(solutions: numpy.array,
+                     true_front: NonDominatedSolutionsArchive) -> float:
+        reference_point = \
+            Indicator.find_reference_point(true_front.solution_list)
+        return hypervolume(solutions).compute(reference_point)
 
     def compute_evenness(solutions: numpy.array,
                          true_front: NonDominatedSolutionsArchive) -> float:

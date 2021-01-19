@@ -1,7 +1,7 @@
 #
 # DONG Shi, dongshi@mail.ustc.edu.cn
 # Config.py, created: 2020.10.31
-# last modified: 2021.01.12
+# last modified: 2021.01.19
 #
 
 from typing import Dict, List
@@ -49,7 +49,7 @@ class Config:
         self.dump_method = \
             ['NSGAII', 'IBEA']
         # indicators
-        self.indicators = ['igd', 'hv', 'evenness', 'mean', 'median']
+        self.indicators = ['igd', 'hv', 'evenness', 'mean', 'median', 'pghv']
 
         # result root path
         self.result_root_path = './results/'
