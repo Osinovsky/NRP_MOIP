@@ -4,7 +4,7 @@ import gc
 from src import Controller
 from src import Analyzer, Result
 
-Controller.run('moea/.json')
+Controller.run('tmp.json')
 
 # gc.collect()
 
