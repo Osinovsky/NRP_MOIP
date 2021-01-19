@@ -1,0 +1,456 @@
+[
+    {
+        "name": "bincst_random",
+        "dataset": "classic_1",
+        "modelling": [
+            {
+                "name": "bincst",
+                "bound": 0.3
+            }
+        ],
+        "method":[
+            {
+                "name": "NSGAII",
+                "iteration": 30,
+                "population": 500,
+                "max_evaluations": 100000,
+                "patient": 0,
+                "tournament": 5,
+                "mutation": 0.00714,
+                "crossover": 0.8
+            }
+        ]
+    },{
+        "name": "bincst_random",
+        "dataset": "classic_1",
+        "modelling": [
+            {
+                "name": "bincst",
+                "bound": 0.5
+            }
+        ],
+        "method":[
+            {
+                "name": "NSGAII",
+                "iteration": 30,
+                "population": 500,
+                "max_evaluations": 100000,
+                "patient": 0,
+                "tournament": 5,
+                "mutation": 0.00714,
+                "crossover": 0.8
+            }
+        ]
+    },{
+        "name": "bincst_random",
+        "dataset": "classic_1",
+        "modelling": [
+            {
+                "name": "bincst",
+                "bound": 0.7
+            }
+        ],
+        "method":[
+            {
+                "name": "NSGAII",
+                "iteration": 30,
+                "population": 500,
+                "max_evaluations": 100000,
+                "patient": 0,
+                "tournament": 5,
+                "mutation": 0.00714,
+                "crossover": 0.8
+            }
+        ]
+    },
+    {
+        "name": "bincst_random",
+        "dataset": "classic_2",
+        "modelling": [
+            {
+                "name": "bincst",
+                "bound": 0.3
+            }
+        ],
+        "method":[
+            {
+                "name": "NSGAII",
+                "iteration": 30,
+                "population": 500,
+                "max_evaluations": 100000,
+                "patient": 0,
+                "tournament": 5,
+                "mutation": 0.00161,
+                "crossover": 0.8
+            }
+        ]
+    },    {
+        "name": "bincst_random",
+        "dataset": "classic_2",
+        "modelling": [
+            {
+                "name": "bincst",
+                "bound": 0.5
+            }
+        ],
+        "method":[
+            {
+                "name": "NSGAII",
+                "iteration": 30,
+                "population": 500,
+                "max_evaluations": 100000,
+                "patient": 0,
+                "tournament": 5,
+                "mutation": 0.00161,
+                "crossover": 0.8
+            }
+        ]
+    },    {
+        "name": "bincst_random",
+        "dataset": "classic_2",
+        "modelling": [
+            {
+                "name": "bincst",
+                "bound": 0.7
+            }
+        ],
+        "method":[
+            {
+                "name": "NSGAII",
+                "iteration": 30,
+                "population": 500,
+                "max_evaluations": 100000,
+                "patient": 0,
+                "tournament": 5,
+                "mutation": 0.00161,
+                "crossover": 0.8
+            }
+        ]
+    },
+    {
+        "name": "bincst_random",
+        "dataset": "classic_3",
+        "modelling": [
+            {
+                "name": "bincst",
+                "bound": 0.3
+            }
+        ],
+        "method":[
+            {
+                "name": "NSGAII",
+                "iteration": 30,
+                "population": 500,
+                "max_evaluations": 100000,
+                "patient": 0,
+                "tournament": 5,
+                "mutation": 0.000667,
+                "crossover": 0.8
+            }
+        ]
+    },    {
+        "name": "bincst_random",
+        "dataset": "classic_3",
+        "modelling": [
+            {
+                "name": "bincst",
+                "bound": 0.5
+            }
+        ],
+        "method":[
+            {
+                "name": "NSGAII",
+                "iteration": 30,
+                "population": 500,
+                "max_evaluations": 100000,
+                "patient": 0,
+                "tournament": 5,
+                "mutation": 0.000667,
+                "crossover": 0.8
+            }
+        ]
+    },    {
+        "name": "bincst_random",
+        "dataset": "classic_3",
+        "modelling": [
+            {
+                "name": "bincst",
+                "bound": 0.7
+            }
+        ],
+        "method":[
+            {
+                "name": "NSGAII",
+                "iteration": 30,
+                "population": 500,
+                "max_evaluations": 100000,
+                "patient": 0,
+                "tournament": 5,
+                "mutation": 0.000667,
+                "crossover": 0.8
+            }
+        ]
+    },
+    {
+        "name": "bincst_random",
+        "dataset": "classic_4",
+        "modelling": [
+            {
+                "name": "bincst",
+                "bound": 0.3
+            }
+        ],
+        "method":[
+            {
+                "name": "NSGAII",
+                "iteration": 30,
+                "population": 500,
+                "max_evaluations": 100000,
+                "patient": 0,
+                "tournament": 5,
+                "mutation": 0.000308,
+                "crossover": 0.8
+            }
+        ]
+    },    {
+        "name": "bincst_random",
+        "dataset": "classic_4",
+        "modelling": [
+            {
+                "name": "bincst",
+                "bound": 0.5
+            }
+        ],
+        "method":[
+            {
+                "name": "NSGAII",
+                "iteration": 30,
+                "population": 500,
+                "max_evaluations": 100000,
+                "patient": 0,
+                "tournament": 5,
+                "mutation": 0.000308,
+                "crossover": 0.8
+            }
+        ]
+    },    {
+        "name": "bincst_random",
+        "dataset": "classic_4",
+        "modelling": [
+            {
+                "name": "bincst",
+                "bound": 0.7
+            }
+        ],
+        "method":[
+            {
+                "name": "NSGAII",
+                "iteration": 30,
+                "population": 500,
+                "max_evaluations": 100000,
+                "patient": 0,
+                "tournament": 5,
+                "mutation": 0.000308,
+                "crossover": 0.8
+            }
+        ]
+    },
+    {
+        "name": "bincst_random",
+        "dataset": "classic_5",
+        "modelling": [
+            {
+                "name": "bincst",
+                "bound": 0.3
+            }
+        ],
+        "method":[
+            {
+                "name": "NSGAII",
+                "iteration": 30,
+                "population": 500,
+                "max_evaluations": 100000,
+                "patient": 0,
+                "tournament": 5,
+                "mutation": 0.000667,
+                "crossover": 0.8
+            }
+        ]
+    },
+    {
+        "name": "bincst_random",
+        "dataset": "classic_5",
+        "modelling": [
+            {
+                "name": "bincst",
+                "bound": 0.5
+            }
+        ],
+        "method":[
+            {
+                "name": "NSGAII",
+                "iteration": 30,
+                "population": 500,
+                "max_evaluations": 100000,
+                "patient": 0,
+                "tournament": 5,
+                "mutation": 0.000667,
+                "crossover": 0.8
+            }
+        ]
+    },
+    {
+        "name": "bincst_random",
+        "dataset": "classic_5",
+        "modelling": [
+            {
+                "name": "bincst",
+                "bound": 0.7
+            }
+        ],
+        "method":[
+            {
+                "name": "NSGAII",
+                "iteration": 30,
+                "population": 500,
+                "max_evaluations": 100000,
+                "patient": 0,
+                "tournament": 5,
+                "mutation": 0.000667,
+                "crossover": 0.8
+            }
+        ]
+    },
+    {
+        "name": "bincst_random",
+        "dataset": "MSWord",
+        "modelling": [
+            {
+                "name": "bincst",
+                "bound": 0.3
+            }
+        ],
+        "method":[
+            {
+                "name": "NSGAII",
+                "iteration": 30,
+                "population": 500,
+                "max_evaluations": 50000,
+                "patient": 0,
+                "tournament": 5,
+                "mutation": 0.02,
+                "crossover": 0.8
+            }
+        ]
+    },
+    {
+        "name": "bincst_random",
+        "dataset": "MSWord",
+        "modelling": [
+            {
+                "name": "bincst",
+                "bound": 0.5
+            }
+        ],
+        "method":[
+            {
+                "name": "NSGAII",
+                "iteration": 30,
+                "population": 500,
+                "max_evaluations": 50000,
+                "patient": 0,
+                "tournament": 5,
+                "mutation": 0.02,
+                "crossover": 0.8
+            }
+        ]
+    },
+    {
+        "name": "bincst_random",
+        "dataset": "MSWord",
+        "modelling": [
+            {
+                "name": "bincst",
+                "bound": 0.7
+            }
+        ],
+        "method":[
+            {
+                "name": "NSGAII",
+                "iteration": 30,
+                "population": 500,
+                "max_evaluations": 50000,
+                "patient": 0,
+                "tournament": 5,
+                "mutation": 0.02,
+                "crossover": 0.8
+            }
+        ]
+    },
+    {
+        "name": "bincst_random",
+        "dataset": "ReleasePlanner",
+        "modelling": [
+            {
+                "name": "bincst",
+                "bound": 0.3
+            }
+        ],
+        "method":[
+            {
+                "name": "NSGAII",
+                "iteration": 30,
+                "population": 500,
+                "max_evaluations": 50000,
+                "patient": 0,
+                "tournament": 5,
+                "mutation": 0.04,
+                "crossover": 0.8
+            }
+        ]
+    },
+    {
+        "name": "bincst_random",
+        "dataset": "ReleasePlanner",
+        "modelling": [
+            {
+                "name": "bincst",
+                "bound": 0.5
+            }
+        ],
+        "method":[
+            {
+                "name": "NSGAII",
+                "iteration": 30,
+                "population": 500,
+                "max_evaluations": 50000,
+                "patient": 0,
+                "tournament": 5,
+                "mutation": 0.04,
+                "crossover": 0.8
+            }
+        ]
+    },
+    {
+        "name": "bincst_random",
+        "dataset": "ReleasePlanner",
+        "modelling": [
+            {
+                "name": "bincst",
+                "bound": 0.7
+            }
+        ],
+        "method":[
+            {
+                "name": "NSGAII",
+                "iteration": 30,
+                "population": 500,
+                "max_evaluations": 50000,
+                "patient": 0,
+                "tournament": 5,
+                "mutation": 0.04,
+                "crossover": 0.8
+            }
+        ]
+    }
+]

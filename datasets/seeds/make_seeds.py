@@ -27,7 +27,6 @@ def check_seed(name, length):
         fin.close()
 
 
-root = './binary/'
 cut_dict = {
     'classic_1': 100,
     'classic_2': 500,
@@ -71,6 +70,17 @@ tasks = ['realistic_e1', 'realistic_e2', 'realistic_e3', 'realistic_e4',
          'realistic_g1', 'realistic_g2', 'realistic_g3', 'realistic_g4',
          'realistic_m1', 'realistic_m2', 'realistic_m3', 'realistic_m4']
 # for name in tasks:
-name = 'realistic_m4'
-cut_head(join(root, name + '.txt'), cut_dict[name])
-check_seed(join(root, name + '.txt'), req_dict[name])
+root = './bincst/'
+# name = 'classic_5'
+# bound = '7'
+# # for bound in ['3', '5', '7']:
+# real_name = name + '_' + bound
+# cut_head(join(root, real_name + '.txt'), cut_dict[name])
+# check_seed(join(root, real_name + '.txt'), req_dict[name])
+
+for ind in ['1', '2', '3', '4', '5']:
+    for bound in ['3', '5', '7']:
+        name = 'classic_' + ind
+        real_name = name + '_' + bound
+        print(real_name)
+        check_seed(join(root, real_name + '.txt'), req_dict[name])

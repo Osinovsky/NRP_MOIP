@@ -5,6 +5,7 @@
 #
 
 import json
+import gc
 from time import clock
 from copy import deepcopy
 from typing import Dict, Any, List, Union, Tuple, Set
@@ -473,6 +474,7 @@ class Controller:
         file_name = join(config.task_path, task_file)
         task_list = Controller.parse_tasks(Controller.load_json(file_name))
         for task in task_list:
+            gc.collect()
             print(task)
             Controller.run_task(task)
         # end for
