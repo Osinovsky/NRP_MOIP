@@ -155,6 +155,8 @@ class Analyzer:
                 for index, short_name in enumerate(methods):
                     if method.startswith(short_name):
                         real_methods[index] = method
+            # find reference point
+            reference_point = self.result.find_worst_point(project)
             # collect each method line
             method_lines = []
             for method in real_methods:
@@ -163,7 +165,8 @@ class Analyzer:
                 scores = \
                     Indicator.compute(indicators,
                                       self.result.method_fronts[key],
-                                      self.result.project_fronts[project])
+                                      self.result.project_fronts[project],
+                                      reference_point)
                 # method, solutions on front, time, score1, ..
                 method_front = self.result.method_fronts[key].solution_list
                 method_line = [str(len(method_front))] \

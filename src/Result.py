@@ -1,7 +1,7 @@
 #
 # DONG Shi, dongshi@mail.ustc.edu.cn
 # Result.py, created: 2020.11.10
-# last modified: 2021.01.17
+# last modified: 2021.01.19
 #
 
 from typing import Dict, Any, List, Tuple
@@ -79,21 +79,32 @@ class Result:
             self.build_project_front(project)
         # end for
 
-    def update_method_front(self, project: str, method: str) -> None:
-        assert self.project_fronts[project]
-        solutions: List[BinarySolution] = \
-            self.method_fronts[(project, method)].solution_list
-        new_method_front = NonDominatedSolutionsArchive()
-        for solution in solutions:
-            for pareto_solution in self.project_fronts[project].solution_list:
-                if solution.objectives == pareto_solution.objectives:
-                    new_method_front.add(solution)
-                    break
-        # update method front
-        self.method_fronts[(project, method)] = new_method_front
-        # write into .front file
-        self.dump_archive(join(self.root, project, method, '.front'),
-                          self.method_fronts[(project, method)])
+    def find_worst_point(self, project: str) -> List[Any]:
+        """find_worst_point [summary] find a worst point
+        construct from worst value in each dimension
+        Args:
+            project (str): [description]
+        Returns:
+            List[Any]: [description] reference point
+        """
+        point: List[Any] = []
+        for method in self.methods[project]:
+            key = (project, method)
+            for solution in self.method_fronts[key].solution_list:
+                if not point:
+                    point = solution.objectives
+                else:
+                    for dim in range(len(point)):
+                        obj = solution.objectives[dim]
+                        if obj > point[dim]:
+                            point[dim] = obj
+        point = [x + 1.0 for x in point]
+        # for method in self.methods[project]:
+        #     key = (project, method)
+        #     for solution in self.method_fronts[key].solution_list:
+        #         for ind, obj in enumerate(solution.objectives):
+        #             assert point[ind] > obj
+        return point
 
     def build_method_front(self, project: str, method: str) -> None:
         """build_method_front [summary] build pareto front for

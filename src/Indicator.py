@@ -55,7 +55,8 @@ class Indicator:
     @staticmethod
     def compute(indicators: List[str],
                 solution_archive: NonDominatedSolutionsArchive,
-                true_front: NonDominatedSolutionsArchive = None
+                true_front: NonDominatedSolutionsArchive = None,
+                reference_point: List[Any] = None
                 ) -> Dict[str, Any]:
         """compute [summary] compute a indicator score for all in
         result dict
@@ -65,44 +66,57 @@ class Indicator:
             solution_archive (NonDominatedSolutionsArchive): [description]
             true_front (NonDominatedSolutionsArchive): [description]
             the whole pareto front
+            reference_point (List[Any]): [description] specific reference point
         """
         scores: Dict[str, Any] = {}
         for indicator in indicators:
             solutions = Indicator.numpy_array(solution_archive.solution_list)
             scores[indicator] = \
                 getattr(Indicator, 'compute_{}'.format(indicator))(
-                    solutions, true_front
+                    solutions, true_front, reference_point
                 )
         return scores
 
     def compute_igd(solutions: numpy.array,
-                    true_front: NonDominatedSolutionsArchive) -> float:
+                    true_front: NonDominatedSolutionsArchive,
+                    reference_point: List[Any]) -> float:
         pareto_array = Indicator.numpy_array(true_front.solution_list)
         return InvertedGenerationalDistance(pareto_array).compute(solutions)
 
     def compute_hv(solutions: numpy.array,
-                   true_front: NonDominatedSolutionsArchive) -> float:
-        reference_point = \
-            Indicator.find_reference_point(true_front.solution_list)
+                   true_front: NonDominatedSolutionsArchive,
+                   reference_point: List[Any]) -> float:
+        if not reference_point:
+            reference_point = \
+                Indicator.find_reference_point(true_front.solution_list)
+        else:
+            print('use reference point: ' + str(reference_point))
         # mod = numpy.prod(reference_point)
         return HyperVolume(reference_point).compute(solutions)
 
     def compute_pghv(solutions: numpy.array,
-                     true_front: NonDominatedSolutionsArchive) -> float:
-        reference_point = \
-            Indicator.find_reference_point(true_front.solution_list)
+                     true_front: NonDominatedSolutionsArchive,
+                     reference_point: List[Any]) -> float:
+        if not reference_point:
+            reference_point = \
+                Indicator.find_reference_point(true_front.solution_list)
+        else:
+            print('use reference point: ' + str(reference_point))
         return hypervolume(solutions).compute(reference_point)
 
     def compute_evenness(solutions: numpy.array,
-                         true_front: NonDominatedSolutionsArchive) -> float:
+                         true_front: NonDominatedSolutionsArchive,
+                         reference_point: List[Any]) -> float:
         reference_point = \
             Indicator.find_reference_point(true_front.solution_list)
         return EvennessIndicator(reference_point).compute(solutions)
 
     def compute_mean(solutions: numpy.array,
-                     true_front: NonDominatedSolutionsArchive) -> float:
+                     true_front: NonDominatedSolutionsArchive,
+                     reference_point: List[Any]) -> float:
         return MeanIndicator().compute(solutions)
 
     def compute_median(solutions: numpy.array,
-                       true_front: NonDominatedSolutionsArchive) -> float:
+                       true_front: NonDominatedSolutionsArchive,
+                       reference_point: List[Any]) -> float:
         return MedianIndicator().compute(solutions)
