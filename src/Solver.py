@@ -1,7 +1,7 @@
 #
 # DONG Shi, dongshi@mail.ustc.edu.cn
 # Solver.py, created: 2020.11.02
-# last modified: 2020.12.29
+# last modified: 2021.01.20
 #
 
 from typing import Dict, Any, List, Union
@@ -71,9 +71,9 @@ class Solver:
 
     def employ_normal(self,
                       problem: NRPProblem,
-                      option: Dict[str, Any] = None
+                      option: Dict[str, Any]
                       ) -> None:
-        self.solver = NormalConstraint(problem)
+        self.solver = NormalConstraint(problem, option)
 
     def employ_NSGAII(self,
                       problem: str,

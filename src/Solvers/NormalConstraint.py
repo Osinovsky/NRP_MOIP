@@ -1,18 +1,18 @@
 #
 # DONG Shi, dongshi@mail.ustc.edu.cn
 # NormalConstraint.py, created: 2020.12.26
-# last modified: 2020.12.26
+# last modified: 2021.01.20
 #
 
+from typing import Dict, Any
 from src.util.ObjectiveSpace import RPObjectiveSpace
 from src.Solvers.ABCSolver import ABCSolver
 from src.Solvers.BaseSolver import BaseSolver
 from src.NRP import NRPProblem
-from src.Config import Config
 
 
 class NormalConstraint(ABCSolver):
-    def __init__(self, problem: NRPProblem) -> None:
+    def __init__(self, problem: NRPProblem, option: Dict[str, Any]) -> None:
         """__init__ [summary] only support ReleasePlanner datasets
         """
         # store the problem
@@ -21,9 +21,8 @@ class NormalConstraint(ABCSolver):
         self.space = RPObjectiveSpace(problem)
         # prepare the solver
         self.solver = BaseSolver(problem)
-        # load config
-        config = Config()
-        self.sampling_size = config.sampling_size
+        # get the sampling size
+        self.sampling_size = option['size']
 
     def prepare(self):
         # add first two objectives as constraints

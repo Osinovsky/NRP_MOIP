@@ -1,7 +1,7 @@
 #
 # DONG Shi, dongshi@mail.ustc.edu.cn
 # Config.py, created: 2020.10.31
-# last modified: 2021.01.19
+# last modified: 2021.01.20
 #
 
 from typing import Dict, List
@@ -71,7 +71,7 @@ class Config:
         self.seeds_path = './datasets/seeds/'
 
         # sampling size for normal constraint
-        self.sampling_size = 1000
+        # self.sampling_size = 1000
 
     def make_classic_index(self) -> None:
         """make_classic_index [summary] make classic datasets
