@@ -4,12 +4,12 @@ import gc
 from src import Controller
 from src import Analyzer, Result
 
-Controller.run('triple.json')
+Controller.run('tmp.json')
 
 gc.collect()
 
-folder = 'triple'
-sheet = Analyzer(folder).make_better_sheet(methods=['nromal', 'NSGAII', 'IBEA'], indicators=['igd', 'hv', 'evenness'])
+folder = 'tmp'
+sheet = Analyzer(folder).make_better_sheet(methods=['epsilon', 'NSGAII'], indicators=['igd'])
 Analyzer.tabulate(folder + '.csv', sheet)
 
 # Result.quick_prob('triurgency_exact')
