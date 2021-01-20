@@ -15,8 +15,8 @@
                 "max_evaluations": 100000,
                 "patient": 0,
                 "tournament": 5,
-                "mutation": 0.000246,
-                "crossover": 0.95,
+                "mutation": 0.8,
+                "crossover": 0.8,
                 "seeds": "./datasets/seeds/binary/realistic_m1.txt"
             }
         ]
@@ -37,53 +37,9 @@
                 "max_evaluations": 100000,
                 "patient": 0,
                 "tournament": 5,
-                "mutation": 0.000229,
-                "crossover": 0.95,
+                "mutation": 0.8,
+                "crossover": 0.8,
                 "seeds": "./datasets/seeds/binary/realistic_m2.txt"
-            }
-        ]
-    },
-    {
-        "name": "tmp",
-        "dataset": "realistic_m3",
-        "modelling": [
-            {
-                "name": "binary"
-            }
-        ],
-        "method":[
-            {
-                "name": "NSGAII",
-                "iteration": 30,
-                "population": 500,
-                "max_evaluations": 100000,
-                "patient": 0,
-                "tournament": 5,
-                "mutation": 0.000280,
-                "crossover": 0.95,
-                "seeds": "./datasets/seeds/binary/realistic_m3.txt"
-            }
-        ]
-    },
-    {
-        "name": "tmp",
-        "dataset": "realistic_m4",
-        "modelling": [
-            {
-                "name": "binary"
-            }
-        ],
-        "method":[
-            {
-                "name": "NSGAII",
-                "iteration": 30,
-                "population": 500,
-                "max_evaluations": 100000,
-                "patient": 0,
-                "tournament": 5,
-                "mutation": 0.000274,
-                "crossover": 0.95,
-                "seeds": "./datasets/seeds/binary/realistic_m4.txt"
             }
         ]
     }
