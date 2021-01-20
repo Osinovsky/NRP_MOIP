@@ -27,6 +27,10 @@
                 "tournament": 5,
                 "mutation": 0.00417,
                 "crossover": 0.8
+            },
+            {
+                "name": "normal",
+                "size": 1000
             }
         ]
     },
@@ -58,6 +62,10 @@
                 "tournament": 5,
                 "mutation": 0.000893,
                 "crossover": 0.8
+            },
+            {
+                "name": "normal",
+                "size": 1000
             }
         ]
     },
@@ -89,6 +97,10 @@
                 "tournament": 5,
                 "mutation": 0.0005,
                 "crossover": 0.8
+            },
+            {
+                "name": "normal",
+                "size": 1000
             }
         ]
     },
@@ -120,6 +132,10 @@
                 "tournament": 5,
                 "mutation": 0.00025,
                 "crossover": 0.8
+            },
+            {
+                "name": "normal",
+                "size": 1000
             }
         ]
     },
@@ -151,12 +167,16 @@
                 "tournament": 5,
                 "mutation": 0.0004,
                 "crossover": 0.8
+            },
+            {
+                "name": "normal",
+                "size": 1000
             }
         ]
     },
     {
         "name": "triple",
-        "dataset": "rp",
+        "dataset": "MSWord",
         "modelling": [
             {
                 "name": "triurgency"
@@ -164,8 +184,63 @@
         ],
         "method":[
             {
+                "name": "NSGAII",
+                "iteration": 30,
+                "population": 500,
+                "max_evaluations": 50000,
+                "patient": 0,
+                "tournament": 5,
+                "mutation": 0.02,
+                "crossover": 0.8
+            },
+            {
+                "name": "IBEA",
+                "iteration": 30,
+                "population": 500,
+                "max_evaluations": 50000,
+                "patient": 0,
+                "tournament": 5,
+                "mutation": 0.02,
+                "crossover": 0.8
+            },
+            {
                 "name": "normal",
-                "size": 1000
+                "size": 500
+            }
+        ]
+    },
+    {
+        "name": "triple",
+        "dataset": "ReleasePlanner",
+        "modelling": [
+            {
+                "name": "triurgency"
+            }
+        ],
+        "method":[
+            {
+                "name": "NSGAII",
+                "iteration": 30,
+                "population": 500,
+                "max_evaluations": 50000,
+                "patient": 0,
+                "tournament": 5,
+                "mutation": 0.04,
+                "crossover": 0.8
+            },
+            {
+                "name": "IBEA",
+                "iteration": 30,
+                "population": 500,
+                "max_evaluations": 50000,
+                "patient": 0,
+                "tournament": 5,
+                "mutation": 0.04,
+                "crossover": 0.8
+            },
+            {
+                "name": "normal",
+                "size": 500
             }
         ]
     }
