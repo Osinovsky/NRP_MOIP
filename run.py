@@ -4,10 +4,7 @@ import gc
 from src import Controller
 from src import Analyzer, Result
 
-# Controller.run('c_binary.json')
-# Controller.run('c_bincst.json')
-# Controller.run('e_binary.json')
-# Controller.run('e_binary.json')
+Controller.run('tmp.json')
 
 gc.collect()
 
