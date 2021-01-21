@@ -17,7 +17,7 @@
                 "patient": 0,
                 "tournament": 5,
                 "mutation": 0.00714,
-                "crossover": 0.8,
+                "crossover": 0.9,
                 "seeds": "./datasets/seeds/bincst/classic_1_3.txt"
             }
         ]
@@ -39,7 +39,7 @@
                 "patient": 0,
                 "tournament": 5,
                 "mutation": 0.00714,
-                "crossover": 0.8,
+                "crossover": 0.9,
                 "seeds": "./datasets/seeds/bincst/classic_1_5.txt"
             }
         ]
@@ -61,7 +61,7 @@
                 "patient": 0,
                 "tournament": 5,
                 "mutation": 0.00714,
-                "crossover": 0.8,
+                "crossover": 0.9,
                 "seeds": "./datasets/seeds/bincst/classic_1_7.txt"
             }
         ]
@@ -84,7 +84,7 @@
                 "patient": 0,
                 "tournament": 5,
                 "mutation": 0.00161,
-                "crossover": 0.8,
+                "crossover": 0.9,
                 "seeds": "./datasets/seeds/bincst/classic_2_3.txt"
             }
         ]
@@ -106,7 +106,7 @@
                 "patient": 0,
                 "tournament": 5,
                 "mutation": 0.00161,
-                "crossover": 0.8,
+                "crossover": 0.9,
                 "seeds": "./datasets/seeds/bincst/classic_2_5.txt"
             }
         ]
@@ -128,7 +128,7 @@
                 "patient": 0,
                 "tournament": 5,
                 "mutation": 0.00161,
-                "crossover": 0.8,
+                "crossover": 0.9,
                 "seeds": "./datasets/seeds/bincst/classic_2_7.txt"
             }
         ]
@@ -151,7 +151,7 @@
                 "patient": 0,
                 "tournament": 5,
                 "mutation": 0.000667,
-                "crossover": 0.8,
+                "crossover": 0.9,
                 "seeds": "./datasets/seeds/bincst/classic_3_3.txt"
             }
         ]
@@ -173,7 +173,7 @@
                 "patient": 0,
                 "tournament": 5,
                 "mutation": 0.000667,
-                "crossover": 0.8,
+                "crossover": 0.9,
                 "seeds": "./datasets/seeds/bincst/classic_3_5.txt"
             }
         ]
@@ -195,7 +195,7 @@
                 "patient": 0,
                 "tournament": 5,
                 "mutation": 0.000667,
-                "crossover": 0.8,
+                "crossover": 0.9,
                 "seeds": "./datasets/seeds/bincst/classic_3_7.txt"
             }
         ]
@@ -218,7 +218,7 @@
                 "patient": 0,
                 "tournament": 5,
                 "mutation": 0.000308,
-                "crossover": 0.8,
+                "crossover": 0.9,
                 "seeds": "./datasets/seeds/bincst/classic_4_3.txt"
             }
         ]
@@ -240,7 +240,7 @@
                 "patient": 0,
                 "tournament": 5,
                 "mutation": 0.000308,
-                "crossover": 0.8,
+                "crossover": 0.9,
                 "seeds": "./datasets/seeds/bincst/classic_4_5.txt"
             }
         ]
@@ -262,7 +262,7 @@
                 "patient": 0,
                 "tournament": 5,
                 "mutation": 0.000308,
-                "crossover": 0.8,
+                "crossover": 0.9,
                 "seeds": "./datasets/seeds/bincst/classic_4_7.txt"
             }
         ]
@@ -285,7 +285,7 @@
                 "patient": 0,
                 "tournament": 5,
                 "mutation": 0.000667,
-                "crossover": 0.8,
+                "crossover": 0.9,
                 "seeds": "./datasets/seeds/bincst/classic_5_3.txt"
             }
         ]
@@ -308,7 +308,7 @@
                 "patient": 0,
                 "tournament": 5,
                 "mutation": 0.000667,
-                "crossover": 0.8,
+                "crossover": 0.9,
                 "seeds": "./datasets/seeds/bincst/classic_5_5.txt"
             }
         ]
@@ -331,7 +331,7 @@
                 "patient": 0,
                 "tournament": 5,
                 "mutation": 0.000667,
-                "crossover": 0.8,
+                "crossover": 0.9,
                 "seeds": "./datasets/seeds/bincst/classic_5_7.txt"
             }
         ]
@@ -354,7 +354,7 @@
                 "patient": 0,
                 "tournament": 5,
                 "mutation": 0.02,
-                "crossover": 0.8,
+                "crossover": 0.9,
                 "seeds": "./datasets/seeds/bincst/MSWord_3.txt"
             }
         ]
@@ -377,7 +377,7 @@
                 "patient": 0,
                 "tournament": 5,
                 "mutation": 0.02,
-                "crossover": 0.8,
+                "crossover": 0.9,
                 "seeds": "./datasets/seeds/bincst/MSWord_5.txt"
             }
         ]
@@ -400,7 +400,7 @@
                 "patient": 0,
                 "tournament": 5,
                 "mutation": 0.02,
-                "crossover": 0.8,
+                "crossover": 0.9,
                 "seeds": "./datasets/seeds/bincst/MSWord_7.txt"
             }
         ]
@@ -423,7 +423,7 @@
                 "patient": 0,
                 "tournament": 5,
                 "mutation": 0.04,
-                "crossover": 0.8,
+                "crossover": 0.9,
                 "seeds": "./datasets/seeds/bincst/ReleasePlanner_3.txt"
             }
         ]
@@ -446,7 +446,7 @@
                 "patient": 0,
                 "tournament": 5,
                 "mutation": 0.04,
-                "crossover": 0.8,
+                "crossover": 0.9,
                 "seeds": "./datasets/seeds/bincst/ReleasePlanner_5.txt"
             }
         ]
@@ -469,7 +469,7 @@
                 "patient": 0,
                 "tournament": 5,
                 "mutation": 0.04,
-                "crossover": 0.8,
+                "crossover": 0.9,
                 "seeds": "./datasets/seeds/bincst/ReleasePlanner_7.txt"
             }
         ]

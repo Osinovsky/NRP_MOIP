@@ -4,13 +4,16 @@ import gc
 from src import Controller
 from src import Analyzer, Result
 
-Controller.run('tmp.json')
+Controller.run('moea/.json')
 
 gc.collect()
 
-folder = 'tmp'
-sheet = Analyzer(folder).make_better_sheet(methods=['epsilon', 'NSGAII'], indicators=['igd'])
+folder = ''
+analyzer = Analyzer(folder)
+sheet = analyzer.make_better_sheet(methods=['epsilon', 'NSGAII'], indicators=['igd', 'hv', 'evenness'])
+# sheet = analyzer.make_better_sheet(methods=['normal', 'NSGAII', 'IBEA'], indicators=['igd', 'hv', 'evenness'])
 Analyzer.tabulate(folder + '.csv', sheet)
+analyzer.plot_2D_pareto('realistic_m1')
 
 # Result.quick_prob('triurgency_exact')
 

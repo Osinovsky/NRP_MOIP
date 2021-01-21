@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
 import java.lang.Math;
+import java.util.Random;
 
 public class XuanNRP extends AbstractBinaryProblem {
     private static final long serialVersionUID = 1L;
@@ -23,6 +24,9 @@ public class XuanNRP extends AbstractBinaryProblem {
     private Map<Integer, ArrayList<Integer>> requests;
     private Map<Integer, Integer> reqDict;
     private Map<Integer, Integer> rvReqDict;
+    private int lsRound;
+    private double lsRatio;
+    private int allCost;
     // private List<Boolean> seed;
 
     // constructor
@@ -32,7 +36,9 @@ public class XuanNRP extends AbstractBinaryProblem {
                    Map<Integer, Integer> urgency,
                    Map<Integer, ArrayList<Integer>> requests,
                    Map<Integer, Integer> reqDict,
-                   Map<Integer, Integer> rvReqDict
+                   Map<Integer, Integer> rvReqDict,
+                   int lsRound,
+                   double lsRatio
                    ) {
         // assign to members
         this.bound = bound;
@@ -42,6 +48,13 @@ public class XuanNRP extends AbstractBinaryProblem {
         this.requests = requests;
         this.reqDict = reqDict;
         this.rvReqDict = rvReqDict;
+        this.lsRound = lsRound;
+        this.lsRatio = lsRatio;
+
+        this.allCost = 0;
+        for (int val : this.cost.values()) {
+            this.allCost += val;
+        }
         // this.seed = seed;
         // if (seed != null) assert this.cost.size() == this.seed.size();
         // get length of each arguments
@@ -102,9 +115,35 @@ public class XuanNRP extends AbstractBinaryProblem {
         return solution;
     }
 
-    // evaluate
-    @Override
-    public void evaluate(BinarySolution solution) {
+    public int randomItem(List<Integer> list) {
+        Random randomGenerator = new Random();
+        return list.get(randomGenerator.nextInt(list.size()));
+    }
+
+    public boolean dominate(BinarySolution s1, BinarySolution s2) {
+        boolean equal = true;
+        int length = s1.getNumberOfObjectives();
+        for (int i = 0; i < length; ++ i) {
+            if (s1.getObjective(i) > s2.getObjective(i)) {
+                return false;
+            } else if (equal && s1.getObjective(i) < s2.getObjective(i)) {
+                equal = false;
+            }
+        }
+        return !equal;
+    }
+
+    public boolean unnondominate(BinarySolution s1, BinarySolution s2) {
+        int length = s1.getNumberOfObjectives();
+        for (int i = 0; i < length; ++ i) {
+            if (s1.getObjective(i) < s2.getObjective(i)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public void subEvaluate(BinarySolution solution) {
         // get all variables
         List<BinarySet> variables = solution.getVariables();
         // prepare profitSum and costSum
@@ -153,6 +192,45 @@ public class XuanNRP extends AbstractBinaryProblem {
                 // evaluate constraint
                 solution.setConstraint(0, urgencySum - this.minUrgency);
             }
+        }
+    }
+
+    public void localSearch(BinarySolution solution) {
+        List<BinarySet> variables = solution.getVariables();
+        boolean changed = true;
+        List<Integer> ones = new ArrayList<Integer>();
+        List<Integer> zeros = new ArrayList<Integer>();
+        for (int r = 0; r < this.lsRound; ++ r) {
+            if (changed) {
+                for (int i = 0; i < variables.size(); ++ i) {
+                    if (variables.get(i).get(0)) {
+                        ones.add(i);
+                    } else {
+                        zeros.add(i);
+                    }
+                }
+                changed = false;
+                if (ones.size() == 0 || zeros.size() == 0) {
+                    return;
+                }
+            }
+            BinarySolution newSolution = (BinarySolution)solution.copy();
+            newSolution.getVariable(randomItem(ones)).set(0, false);
+            newSolution.getVariable(randomItem(zeros)).set(0, true);
+            subEvaluate(newSolution);
+            if (dominate(newSolution, solution)) {
+                solution = newSolution;
+                changed = true;
+            }
+        }
+    }
+
+    // evaluate
+    @Override
+    public void evaluate(BinarySolution solution) {
+        subEvaluate(solution);
+        if (Math.random() < this.lsRatio) {
+            localSearch(solution);
         }
     }
 }

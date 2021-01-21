@@ -16,7 +16,7 @@
                 "patient": 0,
                 "tournament": 5,
                 "mutation": 0.00714,
-                "crossover": 0.8
+                "crossover": 0.9
             }
         ]
     },
@@ -37,7 +37,7 @@
                 "patient": 0,
                 "tournament": 5,
                 "mutation": 0.00161,
-                "crossover": 0.8
+                "crossover": 0.9
             }
         ]
     },
@@ -58,7 +58,7 @@
                 "patient": 0,
                 "tournament": 5,
                 "mutation": 0.000667,
-                "crossover": 0.8
+                "crossover": 0.9
             }
         ]
     },
@@ -79,7 +79,7 @@
                 "patient": 0,
                 "tournament": 5,
                 "mutation": 0.000308,
-                "crossover": 0.8
+                "crossover": 0.9
             }
         ]
     },
@@ -100,7 +100,7 @@
                 "patient": 0,
                 "tournament": 5,
                 "mutation": 0.000667,
-                "crossover": 0.8
+                "crossover": 0.9
             }
         ]
     },
@@ -121,7 +121,7 @@
                 "patient": 0,
                 "tournament": 5,
                 "mutation": 0.000599,
-                "crossover": 0.8
+                "crossover": 0.9
             }
         ]
     },
@@ -142,7 +142,7 @@
                 "patient": 0,
                 "tournament": 5,
                 "mutation": 0.000235,
-                "crossover": 0.8
+                "crossover": 0.9
             }
         ]
     },
@@ -163,7 +163,7 @@
                 "patient": 0,
                 "tournament": 5,
                 "mutation": 0.000352,
-                "crossover": 0.8
+                "crossover": 0.9
             }
         ]
     },
@@ -184,7 +184,7 @@
                 "patient": 0,
                 "tournament": 5,
                 "mutation": 0.000314,
-                "crossover": 0.8
+                "crossover": 0.9
             }
         ]
     },
@@ -205,7 +205,7 @@
                 "patient": 0,
                 "tournament": 5,
                 "mutation": 0.000372,
-                "crossover": 0.8
+                "crossover": 0.9
             }
         ]
     },
@@ -226,7 +226,7 @@
                 "patient": 0,
                 "tournament": 5,
                 "mutation": 0.000377,
-                "crossover": 0.8
+                "crossover": 0.9
             }
         ]
     },
@@ -247,7 +247,7 @@
                 "patient": 0,
                 "tournament": 5,
                 "mutation": 0.000398,
-                "crossover": 0.8
+                "crossover": 0.9
             }
         ]
     },
@@ -268,7 +268,7 @@
                 "patient": 0,
                 "tournament": 5,
                 "mutation": 0.000445,
-                "crossover": 0.8
+                "crossover": 0.9
             }
         ]
     },
@@ -289,7 +289,7 @@
                 "patient": 0,
                 "tournament": 5,
                 "mutation": 0.000246,
-                "crossover": 0.8
+                "crossover": 0.9
             }
         ]
     },
@@ -310,7 +310,7 @@
                 "patient": 0,
                 "tournament": 5,
                 "mutation": 0.000229,
-                "crossover": 0.8
+                "crossover": 0.9
             }
         ]
     },
@@ -331,7 +331,7 @@
                 "patient": 0,
                 "tournament": 5,
                 "mutation": 0.000280,
-                "crossover": 0.8
+                "crossover": 0.9
             }
         ]
     },
@@ -352,7 +352,7 @@
                 "patient": 0,
                 "tournament": 5,
                 "mutation": 0.000274,
-                "crossover": 0.8
+                "crossover": 0.9
             }
         ]
     },
@@ -373,7 +373,7 @@
                 "patient": 0,
                 "tournament": 5,
                 "mutation": 0.02,
-                "crossover": 0.8
+                "crossover": 0.9
             }
         ]
     },
@@ -394,7 +394,7 @@
                 "patient": 0,
                 "tournament": 5,
                 "mutation": 0.04,
-                "crossover": 0.8
+                "crossover": 0.9
             }
         ]
     }
