@@ -15,11 +15,9 @@
                 "max_evaluations": 100000,
                 "patient": 0,
                 "tournament": 5,
-                "mutation": 0.000246,
-                "crossover": 0.9,
-                "round": 20,
-                "ratio": 0.1,
-                "seeds": "./datasets/seeds/binary/realistic_m1.txt"
+                "mutation": 0.000207,
+                "crossover": 0.8,
+                "repair": 0.02
             }
         ]
     }

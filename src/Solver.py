@@ -9,7 +9,8 @@ from src.NRP import NRPProblem
 from src.Config import Config
 from src.Solvers.EConstraint import EConstraint
 from src.Solvers.ImprovedEC import ImprovedEC
-from src.Solvers.CWMOIP import CWMOIP
+# from src.Solvers.CWMOIP import CWMOIP
+from src.Solvers.BinCWMOIP import CWMOIP
 from src.Solvers.NormalConstraint import NormalConstraint
 from src.Solvers.JarSolver import JarSolver
 

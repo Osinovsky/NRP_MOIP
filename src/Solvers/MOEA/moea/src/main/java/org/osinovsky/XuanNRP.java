@@ -26,7 +26,6 @@ public class XuanNRP extends AbstractBinaryProblem {
     private Map<Integer, Integer> rvReqDict;
     private int lsRound;
     private double lsRatio;
-    private int allCost;
     // private List<Boolean> seed;
 
     // constructor
@@ -36,9 +35,7 @@ public class XuanNRP extends AbstractBinaryProblem {
                    Map<Integer, Integer> urgency,
                    Map<Integer, ArrayList<Integer>> requests,
                    Map<Integer, Integer> reqDict,
-                   Map<Integer, Integer> rvReqDict,
-                   int lsRound,
-                   double lsRatio
+                   Map<Integer, Integer> rvReqDict
                    ) {
         // assign to members
         this.bound = bound;
@@ -48,13 +45,9 @@ public class XuanNRP extends AbstractBinaryProblem {
         this.requests = requests;
         this.reqDict = reqDict;
         this.rvReqDict = rvReqDict;
-        this.lsRound = lsRound;
-        this.lsRatio = lsRatio;
+        // this.lsRound = lsRound;
+        // this.lsRatio = lsRatio;
 
-        this.allCost = 0;
-        for (int val : this.cost.values()) {
-            this.allCost += val;
-        }
         // this.seed = seed;
         // if (seed != null) assert this.cost.size() == this.seed.size();
         // get length of each arguments
@@ -229,9 +222,9 @@ public class XuanNRP extends AbstractBinaryProblem {
     @Override
     public void evaluate(BinarySolution solution) {
         subEvaluate(solution);
-        if (Math.random() < this.lsRatio) {
-            localSearch(solution);
-        }
+        // if (Math.random() < this.lsRatio) {
+        //     localSearch(solution);
+        // }
     }
 }
 

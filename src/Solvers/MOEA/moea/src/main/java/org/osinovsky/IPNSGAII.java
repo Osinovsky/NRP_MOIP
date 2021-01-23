@@ -128,6 +128,7 @@ public class IPNSGAII extends NSGAII<BinarySolution>{
 
     @Override protected boolean isStoppingConditionReached() {
         if (this.patient == 0){
+            System.out.println(this.evaluations);
             return this.evaluations >= this.maxEva;
         } else {
             if (this.updateLast(this.getPopulation())) {

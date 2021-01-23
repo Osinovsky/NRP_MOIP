@@ -1,7 +1,7 @@
 #
 # DONG Shi, dongshi@mail.ustc.edu.cn
 # NRP.py, created: 2020.10.31
-# last modified: 2021.01.14
+# last modified: 2021.01.22
 #
 
 import os
@@ -393,7 +393,13 @@ class NextReleaseProblem:
         # reorder objectives
         objs = []
         for obj in nrp.objectives:
-            objs.append([float(obj[var]) for var in vrs])
+            tmp_obj = []
+            for var in vrs:
+                if var not in obj:
+                    tmp_obj.append(0.0)
+                else:
+                    tmp_obj.append(float(obj[var]))
+            objs.append(tmp_obj)
         # remap inequations
         csts = []
         if nrp.inequations:

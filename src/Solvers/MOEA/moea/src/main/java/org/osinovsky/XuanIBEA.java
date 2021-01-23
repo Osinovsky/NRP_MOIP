@@ -35,8 +35,8 @@ public class XuanIBEA extends AbstractAlgorithmRunner {
         double mutationProbability = (double)config.get("mutation");
         double bound = ((double)config.get("xuan"));
 
-        int lsRound = (int)config.get("round");
-        double lsRatio = (double)config.get("ratio");
+        // int lsRound = (int)config.get("round");
+        // double lsRatio = (double)config.get("ratio");
 
         ArrayList<ArrayList<Boolean>> seeds = new ArrayList<ArrayList<Boolean>>();
         boolean useSeed = false;
@@ -58,8 +58,7 @@ public class XuanIBEA extends AbstractAlgorithmRunner {
                                       problemLoader.getCost(), problemLoader.getProfit(),
                                       problemLoader.getUrgency(),
                                       problemLoader.getRequests(), problemLoader.getReqDict(),
-                                      problemLoader.getRvReqDict(),
-                                      lsRound, lsRatio);
+                                      problemLoader.getRvReqDict());
 
         // print iteration times
         System.out.println("iterations: " + Integer.toString(iterationTimes));
@@ -70,8 +69,8 @@ public class XuanIBEA extends AbstractAlgorithmRunner {
         System.out.println("tournament: " + Integer.toString(tournamentSize));
         System.out.println("crossover: " + Double.toString(crossoverProbability));
         System.out.println("mutation: " + Double.toString(mutationProbability));
-        System.out.println("local search round: " + Integer.toString(lsRound));
-        System.out.println("local search ratio: " + Double.toString(lsRatio));
+        // System.out.println("local search round: " + Integer.toString(lsRound));
+        // System.out.println("local search ratio: " + Double.toString(lsRatio));
 
 
         // operators

@@ -41,6 +41,7 @@ public class CMONSGAII {
         int tournamentSize = (int)config.get("tournament");
         double crossoverProbability = (double)config.get("crossover");
         double mutationProbability = (double)config.get("mutation");
+        double repairProbability = (double)config.get("repair");
         ArrayList<ArrayList<Boolean>> seeds = new ArrayList<ArrayList<Boolean>>();
         boolean useSeed = false;
         if (config.containsKey("seeds")) {
@@ -50,6 +51,7 @@ public class CMONSGAII {
             System.out.println("This experiment will use seeds");
             useSeed = true;
             seeds = seedsLoader.sample(iterationTimes);
+            seedsLoader = null;
         }
 
         // load problem
@@ -67,6 +69,7 @@ public class CMONSGAII {
         System.out.println("tournament: " + Integer.toString(tournamentSize));
         System.out.println("crossover: " + Double.toString(crossoverProbability));
         System.out.println("mutation: " + Double.toString(mutationProbability));
+        System.out.println("repair: " + Double.toString(repairProbability));
 
         // operators
         CrossoverOperator<BinarySolution> crossover = new SinglePointCrossover(crossoverProbability);

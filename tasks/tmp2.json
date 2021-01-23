@@ -1,0 +1,17 @@
+[
+    {
+        "name": "tmptmptmp",
+        "dataset": "classic_4",
+        "modelling": [
+            {
+                "name": "bincst",
+                "bound": 0.3
+            }
+        ],
+        "method":[
+            {
+                "name": "cwmoip"
+            }
+        ]
+    }
+]

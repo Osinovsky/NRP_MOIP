@@ -12,6 +12,8 @@ public class ConstrainedMONRP extends AbstractBinaryProblem {
     private static final long serialVersionUID = 1L;
     private List<Integer> bitsPerVariable;
     private int varNum;
+    private List<Integer> pre = new ArrayList<Integer>();
+    private List<Integer> suf = new ArrayList<Integer>();
     // members
     private List<List<Double>> objectives;
     private List<Map<Integer, Double>> inequations;
@@ -33,6 +35,7 @@ public class ConstrainedMONRP extends AbstractBinaryProblem {
         for (int var = 0; var < this.varNum; var ++) {
             bitsPerVariable.add(1);
         }
+        constructRequestList();
     }
 
     @Override
@@ -40,11 +43,54 @@ public class ConstrainedMONRP extends AbstractBinaryProblem {
       return bitsPerVariable;
     }
 
+    public boolean around(double num, int mid) {
+        return num <= mid + 1e-6 && num >= mid - 1e-6;
+    }
+
+    public void constructRequestList() {
+        for (int i = 0; i < this.inequations.size(); ++ i) {
+            Map<Integer, Double> ineq = this.inequations.get(i);
+            if (ineq.size() == 3) {
+                int pre = -1;
+                int suf = -1;
+                for (int key : ineq.keySet()) {
+                    double val = ineq.get(key);
+                    if (around(val, 0)) {
+                        if (key != this.varNum) {
+                            assert false;
+                        }
+                    } else if (around(val, -1)) {
+                        pre = key;
+                    } else if (around(val, 1)) {
+                        suf = key;
+                    } else {
+                        assert false;
+                    }
+                }
+                assert pre != -1 && suf != -1;
+                this.pre.add(pre);
+                this.suf.add(suf);
+            }
+        }
+    }
+
 
     @Override
     public CBinarySolution createSolution() {
         CBinarySolution solution = new CBinarySolution(getListOfBitsPerVariable(), getNumberOfObjectives(), getNumberOfConstraints());
         return solution;
+    }
+
+    // repair
+    public void repair(BinarySolution solution) {
+        List<BinarySet> vars = solution.getVariables();
+        for (int i = 0; i < this.suf.size(); ++ i) {
+            int suf = this.suf.get(i);
+            int pre = this.pre.get(i);
+            if (vars.get(suf).get(0) && !vars.get(pre).get(0)) {
+                solution.getVariable(suf).set(0, false);
+            }
+        }
     }
 
     // evaluate
