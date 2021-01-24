@@ -89,4 +89,17 @@ namespace NSGAII {
             }
         }
     }
+
+    SolutionRecord::SolutionRecord(int id, const Solution& s) {
+        this->id = id;
+        this->objectives = s.get_objectives();
+    }
+
+    vector<SolutionRecord> SolutionRecord::shortcut(const vector<Solution>& l) {
+        vector<SolutionRecord> records;
+        for (int i = 0; i < l.size(); ++ i) {
+            records.push_back(SolutionRecord(i, l.at(i)));
+        }
+        return records;
+    }
 }
