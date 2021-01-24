@@ -33,6 +33,7 @@ namespace NSGAII {
         static Solution random_solution(int variable_num, int objective_num, int constraint_num);
         static vector<vector<SolutionRecord>> fast_non_dominated_sort(const Population& P);
         void crowding_distance_assignment(vector<SolutionRecord>& L, const vector<double>& obj_range) const;
+        static bool crowded_comparison(const SolutionRecord&, const SolutionRecord&);
     };
 }
 

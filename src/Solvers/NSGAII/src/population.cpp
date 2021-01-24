@@ -115,4 +115,8 @@ namespace NSGAII {
             }
         }
     }
+
+    bool Population::crowded_comparison(const SolutionRecord& r1, const SolutionRecord& r2) {
+        return (r1.rank < r2.rank || ((r1.rank == r2.rank) && (r1.distance > r2.distance)));
+    }
 }
