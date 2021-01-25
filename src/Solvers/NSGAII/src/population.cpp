@@ -3,17 +3,18 @@
 #include <vector>
 #include <limits>
 #include <algorithm>
+#include <ctime>
 
 using namespace std;
 
 namespace NSGAII {
     bool random_bool() {
-        static auto gen = bind(uniform_int_distribution<>(0, 1), default_random_engine());
+        static auto gen = bind(uniform_int_distribution<>(0, 1), mt19937((unsigned int)time(NULL)));
         return gen();
     }
 
     int random_int() {
-        static auto int_gen = bind(uniform_int_distribution<int>(1, 99), default_random_engine());
+        static auto int_gen = bind(uniform_int_distribution<int>(1, 99), mt19937((unsigned int)time(NULL)));
         return int_gen();
     }
 
@@ -82,7 +83,7 @@ namespace NSGAII {
             S.push_back(Sp);
         }
         int i = 0;
-        while (!F.at(i).empty()) {
+        do {
             vector<SolutionRecord> Q;
             for (const auto& pi : F.at(i)) {
                 for (int qi : S.at(pi.id)) {
@@ -95,8 +96,9 @@ namespace NSGAII {
                 }
             }
             i += 1;
-            F.push_back(Q);
-        }
+            if (!Q.empty()) F.push_back(Q);
+            else break;
+        } while(true);
         return F;
     }
 

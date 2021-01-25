@@ -29,7 +29,7 @@ Population random_population(int s, int v, int o, int c) {
 }
 
 void case_tests() {
-    
+
 }
 
 void unit_tests() {
@@ -55,7 +55,6 @@ void unit_tests() {
         int on = NSGAII::random_int() % 5 + 1;
         int cn = NSGAII::random_int();
         auto P = random_population(size, vn, on, cn);
-
         auto F = Population::fast_non_dominated_sort(P);
         int all_size = 0;
         for (const auto& fi : F) {
@@ -78,12 +77,11 @@ void unit_tests() {
         // crowding distance
         for (auto& f : F) {
             vector<double> range(on, 100.0);
-            auto f_copy = f;
             P.crowding_distance_assignment(f, range);
             int f_size = f.size();
             if (f_size < 3) {
                 for (const auto& s : f) {
-                    assert((s.distance == numeric_limits<double>::max()));
+                    assert(std::isinf(s.distance));
                 }
             } else {
                 vector<double> dst(size, 0.0);
@@ -98,10 +96,10 @@ void unit_tests() {
                         dst.at(sr.id) += (f.at(i+1).objectives.at(m) - f.at(i-1).objectives.at(m))/range.at(m);
                     }
                 }
-                for (int i = 0; i < f_size; ++ i) cout << f.at(i).distance << ", ";
-                cout << endl;
-                for (int i = 0; i < f_size; ++ i) cout << dst.at(f.at(i).id) << ", ";
-                cout << endl;
+                // for (int i = 0; i < f_size; ++ i) cout << f.at(i).distance << ", ";
+                // cout << endl;
+                // for (int i = 0; i < f_size; ++ i) cout << dst.at(f.at(i).id) << ", ";
+                // cout << endl;
                 // for(int i = 0; i < f_size; ++ i) {
                 //     const auto& fr = f.at(i);
                 //     // cout << dst.at(fr.id) << ", " << fr.distance << endl;

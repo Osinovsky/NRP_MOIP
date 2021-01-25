@@ -6,26 +6,20 @@
 #include <limits>
 #include <functional>
 #include <algorithm>
+#include <ctime>
 
 using namespace std;
 
-class A {
-public:
-    vector<int> b;
-};
-
-vector<int> random_vector(int size) {
-    std::random_device rd;
-    std::mt19937 mt(rd());
-    std::uniform_int_distribution<int> dist(1, 9);
-    vector<int> tmp(size);
-    for (int i = 0; i < size; ++ i) {
-        tmp.at(i) = dist(mt);
-    }
-    return tmp;
+int random_int() {
+    static auto int_gen = bind(uniform_int_distribution<int>(1, 99), mt19937((unsigned int)time(NULL)));
+    return int_gen();
 }
 
+
 int main(){
-    cout << ((numeric_limits<double>::max()) == (numeric_limits<double>::max())) << endl;
+    for (int i = 0; i < 10; ++ i) {
+        cout << random_int() << ", ";
+    }
+    cout << endl;
     return 0;
 }

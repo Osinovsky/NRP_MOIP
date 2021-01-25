@@ -23,7 +23,7 @@ void print_map(const map<t1, t2>& mp) {
 }
 
 void case_tests() {
-    string config_file = "config-realistic_m1-binary.json";
+    string config_file = "./test/config-realistic_m1-binary.json";
     Config config(config_file);
     cout << "itrs " << config.iteration << endl;
     cout << "popl " << config.population << endl;
@@ -36,7 +36,7 @@ void case_tests() {
     cout << "dump " << config.dump_path << endl;
     cout << "res " << config.result_path << endl; 
 
-    string NRP_file = "MSWord-binary.json";
+    string NRP_file = "./test/MSWord-binary.json";
     NRP nrp(NRP_file);
     for (const auto& cst : nrp.objectives) {
         print_vector(cst);
@@ -46,7 +46,7 @@ void case_tests() {
     }
 
 
-    string Xuan_file = "classic_1-binary.json";
+    string Xuan_file = "./test/classic_1-binary.json";
     XuanProblem xuan(Xuan_file);
     print_vector(xuan.cost);
     print_vector(xuan.profit);
