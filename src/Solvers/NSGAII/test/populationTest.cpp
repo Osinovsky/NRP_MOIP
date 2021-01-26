@@ -77,7 +77,7 @@ void unit_tests() {
         // crowding distance
         for (auto& f : F) {
             vector<double> range(on, 100.0);
-            P.crowding_distance_assignment(f, range);
+            Population::crowding_distance_assignment(f, range);
             int f_size = f.size();
             if (f_size < 3) {
                 for (const auto& s : f) {

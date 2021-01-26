@@ -21,11 +21,6 @@ namespace NSGAII {
     void Solution::set_objective(int index, double value) { this->objectives.at(index) = value; }
     void Solution::set_constraint(int index, double value) {
         this->constraints.at(index) = value;
-        if (value < -1e-6) {
-            this->if_feasible = false;
-        } else {
-            this->check_feasible();
-        }
     }
 
     const vector<bool>& Solution::get_variables() const { return this->variables; }
@@ -74,6 +69,22 @@ namespace NSGAII {
         return !equal;
     }
 
+    bool Solution::constrained_dominate(const Solution& s1, const Solution& s2) {
+        if (s1.feasible()) {
+            if (s2.feasible()) {
+                return Solution::dominate(s1, s2);
+            } else {
+                return true;
+            }
+        } else {
+            if (s2.feasible()) {
+                return false;
+            } else {
+                return Solution::dominate(s1, s2);
+            }
+        }
+    }
+
     bool Solution::operator<(const Solution& s) const {
         if (this->if_feasible) {
             if (s.feasible()) {
@@ -101,5 +112,46 @@ namespace NSGAII {
             records.push_back(SolutionRecord(i, l.at(i)));
         }
         return records;
+    }
+
+    vector<Solution> SolutionRecord::restore(const vector<Solution>& R, const vector<SolutionRecord>& F) {
+        vector<Solution> P;
+        for (const auto& f : F) {
+            P.push_back(R.at(f.id));
+        }
+        return P;
+    }
+
+    pair<vector<bool>, vector<bool>> Solution::cut(int mid) const {
+        if (mid <= 0 || mid >= this->variables.size()-1) cout << "cut mid out of bound" << endl;
+        vector<bool> head(this->variables.begin(), this->variables.begin() + mid);
+        vector<bool> tail(this->variables.begin() + mid, this->variables.end());
+        return make_pair(head, tail);
+    }
+
+    vector<bool> Solution::cut_head(int mid) const {
+        vector<bool> head(this->variables.begin(), this->variables.begin() + mid);
+        return head;
+    }
+
+    vector<bool> Solution::cut_tail(int mid) const {
+        vector<bool> tail(this->variables.begin() + mid, this->variables.end());
+        return tail;
+    }
+
+    void Solution::update_head(int mid, const vector<bool>& head) {
+        this->variables.erase(this->variables.begin(), this->variables.begin() + mid);
+        auto tmp = head;
+        tmp.insert(tmp.end(), this->variables.begin(), this->variables.end());
+        this->variables = tmp;
+    }
+
+    void Solution::update_tail(int mid, const vector<bool>& tail) {
+        this->variables.erase(this->variables.begin() + mid, this->variables.end());
+        this->variables.insert(this->variables.end(), tail.begin(), tail.end());
+    }
+
+    void Solution::flip(int position) {
+        this->variables.at(position) = !this->variables.at(position);
     }
 }

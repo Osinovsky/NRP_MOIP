@@ -1,6 +1,9 @@
 CC = clang++
 CFLAGS = -g
 
+XuanNSGAII: NSGAII.o population.o solution.o
+	$(CC) $(CFLAGS) -o run ./src/XuanNSGAII.cpp NSGAII.o population.o solution.o
+
 try:
 	$(CC) -o run ./test/try.cpp
 	./run
@@ -29,10 +32,10 @@ dumper_test: solution.o population.o
 solution.o:
 	$(CC) $(CFLAGS) -c ./src/solution.cpp
 
-population.o:
+population.o: solution.o
 	$(CC) $(CFLAGS) -c ./src/population.cpp
 
-NSGAII.o:
+NSGAII.o: solution.o population.o
 	$(CC) $(CFLAGS) -c ./src/NSGAII.cpp
 
 .PHONY : clean

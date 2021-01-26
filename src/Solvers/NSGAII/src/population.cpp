@@ -18,6 +18,11 @@ namespace NSGAII {
         return int_gen();
     }
 
+    int random_big_int() {
+        static auto bint_gen = bind(uniform_int_distribution<int>(1, 99999), mt19937((unsigned int)time(NULL)));
+        return bint_gen();
+    }
+
     Population::Population() {}
     Population::Population(int size, int variable_num, int objective_num) {
         Population(size, variable_num, objective_num, 0);
@@ -31,12 +36,15 @@ namespace NSGAII {
         }
     }
 
+    Solution& Population::at(int index) { return this->population.at(index); }
     int Population::size() const { return this->population.size(); }
     const vector<Solution>& Population::list() const { return this->population; }
+    void Population::add(const Solution& s) { this->population.push_back(s); }
     const Solution& Population::get(int index) const { return this->population.at(index); }
     int Population::get_variable_num() const { return this->variable_num; }
     int Population::get_objective_num() const { return this->objective_num; }
     int Population::get_constraint_num() const { return this->constraint_num; }
+    void Population::set(const vector<Solution>& solutions) { this->population = solutions; }
     void Population::set(int index, const Solution& s) {
         if (s.get_variable_num() == this->variable_num &&
             s.get_objective_num() == this->objective_num &&
@@ -46,6 +54,15 @@ namespace NSGAII {
             cout << "solution not match with population" << endl;
         }
         
+    }
+
+    void Population::combine(const Population& P) {
+        const auto& plist = P.list();
+        this->population.insert(this->population.end(), plist.begin(), plist.end());
+    }
+
+    void Population::clear() {
+        this->population.clear();
     }
 
     Solution Population::random_solution(int variable_num, int objective_num, int constraint_num) {
@@ -102,10 +119,12 @@ namespace NSGAII {
         return F;
     }
 
-    void Population::crowding_distance_assignment(vector<SolutionRecord>& L, const vector<double>& obj_range) const {
+    void Population::crowding_distance_assignment(vector<SolutionRecord>& L, const vector<double>& obj_range) {
         int l = L.size();
+        if (l == 0) return;
         for (auto& sr : L) { sr.distance = 0.0; }
-        for (int m = 0; m < this->objective_num; ++ m) {
+        int obj_num = L.at(0).objectives.size();
+        for (int m = 0; m < obj_num; ++ m) {
             sort(L.begin(), L.end(), [m](const SolutionRecord& r1, const SolutionRecord& r2){
                 return r1.objectives.at(m) < r2.objectives.at(m);
             });
@@ -120,5 +139,26 @@ namespace NSGAII {
 
     bool Population::crowded_comparison(const SolutionRecord& r1, const SolutionRecord& r2) {
         return (r1.rank < r2.rank || ((r1.rank == r2.rank) && (r1.distance > r2.distance)));
+    }
+
+    vector<Solution> Population::random_select(int number) const {
+        if (number <= 0 || number >= this->population.size()) cout << "tournament size cannot be " << number << endl;
+        int size = this->population.size();
+        vector<Solution> solutions;
+        vector<int> record;
+        for (int i = 0; i < number; ++ i) {
+            int chosen = random_big_int() % size;
+            while (find(record.begin(), record.end(), chosen) != record.end()) {
+                chosen = random_big_int() % size;
+            }
+            record.push_back(chosen);
+            solutions.push_back(this->population.at(chosen));
+        }
+        return solutions;
+    }
+
+    pair<Solution, Solution> Population::best_two(vector<Solution>& solutions) {
+        sort(solutions.begin(), solutions.end(), Solution::constrained_dominate);
+        return pair<Solution, Solution>(solutions.at(0), solutions.at(1));
     }
 }

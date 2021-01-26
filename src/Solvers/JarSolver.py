@@ -41,7 +41,8 @@ class JarSolver:
             file_out.close()
         # prepare command
         if 'xuan' in self.option:
-            solver_name = '{}XuanSolver'.format(self.method.upper())
+            solver_name = 'NoSolver'
+            # solver_name = '{}XuanSolver'.format(self.method.upper())
         # if 'xuan_binary' in self.option and self.option['xuan_binary']:
         #     solver_name = '{}BinarySolver'.format(self.method.upper())
         else:

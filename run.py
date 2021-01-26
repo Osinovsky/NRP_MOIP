@@ -4,16 +4,16 @@ import gc
 from src import Controller
 from src import Analyzer, Result
 
-Controller.run('tmp2.json')
+# Controller.run('test.json')
 
 # gc.collect()
 
-# folder = 'tmp'
-# analyzer = Analyzer(folder)
-# sheet = analyzer.make_better_sheet(methods=['epsilon', 'NSGAII'], indicators=['igd'])
-# # sheet = analyzer.make_better_sheet(methods=['normal', 'NSGAII', 'IBEA'], indicators=['igd', 'hv', 'evenness'])
-# Analyzer.tabulate(folder + '.csv', sheet)
-# analyzer.plot_2D_pareto('realistic_m1')
+folder = 'binary_random_test'
+analyzer = Analyzer(folder)
+sheet = analyzer.make_better_sheet(methods=['epsilon', 'NSGAII'], indicators=['igd'])
+# sheet = analyzer.make_better_sheet(methods=['normal', 'NSGAII', 'IBEA'], indicators=['igd', 'hv', 'evenness'])
+Analyzer.tabulate(folder + '.csv', sheet)
+analyzer.plot_2D_pareto('classic_1')
 
 # Result.quick_prob('triurgency_exact')
 

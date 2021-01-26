@@ -3,6 +3,9 @@
 
 #include "rapidjson/document.h"
 #include "rapidjson/istreamwrapper.h"
+#include "rapidjson/stringbuffer.h"
+#include "rapidjson/writer.h"
+#include "solution.h"
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -23,6 +26,7 @@ namespace NSGAII {
         double mutation = 1.0;
         double crossover = 0.8;
         double repair = 0.02;
+        double xuan = 0.0;
         string problem_name;
         string dump_path;
         string result_path;
@@ -32,7 +36,6 @@ namespace NSGAII {
             IStreamWrapper isw(file);
             Document d;
             d.ParseStream(isw);
-
             if (d.HasMember("iteration")) this->iteration = d["iteration"].GetInt();
             if (d.HasMember("population")) this->population = d["population"].GetInt();
             if (d.HasMember("max_evaluations")) this->max_evaluations = d["max_evaluations"].GetInt();
@@ -40,6 +43,7 @@ namespace NSGAII {
             if (d.HasMember("mutation")) this->mutation = d["mutation"].GetDouble();
             if (d.HasMember("crossover")) this->crossover = d["crossover"].GetDouble();
             if (d.HasMember("repair")) this->repair = d["repair"].GetDouble();
+            if (d.HasMember("xuan")) this->xuan = d["xuan"].GetDouble();
             this->problem_name = d["problem_name"].GetString();
             this->dump_path = d["dump_path"].GetString();
             this->result_path = d["result_path"].GetString();
@@ -48,7 +52,13 @@ namespace NSGAII {
         }
     };
 
-    class NRP {
+    class Problem {
+    public:
+        virtual void evaluate(Solution&, double bound) = 0;
+        virtual vector<double> objective_ranges(double bound) = 0;
+    };
+
+    class NRP : public Problem {
     public:
         vector<vector<double>> objectives;
         vector<map<int, double>> inequations;
@@ -81,16 +91,62 @@ namespace NSGAII {
 
             file.close();
         }
+
+        void evaluate(Solution& s, double bound) override {
+            const auto& vars = s.get_variables();
+            int size = vars.size();
+            for (int i = 0; i < this->objectives.size(); ++ i) {
+                const auto& objective = this->objectives.at(i);
+                assert(objective.size() == size);
+                double obj = 0.0;
+                for (int k = 0; k < size; ++ k) {
+                    if (vars.at(k)) obj += objective.at(k);
+                }
+                s.set_objective(i, obj);
+            }
+            for (int i = 0; i < this->inequations.size(); ++ i) {
+                const auto& inequation = this->inequations.at(i);
+                double cst = 0.0;
+                for (auto const& [key, val] : inequation) {
+                    if (key == size) {
+                        cst += val;
+                    } else if (vars.at(key)) {
+                        cst -= val;
+                    }
+                }
+                s.set_constraint(i, cst);
+            }
+            s.check_feasible();
+        }
+
+        vector<double> objective_ranges(double bound) override {
+            vector<double> ranges;
+            for (const auto& objective : this->objectives) {
+                double up = 0.0;
+                double low = 0.0;
+                for (double obj : objective) {
+                    if (obj > 0.0) {
+                        up += obj;
+                    } else {
+                        low += obj;
+                    }
+                }
+                ranges.push_back(up - low + 1.0);
+            }
+            return ranges;
+        }
     };
 
-    class XuanProblem {
+    class XuanNRP : public Problem  {
     public:
         vector<double> cost;
         vector<double> profit;
         vector<double> urgency;
         vector<vector<int>> requests;
+        double min_urgency;
+        bool scale;
 
-        XuanProblem(const string& problem_file) {
+        XuanNRP(const string& problem_file) {
             ifstream file(problem_file);
             IStreamWrapper isw(file);
             Document d;
@@ -118,7 +174,9 @@ namespace NSGAII {
                 int key = stoi(iter->name.GetString());
                 double value = iter->value.GetDouble();
                 tmp_urgency.insert(pair<int, double>(key, value));
+                min_urgency += value;
             }
+            scale = false;
 
             // re encode requirement and customers
             int index = 0;
@@ -160,6 +218,63 @@ namespace NSGAII {
             }
 
             file.close();
+        }
+
+        void evaluate(Solution& s, double bound) override {
+            const auto& vars = s.get_variables();
+            int size = vars.size();
+            
+            double cost = 0.0;
+            double profit = 0.0;
+            for (int i = 0; i < size; ++ i) if (vars.at(i)) cost += this->cost.at(i);
+            for (int i = 0; i < requests.size(); ++ i) {
+                bool sat = true;
+                for (auto req : requests.at(i)) {
+                    if (!vars.at(req)) {
+                        sat = false;
+                        break;
+                    }
+                }
+                if (sat) profit -= this->profit.at(i);
+            }
+
+            s.set_objective(0, profit);
+            s.set_objective(1, cost);
+
+            if (bound < -5.0) {
+                // triple
+                double urgency = 0.0;
+                for (int i = 0; i < size; ++ i) if (vars.at(i)) urgency -= this->urgency.at(i);
+                s.set_objective(2, urgency);
+            } else if(bound < 0.0) {
+                // binary 
+            } else {
+                // bincst
+                double urgency = 0.0;
+                for (int i = 0; i < size; ++ i) if (vars.at(i)) urgency -= this->urgency.at(i);
+                if (!scale) {
+                    this->min_urgency *= bound;
+                    scale = true;
+                }
+                s.set_constraint(0, this->min_urgency - urgency);
+            }
+        }
+
+        vector<double> objective_ranges(double bound) override {
+            vector<double> ranges;
+            double sum_cost = 0.0;
+            double sum_profit = 0.0;
+            std::for_each(cost.begin(), cost.end(), [&](double n){sum_cost += n;});
+            std::for_each(profit.begin(), profit.end(), [&](double n){sum_profit += n;});
+            ranges.push_back(sum_profit);
+            ranges.push_back(sum_cost);
+            if (bound < -5.0) {
+                // triple
+                double sum_urgency = 0.0;
+                std::for_each(urgency.begin(), urgency.end(), [&](double n){sum_urgency += n;});
+                ranges.push_back(sum_urgency);
+            }
+            return ranges;
         }
     };
 }

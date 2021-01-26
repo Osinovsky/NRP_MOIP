@@ -47,7 +47,7 @@ void case_tests() {
 
 
     string Xuan_file = "./test/classic_1-binary.json";
-    XuanProblem xuan(Xuan_file);
+    XuanNRP xuan(Xuan_file);
     print_vector(xuan.cost);
     print_vector(xuan.profit);
     print_vector(xuan.urgency);

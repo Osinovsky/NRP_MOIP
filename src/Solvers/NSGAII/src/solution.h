@@ -32,10 +32,18 @@ namespace NSGAII {
         bool feasible() const;
         bool check_feasible();
         static bool dominate(const Solution&, const Solution&);
+        static bool constrained_dominate(const Solution&, const Solution&);
 
         void operator=(const Solution&);
         bool operator==(const Solution&) const;
         bool operator<(const Solution&) const;
+
+        pair<vector<bool>, vector<bool>> cut(int mid) const;
+        vector<bool> cut_head(int mid) const;
+        vector<bool> cut_tail(int mid) const;
+        void update_head(int mid, const vector<bool>& head);
+        void update_tail(int mid, const vector<bool>& tail);
+        void flip(int position);
     };
 
     class SolutionRecord {
@@ -47,6 +55,7 @@ namespace NSGAII {
 
         SolutionRecord(int id, const Solution& s);
         static vector<SolutionRecord> shortcut(const vector<Solution>& l);
+        static vector<Solution> restore(const vector<Solution>& R, const vector<SolutionRecord>& F);
     };
 }
 

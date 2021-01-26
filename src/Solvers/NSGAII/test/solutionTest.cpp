@@ -95,6 +95,7 @@ void unit_tests(){
                 break;
             }
         }
+        s.check_feasible();
         assert(f == s.feasible());
     }
 
@@ -139,6 +140,70 @@ void unit_tests(){
         assert(!((s1 < s2) && (s2 < s1)));
         assert(!(s1 < s1) && !(s2 < s2));
     }
+
+    // flip
+    for (int i = 0; i < 100; ++ i ){
+        random_device rd;
+        mt19937 mt(rd());
+        uniform_int_distribution<int> int_dist(1, 100);
+
+        int vn = int_dist(mt);
+        int on = int_dist(mt);
+        int cn = 0;
+        if (int_dist(mt) > 50) cn = int_dist(mt);
+        auto s = random_solution(vn, on, cn);
+        int round = int_dist(mt) % 30;
+
+        uniform_int_distribution<int> pos(0, vn-1);
+
+        for (int j = 0; j < round; ++ j) {
+            int position = pos(mt);
+            bool last = s.get_variable(position);
+            s.flip(position);
+            assert(last != s.get_variable(position));
+        }
+    }
+
+    // cuts
+    for (int i = 0; i < 100; ++ i) {
+        random_device rd;
+        mt19937 mt(rd());
+        uniform_int_distribution<int> int_dist(1, 100);
+
+        int vn = int_dist(mt) + 3;
+        int on = int_dist(mt);
+        int cn = 0;
+        if (int_dist(mt) > 50) cn = int_dist(mt);
+        auto s1 = random_solution(vn, on, cn);
+        auto s2 = random_solution(vn, on, cn);
+
+        uniform_int_distribution<int> pos(1, vn-2);
+        int mid = pos(mt);
+        auto s1ht = s1.cut(mid);
+        auto s2ht = s2.cut(mid);
+        assert(s1ht.first == s1.cut_head(mid));
+        assert(s1ht.second == s1.cut_tail(mid));
+        assert(s2ht.first == s2.cut_head(mid));
+        assert(s2ht.second == s2.cut_tail(mid));
+
+        auto s1cp = s1;
+        auto s2cp = s2;
+
+        s1.update_tail(mid, s2.cut_tail(mid));
+        s2.update_head(mid, s1.cut_head(mid));
+        assert(s1.get_variable_num() == vn);
+        assert(s2.get_variable_num() == vn);
+    
+        for (int k = 0; k < vn; ++ k) {
+            if (k < mid) {
+                assert(s1.get_variable(k) == s1cp.get_variable(k));
+                assert(s2.get_variable(k) == s1cp.get_variable(k));
+            } else {
+                assert(s1.get_variable(k) == s2cp.get_variable(k));
+                assert(s2.get_variable(k) == s2cp.get_variable(k));
+            }
+        }
+    }
 }
 
 void case_tests() {
@@ -146,8 +211,10 @@ void case_tests() {
 
     assert(s1.feasible());
     s1.set_constraint(0, -1.0);
+    s1.check_feasible();
     assert(!s1.feasible());
     s1.set_constraint(0, .0);
+    s1.check_feasible();
     assert(s1.feasible());
 
     Solution s2(0, 3, 1);
@@ -169,6 +236,41 @@ void case_tests() {
     s1.set_objective(0, 2.0);
 
     assert(!(s1 < s2) && !(s2 < s1));
+
+    s1 = random_solution(10, 3, 0);
+
+    auto ht = s1.cut(3);
+    assert(ht.first.size() == 3);
+    assert(ht.second.size() == 7);
+
+    s2 = random_solution(10, 3, 0);
+    auto s1_copy = s1;
+    auto s2_copy = s2;
+
+    int mid = 4;
+    auto s1ht = s1.cut(mid);
+    auto s2ht = s2.cut(mid);
+    assert(s1ht.first == s1.cut_head(mid));
+    assert(s1ht.second == s1.cut_tail(mid));
+    assert(s2ht.first == s2.cut_head(mid));
+    assert(s2ht.second == s2.cut_tail(mid));
+    s1.update_head(mid, s2ht.first);
+    s2.update_tail(mid, s1ht.second);
+    for (int i = 0; i < 10; ++ i) {
+        if (i < mid) {
+            assert(s1.get_variable(i) == s2_copy.get_variable(i));
+            assert(s2.get_variable(i) == s2_copy.get_variable(i));
+        } else {
+            assert(s1.get_variable(i) == s1_copy.get_variable(i));
+            assert(s2.get_variable(i) == s1_copy.get_variable(i));
+        }
+    }
+
+    auto s3 = s1;
+    s3.flip(7);
+    assert(s3.get_variable(7) != s1.get_variable(7));
+    s3.flip(7);
+    assert(s3 == s1);
 }
 
 int main() {
