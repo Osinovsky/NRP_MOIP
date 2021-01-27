@@ -20,6 +20,14 @@
         },
         {
             "type": "java",
+            "name": "Tyr",
+            "request": "launch",
+            "mainClass": "org.osinovsky.Tyr",
+            "vmArgs": "-enableassertions",
+            "args": []
+        },
+        {
+            "type": "java",
             "name": "java NSGAII",
             "request": "launch",
             "mainClass": "org.osinovsky.XuanNSGAII",

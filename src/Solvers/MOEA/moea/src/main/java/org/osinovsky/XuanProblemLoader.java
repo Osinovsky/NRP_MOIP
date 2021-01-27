@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public class XuanProblemLoader {
     // members
@@ -14,54 +15,29 @@ public class XuanProblemLoader {
     private Map<Integer, Integer> profit = new HashMap<>();
     private Map<Integer, Integer> urgency = new HashMap<>();
     private Map<Integer, ArrayList<Integer>> requests = new HashMap<Integer, ArrayList<Integer>>();
-    // reqDict map index to requirement id
-    private Map<Integer, Integer> reqDict = new HashMap<>(); // index -> req id
-    private Map<Integer, Integer> rvReqDict = new HashMap<>(); // req id -> index
+
+    private List<Integer> rcost = new ArrayList<>();
+    private List<Integer> rprofit = new ArrayList<>();
+    private List<Integer> rurgency = new ArrayList<>();
+    private List<List<Integer>> rrequests = new ArrayList<List<Integer>>();
+
 
     // get cost
-    public Map<Integer, Integer> getCost() {
-        return this.cost;
+    public List<Integer> getCost() {
+        return this.rcost;
     }
     // get profit
-    public Map<Integer, Integer> getProfit() {
-        return this.profit;
+    public List<Integer> getProfit() {
+        return this.rprofit;
     }
     // get urgency
-    public Map<Integer, Integer> getUrgency() {
-        return this.urgency;
+    public List<Integer> getUrgency() {
+        return this.rurgency;
     }
     // get requests
-    public Map<Integer, ArrayList<Integer>> getRequests() {
-        return this.requests;
-    }
-    // get reqDict
-    public Map<Integer, Integer> getReqDict() {
-        return this.reqDict;
-    }
-    // get reversed reqDict
-    public Map<Integer, Integer> getRvReqDict() {
-        return this.rvReqDict;
-    }
-
-    // evaluate
-    public int evaluate(ArrayList<Boolean> variables) {
-        int sumProfit = 0;
-        for (int cust : this.requests.keySet()) {
-            int counter = 0;
-            for (int i = 0; i < variables.size(); ++ i) {
-                if (variables.get(i)) {
-                    if (this.requests.get(cust).contains(this.reqDict.get(i))) {
-                        counter ++;
-                    }
-                }
-            }
-            if (this.requests.get(cust).size() == counter){
-                sumProfit += this.profit.get(cust);
-            }
-        }
-        return sumProfit;
-    }
- 
+    public List<List<Integer>> getRequests() {
+        return this.rrequests;
+    } 
 
     // load from problem file
     @SuppressWarnings("unchecked")
@@ -79,20 +55,13 @@ public class XuanProblemLoader {
             int key = Integer.parseInt(keyStr);
             this.cost.put(key, costMap.get(keyStr));
         }
-        // construct reqDict from cost
-        ArrayList<Integer> reqList = new ArrayList<Integer>();
-        for (String keyStr : costMap.keySet()) {
-            reqList.add(Integer.parseInt(keyStr));
-        }
-        Integer[] reqArray = new Integer[reqList.size()];
-        for (int i = 0; i < reqArray.length; ++ i){
-            reqArray[i] = reqList.get(i);
-        }
-        Arrays.sort(reqArray);
+        Map<Integer, Integer> reqRename = new HashMap<Integer, Integer>();
+        Map<Integer, Integer> reqRenameRev = new HashMap<Integer, Integer>();
         int counter = 0;
-        for (int key : reqArray) {
-            reqDict.put(counter, key);
-            rvReqDict.put(key, counter);
+        for (Map.Entry<Integer, Integer> entry : this.cost.entrySet()) {
+            this.rcost.add(entry.getValue());
+            reqRename.put(entry.getKey(), counter);
+            reqRenameRev.put(counter, entry.getKey());
             counter += 1;
         }
 
@@ -101,6 +70,23 @@ public class XuanProblemLoader {
         for (String keyStr : profitMap.keySet()) {
             int key = Integer.parseInt(keyStr);
             this.profit.put(key, profitMap.get(keyStr));
+        }
+        Map<Integer, Integer> cusRenameRev = new HashMap<Integer, Integer>();
+        counter = 0;
+        for (Map.Entry<Integer, Integer> entry : this.profit.entrySet()) {
+            this.rprofit.add(entry.getValue());
+            cusRenameRev.put(counter, entry.getKey());
+            counter += 1;
+        }
+
+        // urgency
+        Map<String, Integer> urgencyMap = (Map<String, Integer>)value.get("urgency");
+        for (String keyStr : urgencyMap.keySet()) {
+            int key = Integer.parseInt(keyStr);
+            this.urgency.put(key, urgencyMap.get(keyStr));
+        }
+        for (int i = 0; i < reqRename.size(); ++ i) {
+            this.rurgency.add(this.urgency.get(reqRenameRev.get(i)));
         }
 
         // requests
@@ -115,11 +101,12 @@ public class XuanProblemLoader {
             this.requests.put(key, yaRequestList);
         }
 
-        // urgency
-        Map<String, Integer> urgencyMap = (Map<String, Integer>)value.get("urgency");
-        for (String keyStr : urgencyMap.keySet()) {
-            int key = Integer.parseInt(keyStr);
-            this.urgency.put(key, urgencyMap.get(keyStr));
+        for (int i = 0; i < cusRenameRev.size(); ++ i) {
+            List<Integer> tmpList = new ArrayList<Integer>();
+            for (int req : this.requests.get(cusRenameRev.get(i))) {
+                tmpList.add(reqRename.get(req));
+            }
+            this.rrequests.add(tmpList);
         }
     }
 }

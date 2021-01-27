@@ -32,6 +32,8 @@ public class CMOIBEA {
         int patient = (int)config.get("patient");
         double crossoverProbability = (double)config.get("crossover");
         double mutationProbability = (double)config.get("mutation");
+        double repairProbability = (double)config.get("repair");
+        double timeLimit = (double)config.get("time_limit");
         ArrayList<ArrayList<Boolean>> seeds = new ArrayList<ArrayList<Boolean>>();
         boolean useSeed = false;
         if (config.containsKey("seeds")) {
@@ -47,7 +49,8 @@ public class CMOIBEA {
         String problemFile = Paths.get((String)config.get("dump_path"),
                                         (String)config.get("problem_name")+".json").toString();
         NRPProblemLoader problemLoader = new NRPProblemLoader(problemFile);
-        ConstrainedMONRP problem = new ConstrainedMONRP(problemLoader.getObjectives(), problemLoader.getInequations());
+        ConstrainedMONRP problem = new ConstrainedMONRP(repairProbability, timeLimit,
+                                                        problemLoader.getObjectives(), problemLoader.getInequations());
 
         System.out.println("IBEA, standing by.");
         // print iteration times
@@ -59,6 +62,8 @@ public class CMOIBEA {
         System.out.println("tournament: " + Integer.toString(tournamentSize));
         System.out.println("crossover: " + Double.toString(crossoverProbability));
         System.out.println("mutation: " + Double.toString(mutationProbability));
+        System.out.println("repair: " + Double.toString(repairProbability));
+        System.out.println("repair time limit: " + Double.toString(timeLimit));
 
         // operators
         CrossoverOperator<BinarySolution> crossover = new SinglePointCrossover(crossoverProbability);

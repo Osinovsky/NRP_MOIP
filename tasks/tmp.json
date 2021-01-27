@@ -1,7 +1,7 @@
 [
     {
         "name": "tmp",
-        "dataset": "realistic_m1",
+        "dataset": "ReleasePlanner",
         "modelling": [
             {
                 "name": "binary"
@@ -10,14 +10,15 @@
         "method":[
             {
                 "name": "NSGAII",
-                "iteration": 5,
+                "iteration": 3,
                 "population": 500,
-                "max_evaluations": 100000,
+                "max_evaluations": 50000,
                 "patient": 0,
                 "tournament": 5,
-                "mutation": 0.000207,
+                "mutation": 0.04,
                 "crossover": 0.8,
-                "repair": 0.02
+                "repair": 0.0001,
+                "time_limit": 1.0
             }
         ]
     }

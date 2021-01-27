@@ -1,6 +1,6 @@
 [
     {
-        "name": "bincst_random",
+        "name": "bincst",
         "dataset": "classic_1",
         "modelling": [
             {
@@ -17,11 +17,13 @@
                 "patient": 0,
                 "tournament": 5,
                 "mutation": 0.00714,
-                "crossover": 0.9
+                "crossover": 0.8,
+                "repair": 0.0001,
+                "time_limit": 1.0
             }
         ]
     },{
-        "name": "bincst_random",
+        "name": "bincst",
         "dataset": "classic_1",
         "modelling": [
             {
@@ -38,11 +40,13 @@
                 "patient": 0,
                 "tournament": 5,
                 "mutation": 0.00714,
-                "crossover": 0.9
+                "crossover": 0.8,
+                "repair": 0.0001,
+                "time_limit": 1.0
             }
         ]
     },{
-        "name": "bincst_random",
+        "name": "bincst",
         "dataset": "classic_1",
         "modelling": [
             {
@@ -59,12 +63,14 @@
                 "patient": 0,
                 "tournament": 5,
                 "mutation": 0.00714,
-                "crossover": 0.9
+                "crossover": 0.8,
+                "repair": 0.0001,
+                "time_limit": 1.0
             }
         ]
     },
     {
-        "name": "bincst_random",
+        "name": "bincst",
         "dataset": "classic_2",
         "modelling": [
             {
@@ -81,11 +87,13 @@
                 "patient": 0,
                 "tournament": 5,
                 "mutation": 0.00161,
-                "crossover": 0.9
+                "crossover": 0.8,
+                "repair": 0.0001,
+                "time_limit": 1.0
             }
         ]
     },    {
-        "name": "bincst_random",
+        "name": "bincst",
         "dataset": "classic_2",
         "modelling": [
             {
@@ -102,11 +110,13 @@
                 "patient": 0,
                 "tournament": 5,
                 "mutation": 0.00161,
-                "crossover": 0.9
+                "crossover": 0.8,
+                "repair": 0.0001,
+                "time_limit": 1.0
             }
         ]
     },    {
-        "name": "bincst_random",
+        "name": "bincst",
         "dataset": "classic_2",
         "modelling": [
             {
@@ -123,12 +133,14 @@
                 "patient": 0,
                 "tournament": 5,
                 "mutation": 0.00161,
-                "crossover": 0.9
+                "crossover": 0.8,
+                "repair": 0.0001,
+                "time_limit": 1.0
             }
         ]
     },
     {
-        "name": "bincst_random",
+        "name": "bincst",
         "dataset": "classic_3",
         "modelling": [
             {
@@ -145,11 +157,13 @@
                 "patient": 0,
                 "tournament": 5,
                 "mutation": 0.000667,
-                "crossover": 0.9
+                "crossover": 0.8,
+                "repair": 0.0001,
+                "time_limit": 1.0
             }
         ]
     },    {
-        "name": "bincst_random",
+        "name": "bincst",
         "dataset": "classic_3",
         "modelling": [
             {
@@ -166,11 +180,13 @@
                 "patient": 0,
                 "tournament": 5,
                 "mutation": 0.000667,
-                "crossover": 0.9
+                "crossover": 0.8,
+                "repair": 0.0001,
+                "time_limit": 1.0
             }
         ]
     },    {
-        "name": "bincst_random",
+        "name": "bincst",
         "dataset": "classic_3",
         "modelling": [
             {
@@ -187,12 +203,14 @@
                 "patient": 0,
                 "tournament": 5,
                 "mutation": 0.000667,
-                "crossover": 0.9
+                "crossover": 0.8,
+                "repair": 0.0001,
+                "time_limit": 1.0
             }
         ]
     },
     {
-        "name": "bincst_random",
+        "name": "bincst",
         "dataset": "classic_4",
         "modelling": [
             {
@@ -209,11 +227,13 @@
                 "patient": 0,
                 "tournament": 5,
                 "mutation": 0.000308,
-                "crossover": 0.9
+                "crossover": 0.8,
+                "repair": 0.0001,
+                "time_limit": 1.0
             }
         ]
     },    {
-        "name": "bincst_random",
+        "name": "bincst",
         "dataset": "classic_4",
         "modelling": [
             {
@@ -230,11 +250,13 @@
                 "patient": 0,
                 "tournament": 5,
                 "mutation": 0.000308,
-                "crossover": 0.9
+                "crossover": 0.8,
+                "repair": 0.0001,
+                "time_limit": 1.0
             }
         ]
     },    {
-        "name": "bincst_random",
+        "name": "bincst",
         "dataset": "classic_4",
         "modelling": [
             {
@@ -251,12 +273,14 @@
                 "patient": 0,
                 "tournament": 5,
                 "mutation": 0.000308,
-                "crossover": 0.9
+                "crossover": 0.8,
+                "repair": 0.0001,
+                "time_limit": 1.0
             }
         ]
     },
     {
-        "name": "bincst_random",
+        "name": "bincst",
         "dataset": "classic_5",
         "modelling": [
             {
@@ -273,12 +297,14 @@
                 "patient": 0,
                 "tournament": 5,
                 "mutation": 0.000667,
-                "crossover": 0.9
+                "crossover": 0.8,
+                "repair": 0.0001,
+                "time_limit": 1.0
             }
         ]
     },
     {
-        "name": "bincst_random",
+        "name": "bincst",
         "dataset": "classic_5",
         "modelling": [
             {
@@ -295,12 +321,14 @@
                 "patient": 0,
                 "tournament": 5,
                 "mutation": 0.000667,
-                "crossover": 0.9
+                "crossover": 0.8,
+                "repair": 0.0001,
+                "time_limit": 1.0
             }
         ]
     },
     {
-        "name": "bincst_random",
+        "name": "bincst",
         "dataset": "classic_5",
         "modelling": [
             {
@@ -317,12 +345,14 @@
                 "patient": 0,
                 "tournament": 5,
                 "mutation": 0.000667,
-                "crossover": 0.9
+                "crossover": 0.8,
+                "repair": 0.0001,
+                "time_limit": 1.0
             }
         ]
     },
     {
-        "name": "bincst_random",
+        "name": "bincst",
         "dataset": "MSWord",
         "modelling": [
             {
@@ -339,12 +369,14 @@
                 "patient": 0,
                 "tournament": 5,
                 "mutation": 0.02,
-                "crossover": 0.9
+                "crossover": 0.8,
+                "repair": 0.0001,
+                "time_limit": 1.0
             }
         ]
     },
     {
-        "name": "bincst_random",
+        "name": "bincst",
         "dataset": "MSWord",
         "modelling": [
             {
@@ -361,12 +393,14 @@
                 "patient": 0,
                 "tournament": 5,
                 "mutation": 0.02,
-                "crossover": 0.9
+                "crossover": 0.8,
+                "repair": 0.0001,
+                "time_limit": 1.0
             }
         ]
     },
     {
-        "name": "bincst_random",
+        "name": "bincst",
         "dataset": "MSWord",
         "modelling": [
             {
@@ -383,12 +417,14 @@
                 "patient": 0,
                 "tournament": 5,
                 "mutation": 0.02,
-                "crossover": 0.9
+                "crossover": 0.8,
+                "repair": 0.0001,
+                "time_limit": 1.0
             }
         ]
     },
     {
-        "name": "bincst_random",
+        "name": "bincst",
         "dataset": "ReleasePlanner",
         "modelling": [
             {
@@ -405,12 +441,14 @@
                 "patient": 0,
                 "tournament": 5,
                 "mutation": 0.04,
-                "crossover": 0.9
+                "crossover": 0.8,
+                "repair": 0.0001,
+                "time_limit": 1.0
             }
         ]
     },
     {
-        "name": "bincst_random",
+        "name": "bincst",
         "dataset": "ReleasePlanner",
         "modelling": [
             {
@@ -427,12 +465,14 @@
                 "patient": 0,
                 "tournament": 5,
                 "mutation": 0.04,
-                "crossover": 0.9
+                "crossover": 0.8,
+                "repair": 0.0001,
+                "time_limit": 1.0
             }
         ]
     },
     {
-        "name": "bincst_random",
+        "name": "bincst",
         "dataset": "ReleasePlanner",
         "modelling": [
             {
@@ -449,7 +489,9 @@
                 "patient": 0,
                 "tournament": 5,
                 "mutation": 0.04,
-                "crossover": 0.9
+                "crossover": 0.8,
+                "repair": 0.0001,
+                "time_limit": 1.0
             }
         ]
     }

@@ -34,6 +34,8 @@ public class XuanIBEA extends AbstractAlgorithmRunner {
         double crossoverProbability = (double)config.get("crossover");
         double mutationProbability = (double)config.get("mutation");
         double bound = ((double)config.get("xuan"));
+        double repair = (double)config.get("repair");
+        double timeLimit = (double)config.get("time_limit");
 
         // int lsRound = (int)config.get("round");
         // double lsRatio = (double)config.get("ratio");
@@ -54,11 +56,9 @@ public class XuanIBEA extends AbstractAlgorithmRunner {
                                        (String)config.get("problem_name")+".json").toString();
         XuanProblemLoader problemLoader = new XuanProblemLoader(problemFile);
 
-        XuanNRP problem = new XuanNRP(bound,
+        XuanNRP problem = new XuanNRP(bound, repair, timeLimit,
                                       problemLoader.getCost(), problemLoader.getProfit(),
-                                      problemLoader.getUrgency(),
-                                      problemLoader.getRequests(), problemLoader.getReqDict(),
-                                      problemLoader.getRvReqDict());
+                                      problemLoader.getUrgency(), problemLoader.getRequests());
 
         // print iteration times
         System.out.println("iterations: " + Integer.toString(iterationTimes));
@@ -69,6 +69,8 @@ public class XuanIBEA extends AbstractAlgorithmRunner {
         System.out.println("tournament: " + Integer.toString(tournamentSize));
         System.out.println("crossover: " + Double.toString(crossoverProbability));
         System.out.println("mutation: " + Double.toString(mutationProbability));
+        System.out.println("repair: " + Double.toString(repair));
+        System.out.println("repair time limit: " + Double.toString(timeLimit));
         // System.out.println("local search round: " + Integer.toString(lsRound));
         // System.out.println("local search ratio: " + Double.toString(lsRatio));
 

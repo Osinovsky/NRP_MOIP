@@ -4,6 +4,12 @@ import org.uma.jmetal.problem.binaryproblem.impl.AbstractBinaryProblem;
 import org.uma.jmetal.solution.binarysolution.BinarySolution;
 import org.uma.jmetal.util.binarySet.BinarySet;
 
+import ilog.concert.IloIntExpr;
+import ilog.concert.IloException;
+import ilog.concert.IloIntVar;
+import ilog.concert.IloRange;
+import ilog.cplex.IloCplex;
+
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
@@ -18,12 +24,23 @@ public class ConstrainedMONRP extends AbstractBinaryProblem {
     private List<List<Double>> objectives;
     private List<Map<Integer, Double>> inequations;
 
+    private double timeLimit;
+    private double repair;
+    private IloCplex cplex;
+    private IloIntVar[] vars;
+    private double[] firstVals;
+    private double[] secondVals;
+
     public ConstrainedMONRP(
+        double repair,
+        double timeLimit,
         List<List<Double>> objectives,
         List<Map<Integer, Double>> inequations
     ) {
         this.objectives = objectives;
         this.inequations = inequations;
+        this.repair = repair;
+        this.timeLimit = timeLimit;
 
         this.varNum = this.objectives.get(0).size();
         setNumberOfVariables(this.varNum);
@@ -36,6 +53,34 @@ public class ConstrainedMONRP extends AbstractBinaryProblem {
             bitsPerVariable.add(1);
         }
         constructRequestList();
+
+        try {
+            this.cplex = new IloCplex();
+            this.cplex.setOut(null);
+			// cplex.setParam(IloCplex.Param.MIP.Tolerances.AbsMIPGap, 0.0);
+			// cplex.setParam(IloCplex.Param.MIP.Tolerances.MIPGap, 0.0);
+			this.cplex.setParam(IloCplex.Param.Threads, 1);
+			// cplex.setParam(IloCplex.Param.Parallel, 0);
+            this.cplex.setParam(IloCplex.Param.TimeLimit, this.timeLimit);
+            
+            IloIntVar[] x = this.cplex.boolVarArray(this.varNum);
+            this.vars = x;
+
+            for (int i = 0; i < this.inequations.size(); ++ i) {
+                IloIntExpr cst = this.cplex.sum(x[this.suf.get(i)], this.cplex.prod(-1, x[this.pre.get(i)]));
+                this.cplex.addLe(cst, 0.0);
+            }
+
+            this.firstVals = new double[x.length];
+            for (int i = 0; i < x.length; ++ i) this.firstVals[i] = this.objectives.get(0).get(i);
+            this.cplex.addMinimize(this.cplex.scalProd(x, firstVals));
+
+            this.secondVals = new double[x.length];
+            for (int i = 0; i < x.length; ++ i) this.secondVals[i] = this.objectives.get(1).get(i);
+        } catch (IloException e) {
+            System.err.println("Cplex initialize: " + e);
+            this.repair = 0.0;
+        }
     }
 
     @Override
@@ -92,9 +137,29 @@ public class ConstrainedMONRP extends AbstractBinaryProblem {
             }
         }
     }
+    
+    public void fixSolution(BinarySolution solution) {
+        try {
+            // see second obj as optimal
+            IloRange cst = cplex.addLe(cplex.scalProd(this.vars, this.secondVals), solution.getObjective(1));
+            if (this.cplex.solve()) {
+                if (this.cplex.getStatus().toString().toLowerCase().contains("optimal")) {
+                    // have solution
+                    double[] vals = cplex.getValues(this.vars);
+                    for (int i = 0; i < this.varNum; ++ i) {
+                        solution.getVariable(i).set(0, (Math.round(vals[i]) == 1));
+                    }
+                    System.out.println("fix to " + Double.toString(this.cplex.getObjValue()));
+                    this.subEvaluate(solution);
+                }
+            }
+            this.cplex.delete(cst);
+        } catch (IloException e) {
+            System.err.println("Cplex solution fix: " + e);
+        }
+    }
 
-    // evaluate
-    public void evaluate(BinarySolution solution) {
+    private void subEvaluate(BinarySolution solution) {
         // get all variables
         List<BinarySet> variables = solution.getVariables();
         // evaluate objectives
@@ -128,6 +193,14 @@ public class ConstrainedMONRP extends AbstractBinaryProblem {
             }
             // set the constraint
             solution.setConstraint(cstIndex, cst);
+        }
+    }
+
+    // evaluate
+    public void evaluate(BinarySolution solution) {
+        subEvaluate(solution);
+        if (Math.random() < this.repair) {
+            fixSolution(solution);
         }
     }
 }

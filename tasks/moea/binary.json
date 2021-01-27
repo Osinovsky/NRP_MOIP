@@ -1,6 +1,6 @@
 [
     {
-        "name": "binary_seed",
+        "name": "binary",
         "dataset": "classic_1",
         "modelling": [
             {
@@ -16,13 +16,14 @@
                 "patient": 0,
                 "tournament": 5,
                 "mutation": 0.00714,
-                "crossover": 0.9,
-                "seeds": "./datasets/seeds/binary/classic_1.txt"
+                "crossover": 0.8,
+                "repair": 0.0001,
+                "time_limit": 1.0
             }
         ]
     },
     {
-        "name": "binary_seed",
+        "name": "binary",
         "dataset": "classic_2",
         "modelling": [
             {
@@ -38,13 +39,14 @@
                 "patient": 0,
                 "tournament": 5,
                 "mutation": 0.00161,
-                "crossover": 0.9,
-                "seeds": "./datasets/seeds/binary/classic_2.txt"
+                "crossover": 0.8,
+                "repair": 0.0001,
+                "time_limit": 1.0
             }
         ]
     },
     {
-        "name": "binary_seed",
+        "name": "binary",
         "dataset": "classic_3",
         "modelling": [
             {
@@ -60,13 +62,14 @@
                 "patient": 0,
                 "tournament": 5,
                 "mutation": 0.000667,
-                "crossover": 0.9,
-                "seeds": "./datasets/seeds/binary/classic_3.txt"
+                "crossover": 0.8,
+                "repair": 0.0001,
+                "time_limit": 1.0
             }
         ]
     },
     {
-        "name": "binary_seed",
+        "name": "binary",
         "dataset": "classic_4",
         "modelling": [
             {
@@ -82,13 +85,14 @@
                 "patient": 0,
                 "tournament": 5,
                 "mutation": 0.000308,
-                "crossover": 0.9,
-                "seeds": "./datasets/seeds/binary/classic_4.txt"
+                "crossover": 0.8,
+                "repair": 0.0001,
+                "time_limit": 1.0
             }
         ]
     },
     {
-        "name": "binary_seed",
+        "name": "binary",
         "dataset": "classic_5",
         "modelling": [
             {
@@ -104,13 +108,14 @@
                 "patient": 0,
                 "tournament": 5,
                 "mutation": 0.000667,
-                "crossover": 0.9,
-                "seeds": "./datasets/seeds/binary/classic_5.txt"
+                "crossover": 0.8,
+                "repair": 0.0001,
+                "time_limit": 1.0
             }
         ]
     },
     {
-        "name": "binary_seed",
+        "name": "binary",
         "dataset": "realistic_e1",
         "modelling": [
             {
@@ -126,13 +131,14 @@
                 "patient": 0,
                 "tournament": 5,
                 "mutation": 0.000599,
-                "crossover": 0.9,
-                "seeds": "./datasets/seeds/binary/realistic_e1.txt"
+                "crossover": 0.8,
+                "repair": 0.0001,
+                "time_limit": 1.0
             }
         ]
     },
     {
-        "name": "binary_seed",
+        "name": "binary",
         "dataset": "realistic_e2",
         "modelling": [
             {
@@ -148,13 +154,14 @@
                 "patient": 0,
                 "tournament": 5,
                 "mutation": 0.000235,
-                "crossover": 0.9,
-                "seeds": "./datasets/seeds/binary/realistic_e2.txt"
+                "crossover": 0.8,
+                "repair": 0.0001,
+                "time_limit": 1.0
             }
         ]
     },
     {
-        "name": "binary_seed",
+        "name": "binary",
         "dataset": "realistic_e3",
         "modelling": [
             {
@@ -170,13 +177,14 @@
                 "patient": 0,
                 "tournament": 5,
                 "mutation": 0.000352,
-                "crossover": 0.9,
-                "seeds": "./datasets/seeds/binary/realistic_e3.txt"
+                "crossover": 0.8,
+                "repair": 0.0001,
+                "time_limit": 1.0
             }
         ]
     },
     {
-        "name": "binary_seed",
+        "name": "binary",
         "dataset": "realistic_e4",
         "modelling": [
             {
@@ -192,13 +200,14 @@
                 "patient": 0,
                 "tournament": 5,
                 "mutation": 0.000314,
-                "crossover": 0.9,
-                "seeds": "./datasets/seeds/binary/realistic_e4.txt"
+                "crossover": 0.8,
+                "repair": 0.0001,
+                "time_limit": 1.0
             }
         ]
     },
     {
-        "name": "binary_seed",
+        "name": "binary",
         "dataset": "realistic_g1",
         "modelling": [
             {
@@ -214,13 +223,14 @@
                 "patient": 0,
                 "tournament": 5,
                 "mutation": 0.000372,
-                "crossover": 0.9,
-                "seeds": "./datasets/seeds/binary/realistic_g1.txt"
+                "crossover": 0.8,
+                "repair": 0.0001,
+                "time_limit": 1.0
             }
         ]
     },
     {
-        "name": "binary_seed",
+        "name": "binary",
         "dataset": "realistic_g2",
         "modelling": [
             {
@@ -236,13 +246,14 @@
                 "patient": 0,
                 "tournament": 5,
                 "mutation": 0.000377,
-                "crossover": 0.9,
-                "seeds": "./datasets/seeds/binary/realistic_g2.txt"
+                "crossover": 0.8,
+                "repair": 0.0001,
+                "time_limit": 1.0
             }
         ]
     },
     {
-        "name": "binary_seed",
+        "name": "binary",
         "dataset": "realistic_g3",
         "modelling": [
             {
@@ -258,13 +269,14 @@
                 "patient": 0,
                 "tournament": 5,
                 "mutation": 0.000398,
-                "crossover": 0.9,
-                "seeds": "./datasets/seeds/binary/realistic_g3.txt"
+                "crossover": 0.8,
+                "repair": 0.0001,
+                "time_limit": 1.0
             }
         ]
     },
     {
-        "name": "binary_seed",
+        "name": "binary",
         "dataset": "realistic_g4",
         "modelling": [
             {
@@ -280,13 +292,14 @@
                 "patient": 0,
                 "tournament": 5,
                 "mutation": 0.000445,
-                "crossover": 0.9,
-                "seeds": "./datasets/seeds/binary/realistic_g4.txt"
+                "crossover": 0.8,
+                "repair": 0.0001,
+                "time_limit": 1.0
             }
         ]
     },
     {
-        "name": "binary_seed",
+        "name": "binary",
         "dataset": "realistic_m1",
         "modelling": [
             {
@@ -302,13 +315,14 @@
                 "patient": 0,
                 "tournament": 5,
                 "mutation": 0.000246,
-                "crossover": 0.9,
-                "seeds": "./datasets/seeds/binary/realistic_m1.txt"
+                "crossover": 0.8,
+                "repair": 0.0001,
+                "time_limit": 1.0
             }
         ]
     },
     {
-        "name": "binary_seed",
+        "name": "binary",
         "dataset": "realistic_m2",
         "modelling": [
             {
@@ -324,13 +338,14 @@
                 "patient": 0,
                 "tournament": 5,
                 "mutation": 0.000229,
-                "crossover": 0.9,
-                "seeds": "./datasets/seeds/binary/realistic_m2.txt"
+                "crossover": 0.8,
+                "repair": 0.0001,
+                "time_limit": 1.0
             }
         ]
     },
     {
-        "name": "binary_seed",
+        "name": "binary",
         "dataset": "realistic_m3",
         "modelling": [
             {
@@ -346,13 +361,14 @@
                 "patient": 0,
                 "tournament": 5,
                 "mutation": 0.000280,
-                "crossover": 0.9,
-                "seeds": "./datasets/seeds/binary/realistic_m3.txt"
+                "crossover": 0.8,
+                "repair": 0.0001,
+                "time_limit": 1.0
             }
         ]
     },
     {
-        "name": "binary_seed",
+        "name": "binary",
         "dataset": "realistic_m4",
         "modelling": [
             {
@@ -368,13 +384,14 @@
                 "patient": 0,
                 "tournament": 5,
                 "mutation": 0.000274,
-                "crossover": 0.9,
-                "seeds": "./datasets/seeds/binary/realistic_m4.txt"
+                "crossover": 0.8,
+                "repair": 0.0001,
+                "time_limit": 1.0
             }
         ]
     },
     {
-        "name": "binary_seed",
+        "name": "binary",
         "dataset": "MSWord",
         "modelling": [
             {
@@ -390,13 +407,14 @@
                 "patient": 0,
                 "tournament": 5,
                 "mutation": 0.02,
-                "crossover": 0.9,
-                "seeds": "./datasets/seeds/binary/MSWord.txt"
+                "crossover": 0.8,
+                "repair": 0.0001,
+                "time_limit": 1.0
             }
         ]
     },
     {
-        "name": "binary_seed",
+        "name": "binary",
         "dataset": "ReleasePlanner",
         "modelling": [
             {
@@ -412,8 +430,9 @@
                 "patient": 0,
                 "tournament": 5,
                 "mutation": 0.04,
-                "crossover": 0.9,
-                "seeds": "./datasets/seeds/binary/ReleasePlanner.txt"
+                "crossover": 0.8,
+                "repair": 0.0001,
+                "time_limit": 1.0
             }
         ]
     }

@@ -16,7 +16,9 @@
                 "patient": 0,
                 "tournament": 5,
                 "mutation": 0.00417,
-                "crossover": 0.9
+                "crossover": 0.8,
+                "repair": 0.0001,
+                "time_limit": 1.0
             },
             {
                 "name": "IBEA",
@@ -26,7 +28,9 @@
                 "patient": 0,
                 "tournament": 5,
                 "mutation": 0.00417,
-                "crossover": 0.9
+                "crossover": 0.8,
+                "repair": 0.0001,
+                "time_limit": 1.0
             },
             {
                 "name": "normal",
@@ -51,7 +55,9 @@
                 "patient": 0,
                 "tournament": 5,
                 "mutation": 0.000893,
-                "crossover": 0.9
+                "crossover": 0.8,
+                "repair": 0.0001,
+                "time_limit": 1.0
             },
             {
                 "name": "IBEA",
@@ -61,7 +67,7 @@
                 "patient": 0,
                 "tournament": 5,
                 "mutation": 0.000893,
-                "crossover": 0.9
+                "crossover": 0.8
             },
             {
                 "name": "normal",
@@ -86,7 +92,9 @@
                 "patient": 0,
                 "tournament": 5,
                 "mutation": 0.0005,
-                "crossover": 0.9
+                "crossover": 0.8,
+                "repair": 0.0001,
+                "time_limit": 1.0
             },
             {
                 "name": "IBEA",
@@ -96,7 +104,9 @@
                 "patient": 0,
                 "tournament": 5,
                 "mutation": 0.0005,
-                "crossover": 0.9
+                "crossover": 0.8,
+                "repair": 0.0001,
+                "time_limit": 1.0
             },
             {
                 "name": "normal",
@@ -121,7 +131,9 @@
                 "patient": 0,
                 "tournament": 5,
                 "mutation": 0.00025,
-                "crossover": 0.9
+                "crossover": 0.8,
+                "repair": 0.0001,
+                "time_limit": 1.0
             },
             {
                 "name": "IBEA",
@@ -131,7 +143,9 @@
                 "patient": 0,
                 "tournament": 5,
                 "mutation": 0.00025,
-                "crossover": 0.9
+                "crossover": 0.8,
+                "repair": 0.0001,
+                "time_limit": 1.0
             },
             {
                 "name": "normal",
@@ -156,7 +170,9 @@
                 "patient": 0,
                 "tournament": 5,
                 "mutation": 0.0004,
-                "crossover": 0.9
+                "crossover": 0.8,
+                "repair": 0.0001,
+                "time_limit": 1.0
             },
             {
                 "name": "IBEA",
@@ -166,7 +182,9 @@
                 "patient": 0,
                 "tournament": 5,
                 "mutation": 0.0004,
-                "crossover": 0.9
+                "crossover": 0.8,
+                "repair": 0.0001,
+                "time_limit": 1.0
             },
             {
                 "name": "normal",
@@ -191,7 +209,9 @@
                 "patient": 0,
                 "tournament": 5,
                 "mutation": 0.02,
-                "crossover": 0.9
+                "crossover": 0.8,
+                "repair": 0.0001,
+                "time_limit": 1.0
             },
             {
                 "name": "IBEA",
@@ -201,7 +221,9 @@
                 "patient": 0,
                 "tournament": 5,
                 "mutation": 0.02,
-                "crossover": 0.9
+                "crossover": 0.8,
+                "repair": 0.0001,
+                "time_limit": 1.0
             },
             {
                 "name": "normal",
@@ -226,7 +248,9 @@
                 "patient": 0,
                 "tournament": 5,
                 "mutation": 0.04,
-                "crossover": 0.9
+                "crossover": 0.8,
+                "repair": 0.0001,
+                "time_limit": 1.0
             },
             {
                 "name": "IBEA",
@@ -236,7 +260,9 @@
                 "patient": 0,
                 "tournament": 5,
                 "mutation": 0.04,
-                "crossover": 0.9
+                "crossover": 0.8,
+                "repair": 0.0001,
+                "time_limit": 1.0
             },
             {
                 "name": "normal",
