@@ -1,11 +1,10 @@
 [
     {
         "name": "tmp",
-        "dataset": "classic_1",
+        "dataset": "classic_2",
         "modelling": [
             {
-                "name": "bincst",
-                "bound": 0.3
+                "name": "binary"
             }
         ],
         "method":[
@@ -16,7 +15,30 @@
                 "max_evaluations": 100000,
                 "patient": 0,
                 "tournament": 5,
-                "mutation": 0.00714,
+                "mutation": 0.00161,
+                "crossover": 0.8,
+                "repair": 0.0001,
+                "time_limit": 1.0
+            }
+        ]
+    },
+    {
+        "name": "tmp",
+        "dataset": "classic_4",
+        "modelling": [
+            {
+                "name": "binary"
+            }
+        ],
+        "method":[
+            {
+                "name": "NSGAII",
+                "iteration": 30,
+                "population": 500,
+                "max_evaluations": 100000,
+                "patient": 0,
+                "tournament": 5,
+                "mutation": 0.000308,
                 "crossover": 0.8,
                 "repair": 0.0001,
                 "time_limit": 1.0

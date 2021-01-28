@@ -5,7 +5,7 @@ from src import Controller
 from src import Analyzer, Result
 
 folder = ''
-Controller.run('moea' + folder + '.json')
+Controller.run('moea/' + folder + '.json')
 
 gc.collect()
 
