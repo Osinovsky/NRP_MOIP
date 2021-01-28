@@ -215,7 +215,7 @@ class NextReleaseProblem:
         for req, sh, value in raw_problem.profit:
             nrp.value[(req, sh)] = value
         # make urgency dict
-        for req, sh, value in raw_problem.profit:
+        for req, sh, value in raw_problem.urgency:
             nrp.importance[(req, sh)] = value
         # assign dependencies and couplings and cost
         nrp.dependencies = raw_problem.precedes

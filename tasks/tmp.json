@@ -1,47 +1,31 @@
 [
     {
         "name": "tmp",
-        "dataset": "classic_2",
+        "dataset": "ReleasePlanner",
         "modelling": [
             {
-                "name": "binary"
+                "name": "triurgency"
             }
         ],
         "method":[
             {
-                "name": "NSGAII",
-                "iteration": 30,
-                "population": 500,
-                "max_evaluations": 100000,
-                "patient": 0,
-                "tournament": 5,
-                "mutation": 0.00161,
-                "crossover": 0.8,
-                "repair": 0.0001,
-                "time_limit": 1.0
-            }
-        ]
-    },
-    {
-        "name": "tmp",
-        "dataset": "classic_4",
-        "modelling": [
-            {
-                "name": "binary"
-            }
-        ],
-        "method":[
+                "name": "imprec"
+            },
             {
                 "name": "NSGAII",
                 "iteration": 30,
                 "population": 500,
-                "max_evaluations": 100000,
+                "max_evaluations": 50000,
                 "patient": 0,
                 "tournament": 5,
-                "mutation": 0.000308,
+                "mutation": 0.04,
                 "crossover": 0.8,
                 "repair": 0.0001,
                 "time_limit": 1.0
+            },
+            {
+                "name": "normal",
+                "size": 500
             }
         ]
     }

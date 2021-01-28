@@ -25,8 +25,8 @@ class JarSolver:
         self.method = method
         self.option = method_option
         # command line order
-        # self.cmd = '{} -jar {} {}'
-        self.cmd = '{} -Djava.library.path=/home/osinovsky/cplex/cplex/bin/x86-64_linux -jar {} {}'
+        self.cmd = '{} -jar {} {}'
+        # self.cmd = '{} -Djava.library.path=/home/osinovsky/cplex/cplex/bin/x86-64_linux -jar {} {}'
 
     def prepare(self):
         """prepare [summary] prepare for running
