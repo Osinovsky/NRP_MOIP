@@ -80,6 +80,8 @@ class Indicator:
     def compute_igd(solutions: numpy.array,
                     true_front: NonDominatedSolutionsArchive,
                     reference_point: List[Any]) -> float:
+        if len(solutions) < 1:
+            return -1.0
         pareto_array = Indicator.numpy_array(true_front.solution_list)
         return InvertedGenerationalDistance(pareto_array).compute(solutions)
 
