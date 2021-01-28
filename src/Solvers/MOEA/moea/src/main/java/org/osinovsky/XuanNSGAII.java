@@ -118,7 +118,20 @@ public class XuanNSGAII extends AbstractAlgorithmRunner {
             long endTime = System.nanoTime();
 
             // get the result
-            List<BinarySolution> population = algorithm.getResult();
+            List<BinarySolution> tmpPopulation = algorithm.getResult();
+            List<BinarySolution> population = new ArrayList<>();
+            for (BinarySolution solution : tmpPopulation) {
+                boolean flag = true;
+                for (double cst : solution.getConstraints()) {
+                    if (cst < 0.0) {
+                        flag = false;
+                        break;
+                    }
+                }
+                if (flag) {
+                    population.add(solution);
+                }
+            }
             // long computingTime = algorithmRunner.getComputingTime();
             long computingTime = (long)((endTime - startTime)/1000_000);
             // print infomation

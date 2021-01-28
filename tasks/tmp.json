@@ -1,21 +1,22 @@
 [
     {
         "name": "tmp",
-        "dataset": "ReleasePlanner",
+        "dataset": "classic_1",
         "modelling": [
             {
-                "name": "binary"
+                "name": "bincst",
+                "bound": 0.3
             }
         ],
         "method":[
             {
                 "name": "NSGAII",
-                "iteration": 3,
+                "iteration": 30,
                 "population": 500,
-                "max_evaluations": 50000,
+                "max_evaluations": 100000,
                 "patient": 0,
                 "tournament": 5,
-                "mutation": 0.04,
+                "mutation": 0.00714,
                 "crossover": 0.8,
                 "repair": 0.0001,
                 "time_limit": 1.0

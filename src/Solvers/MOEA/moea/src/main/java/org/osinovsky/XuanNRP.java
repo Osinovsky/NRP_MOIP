@@ -264,15 +264,21 @@ public class XuanNRP extends AbstractBinaryProblem {
         solution.setObjective(0, profitSum);
         solution.setObjective(1, costSum);
 
-        if (this.mode == 3) {
+        if (this.mode > 1) {
             double urgencySum = 0;
             for (int i = 0; i < variables.size(); ++ i) {
                 if (variables.get(i).get(0)) {
                     urgencySum -= this.urgency.get(i);
                 }
             }
-            solution.setObjective(2, urgencySum);
+            if (this.mode == 2) {
+                solution.setConstraint(0, -urgencySum - this.minUrgency);
+            } else {
+                solution.setObjective(2, urgencySum);
+            }
         }
+
+        
     }
 
     // evaluate
