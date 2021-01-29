@@ -55,10 +55,20 @@ class NormalConstraint(ABCSolver):
         # sampling from ObjectiveSpace
         points = self.space.uniform_sampling(self.sampling_size)
         # set each point as objective bound and solve
+        last_solution = None
         for point in points:
+            if last_solution \
+                and point[0] <= last_solution[0] \
+                    and point[1] <= last_solution[1]:
+                continue
             self.solver.set_rhs('obj0', point[0])
             self.solver.set_rhs('obj1', point[1])
-            self.solver.solve()
+            # self.solver.solve()
+            solution = self.solver.solve()
+            if not solution:
+                continue
+            if not last_solution:
+                last_solution = list(solution.values())[0].objectives[:2]
 
     def solutions(self):
         return self.solver.get_objectives()

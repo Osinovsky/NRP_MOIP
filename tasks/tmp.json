@@ -1,7 +1,7 @@
 [
     {
         "name": "tmp",
-        "dataset": "ReleasePlanner",
+        "dataset": "classic_1",
         "modelling": [
             {
                 "name": "triurgency"
@@ -9,23 +9,8 @@
         ],
         "method":[
             {
-                "name": "imprec"
-            },
-            {
-                "name": "NSGAII",
-                "iteration": 30,
-                "population": 500,
-                "max_evaluations": 50000,
-                "patient": 0,
-                "tournament": 5,
-                "mutation": 0.04,
-                "crossover": 0.8,
-                "repair": 0.0001,
-                "time_limit": 1.0
-            },
-            {
                 "name": "normal",
-                "size": 500
+                "size": 2000
             }
         ]
     }
