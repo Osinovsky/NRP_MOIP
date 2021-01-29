@@ -66,7 +66,7 @@ public class ConstrainedMONRP extends AbstractBinaryProblem {
             IloIntVar[] x = this.cplex.boolVarArray(this.varNum);
             this.vars = x;
 
-            for (int i = 0; i < this.inequations.size(); ++ i) {
+            for (int i = 0; i < this.suf.size(); ++ i) {
                 IloIntExpr cst = this.cplex.sum(x[this.suf.get(i)], this.cplex.prod(-1, x[this.pre.get(i)]));
                 this.cplex.addLe(cst, 0.0);
             }

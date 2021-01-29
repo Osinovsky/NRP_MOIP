@@ -4,7 +4,7 @@ import gc
 from src import Controller
 from src import Analyzer, Result
 
-folder = ''
+folder = 'rpbincst'
 Controller.run('moea/' + folder + '.json')
 
 # gc.collect()

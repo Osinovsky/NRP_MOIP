@@ -45,7 +45,7 @@
             "projectName": "moea",
             "vmArgs": "-enableassertions",
             "args": [
-                "C:\\Users\\osino\\Desktop\\dev\\prototype\\NRP_MOIP\\dump\\config-realistic_m1-binary.json"
+                "C:\\Users\\osino\\Desktop\\dev\\prototype\\NRP_MOIP\\dump\\config-MSWord-bincst-bound+0.3.json"
             ]
         },
         {
