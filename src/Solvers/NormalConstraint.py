@@ -4,8 +4,9 @@
 # last modified: 2021.01.20
 #
 
-from typing import Dict, Any
-from src.util.ObjectiveSpace import RPObjectiveSpace
+from typing import Dict, Any, List
+from copy import deepcopy
+from src.util.ObjectiveSpace import ObjectiveSpace3D
 from src.Solvers.ABCSolver import ABCSolver
 from src.Solvers.BaseSolver import BaseSolver
 from src.NRP import NRPProblem
@@ -18,18 +19,37 @@ class NormalConstraint(ABCSolver):
         # store the problem
         self.problem = problem
         # prepare Objective Space
-        self.space = RPObjectiveSpace(problem)
+        self.space = ObjectiveSpace3D(problem)
         # prepare the solver
         self.solver = BaseSolver(problem)
         # get the sampling size
         self.sampling_size = option['size']
+
+    @staticmethod
+    def simple_sum_up(objectives: List[Dict[int, Any]]) -> Dict[int, Any]:
+        the_objective = deepcopy(objectives[0])
+        factor = (abs(sum(objectives[2])) + 1.0)
+        for key, val in objectives[2].items():
+            if key in the_objective:
+                the_objective[key] += (val / factor)
+            else:
+                the_objective[key] = (val / factor)
+        factor *= (abs(sum(objectives[1])) + 1.0)
+        for key, val in objectives[1].items():
+            if key in the_objective:
+                the_objective[key] += (val / factor)
+            else:
+                the_objective[key] = (val / factor)
+        return the_objective
 
     def prepare(self):
         # add first two objectives as constraints
         self.solver.add_constriant('obj0', self.problem.objectives[0])
         self.solver.add_constriant('obj1', self.problem.objectives[1])
         # set third objective as objective
-        self.solver.set_objective(self.problem.objectives[2], True)
+        # obj2 + w1obj1 + w1w0obj0
+        the_objective = NormalConstraint.simple_sum_up(self.problem.objectives)
+        self.solver.set_objective(the_objective, True)
 
     def execute(self):
         # sampling from ObjectiveSpace

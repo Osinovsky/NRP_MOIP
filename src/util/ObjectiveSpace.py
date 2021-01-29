@@ -1,7 +1,7 @@
 #
 # DONG Shi, dongshi@mail.ustc.edu.cn
 # ObjectiveSpace.py, created: 2020.12.24
-# last modified: 2021.01.20
+# last modified: 2021.01.28
 #
 
 from typing import List, Any, Dict, Tuple
@@ -16,7 +16,7 @@ from src.Config import Config
 from src.NRP import NRPProblem
 
 
-class RPObjectiveSpace:
+class ObjectiveSpace3D:
     max_offset = 1e-3
 
     def __init__(self, problem: NRPProblem) -> None:
@@ -119,8 +119,22 @@ class RPObjectiveSpace:
             ax.plot(point[0], point[1], point[2], 'bo')
         plt.show()
 
+    @staticmethod
+    def parse_request(inequation: Dict[int, int]) -> Tuple[int, int]:
+        customer = -1
+        requirement = -1
+        for k, v in inequation.items():
+            if v == 1:
+                customer = k
+            elif v == -1:
+                requirement = k
+        if not (customer >= 0 and requirement >= 0):
+            print(inequation)
+        assert customer >= 0 and requirement >= 0
+        return (customer, requirement)
 
-class ObjectiveSpace3D:
+
+class __ObjectiveSpace3D:
     max_offset = 1e-3
 
     def __init__(self, problem: NRPProblem) -> None:
@@ -170,7 +184,7 @@ class ObjectiveSpace3D:
         # add binary constraints
         pairs: List[SparsePair] = []
         for inequation in problem.inequations:
-            c, r = ObjectiveSpace3D.parse_request(inequation)
+            c, r = __ObjectiveSpace3D.parse_request(inequation)
             c = self.binary_index[c]
             r = self.binary_index[r]
             pair = SparsePair(ind=['x' + str(c), 'x' + str(r)],

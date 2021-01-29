@@ -1,145 +1,11 @@
 [
     {
-        "name": "triple",
-        "dataset": "classic_1",
-        "modelling": [
-            {
-                "name": "triurgency"
-            }
-        ],
-        "method":[
-            {
-                "name": "NSGAII",
-                "iteration": 30,
-                "population": 500,
-                "max_evaluations": 100000,
-                "patient": 0,
-                "tournament": 5,
-                "mutation": 0.00417,
-                "crossover": 0.8,
-                "repair": 0.0001,
-                "time_limit": 1.0
-            },
-            {
-                "name": "normal",
-                "size": 2000
-            }
-        ]
-    },
-    {
-        "name": "triple",
-        "dataset": "classic_2",
-        "modelling": [
-            {
-                "name": "triurgency"
-            }
-        ],
-        "method":[
-            {
-                "name": "NSGAII",
-                "iteration": 30,
-                "population": 500,
-                "max_evaluations": 100000,
-                "patient": 0,
-                "tournament": 5,
-                "mutation": 0.000893,
-                "crossover": 0.8,
-                "repair": 0.0001,
-                "time_limit": 1.0
-            },
-            {
-                "name": "normal",
-                "size": 2000
-            }
-        ]
-    },
-    {
-        "name": "triple",
-        "dataset": "classic_3",
-        "modelling": [
-            {
-                "name": "triurgency"
-            }
-        ],
-        "method":[
-            {
-                "name": "NSGAII",
-                "iteration": 30,
-                "population": 500,
-                "max_evaluations": 100000,
-                "patient": 0,
-                "tournament": 5,
-                "mutation": 0.0005,
-                "crossover": 0.8,
-                "repair": 0.0001,
-                "time_limit": 1.0
-            },
-            {
-                "name": "normal",
-                "size": 2000
-            }
-        ]
-    },
-    {
-        "name": "triple",
-        "dataset": "classic_4",
-        "modelling": [
-            {
-                "name": "triurgency"
-            }
-        ],
-        "method":[
-            {
-                "name": "NSGAII",
-                "iteration": 30,
-                "population": 500,
-                "max_evaluations": 100000,
-                "patient": 0,
-                "tournament": 5,
-                "mutation": 0.00025,
-                "crossover": 0.8,
-                "repair": 0.0001,
-                "time_limit": 1.0
-            },
-            {
-                "name": "normal",
-                "size": 2000
-            }
-        ]
-    },
-    {
-        "name": "triple",
-        "dataset": "classic_5",
-        "modelling": [
-            {
-                "name": "triurgency"
-            }
-        ],
-        "method":[
-            {
-                "name": "NSGAII",
-                "iteration": 30,
-                "population": 500,
-                "max_evaluations": 100000,
-                "patient": 0,
-                "tournament": 5,
-                "mutation": 0.0004,
-                "crossover": 0.8,
-                "repair": 0.0001,
-                "time_limit": 1.0
-            },
-            {
-                "name": "normal",
-                "size": 2000
-            }
-        ]
-    },
-    {
-        "name": "triple",
+        "name": "rpbincst",
         "dataset": "MSWord",
         "modelling": [
             {
-                "name": "triurgency"
+                "name": "bincst",
+                "bound": 0.3
             }
         ],
         "method":[
@@ -154,19 +20,64 @@
                 "crossover": 0.8,
                 "repair": 0.0001,
                 "time_limit": 1.0
-            },
-            {
-                "name": "normal",
-                "size": 1000
             }
         ]
     },
     {
-        "name": "triple",
+        "name": "rpbincst",
+        "dataset": "MSWord",
+        "modelling": [
+            {
+                "name": "bincst",
+                "bound": 0.5
+            }
+        ],
+        "method":[
+            {
+                "name": "NSGAII",
+                "iteration": 30,
+                "population": 500,
+                "max_evaluations": 50000,
+                "patient": 0,
+                "tournament": 5,
+                "mutation": 0.02,
+                "crossover": 0.8,
+                "repair": 0.0001,
+                "time_limit": 1.0
+            }
+        ]
+    },
+    {
+        "name": "rpbincst",
+        "dataset": "MSWord",
+        "modelling": [
+            {
+                "name": "bincst",
+                "bound": 0.7
+            }
+        ],
+        "method":[
+            {
+                "name": "NSGAII",
+                "iteration": 30,
+                "population": 500,
+                "max_evaluations": 50000,
+                "patient": 0,
+                "tournament": 5,
+                "mutation": 0.02,
+                "crossover": 0.8,
+                "repair": 0.0001,
+                "time_limit": 1.0
+            }
+        ]
+    },
+    {
+        "name": "rpbincst",
         "dataset": "ReleasePlanner",
         "modelling": [
             {
-                "name": "triurgency"
+                "name": "bincst",
+                "bound": 0.3
             }
         ],
         "method":[
@@ -181,10 +92,54 @@
                 "crossover": 0.8,
                 "repair": 0.0001,
                 "time_limit": 1.0
-            },
+            }
+        ]
+    },
+    {
+        "name": "rpbincst",
+        "dataset": "ReleasePlanner",
+        "modelling": [
             {
-                "name": "normal",
-                "size": 1000
+                "name": "bincst",
+                "bound": 0.5
+            }
+        ],
+        "method":[
+            {
+                "name": "NSGAII",
+                "iteration": 30,
+                "population": 500,
+                "max_evaluations": 50000,
+                "patient": 0,
+                "tournament": 5,
+                "mutation": 0.04,
+                "crossover": 0.8,
+                "repair": 0.0001,
+                "time_limit": 1.0
+            }
+        ]
+    },
+    {
+        "name": "rpbincst",
+        "dataset": "ReleasePlanner",
+        "modelling": [
+            {
+                "name": "bincst",
+                "bound": 0.7
+            }
+        ],
+        "method":[
+            {
+                "name": "NSGAII",
+                "iteration": 30,
+                "population": 500,
+                "max_evaluations": 50000,
+                "patient": 0,
+                "tournament": 5,
+                "mutation": 0.04,
+                "crossover": 0.8,
+                "repair": 0.0001,
+                "time_limit": 1.0
             }
         ]
     }
