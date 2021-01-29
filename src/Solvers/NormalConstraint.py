@@ -48,8 +48,8 @@ class NormalConstraint(ABCSolver):
         self.solver.add_constriant('obj1', self.problem.objectives[1])
         # set third objective as objective
         # obj2 + w1obj1 + w1w0obj0
-        the_objective = NormalConstraint.simple_sum_up(self.problem.objectives)
-        self.solver.set_objective(the_objective, True)
+        # the_objective = NormalConstraint.simple_sum_up(self.problem.objectives)
+        self.solver.set_objective(self.problem.objectives[2], True)
 
     def execute(self):
         # sampling from ObjectiveSpace
