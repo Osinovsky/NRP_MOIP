@@ -46,6 +46,8 @@ class BaseSolver:
         self.solver.parameters.emphasis.mip.set(0)
         self.solver.parameters.mip.tolerances.absmipgap.set(0.0)
         self.solver.parameters.mip.tolerances.mipgap.set(0.0)
+        # self.solver.parameters.timelimit.set(1000.0)
+        # self.solver.parameters.dettimelimit.set(1000.0)
         self.solver.parameters.workmem.set(config.work_memory)
         # add variables
         vars_num = len(problem.variables)

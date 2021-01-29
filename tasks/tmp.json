@@ -9,6 +9,9 @@
         ],
         "method":[
             {
+                "name": "imprec"
+            },
+            {
                 "name": "normal",
                 "size": 2000
             }
