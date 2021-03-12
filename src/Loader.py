@@ -1,7 +1,7 @@
 #
 # DONG Shi, dongshi@mail.ustc.edu.cn
 # Loader.py, created: 2020.10.31
-# last modified: 2020.12.26
+# last modified: 2021.03.12
 #
 
 from typing import List, Tuple, Union, Dict
@@ -53,8 +53,18 @@ class ReleasePlannerProblem:
         self.urgency: List[Tuple[int, int, int]] = []
 
 
+class BaanProblem:
+    def __init__(self) -> None:
+        # cost
+        self.cost: List[int] = []
+        # profit
+        self.profit: List[int] = []
+        # urgency
+        self.urgency: List[int] = []
+
+
 # dataset types
-ProblemType = Union[XuanProblem, ReleasePlannerProblem]
+ProblemType = Union[XuanProblem, ReleasePlannerProblem, BaanProblem]
 
 
 class Loader:
@@ -297,4 +307,16 @@ class Loader:
                         (remap[row[0]], stakeholder, int(row[stakeholder + 1]))
                     problem.urgency.append(urgency_triple)
         # return
+        return problem
+
+    @staticmethod
+    def load_Baan(name: str) -> ProblemType:
+        problem = BaanProblem()
+        with open(name, 'r') as fin:
+            csv = reader(fin, delimiter='\t', skipinitialspace=True)
+            lines = list(csv)
+            problem.cost = [int(x) for x in lines[0]]
+            problem.profit = [int(x) for x in lines[1]]
+            problem.urgency = [int(x) for x in lines[2]]
+            fin.close()
         return problem

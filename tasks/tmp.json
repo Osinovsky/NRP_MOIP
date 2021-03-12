@@ -1,19 +1,16 @@
 [
     {
         "name": "tmp",
-        "dataset": "classic_1",
+        "dataset": "classic_4",
         "modelling": [
             {
-                "name": "triurgency"
+                "name": "bincst",
+                "bound": 0.3
             }
         ],
         "method":[
             {
-                "name": "imprec"
-            },
-            {
-                "name": "normal",
-                "size": 2000
+                "name": "cwmoip"
             }
         ]
     }

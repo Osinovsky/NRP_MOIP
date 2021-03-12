@@ -1,7 +1,7 @@
 #
 # DONG Shi, dongshi@mail.ustc.edu.cn
 # Config.py, created: 2020.10.31
-# last modified: 2021.01.20
+# last modified: 2021.03.12
 #
 
 from typing import Dict, List
@@ -26,7 +26,8 @@ class Config:
             'classic': 'xuan',
             'realistic': 'xuan',
             'MSWord': 'rp',
-            'ReleasePlanner': 'rp'
+            'ReleasePlanner': 'rp',
+            'Baan': 'baan'
         }
 
         # prepare datasets
@@ -65,7 +66,7 @@ class Config:
         # cplex threads num, 0 for auto
         self.threads = 1
         # cplex working memory
-        self.work_memory = 8192
+        self.work_memory = 1024
 
         # seed path
         self.seeds_path = './datasets/seeds/'
@@ -108,6 +109,9 @@ class Config:
         datasets index in self.dataset
         """
         self.dataset['ReleasePlanner'] = path.join(self.dataset_path, 'rp/rp')
+
+    def make_Baan_index(self) -> None:
+        self.dataset['Baan'] = path.join(self.dataset_path, 'Baan/Baan_simplified.csv')
 
     def get_index_dict(self, keywords: List[str]) -> Dict[str, str]:
         """get_index_dict [summary] get given keywords dataset subset

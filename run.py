@@ -4,16 +4,16 @@ import gc
 from src import Controller
 from src import Analyzer, Result
 
-folder = 'triple'
-Controller.run('moea/' + folder + '.json')
+# Controller.run('./baan/bin_exact.json')
+Controller.run('./baan/moea.json')
 
-gc.collect()
+# gc.collect()
 
-analyzer = Analyzer(folder)
-# sheet = analyzer.make_better_sheet(methods=['epsilon', 'NSGAII'], indicators=['igd', 'hv', 'evenness'])
-sheet = analyzer.make_better_sheet(methods=['normal', 'NSGAII'], indicators=['igd', 'hv', 'evenness'])
-Analyzer.tabulate(folder + '.csv', sheet)
-# analyzer.plot_2D_pareto('MSWord')
+# analyzer = Analyzer(folder)
+# # sheet = analyzer.make_better_sheet(methods=['epsilon', 'NSGAII'], indicators=['igd', 'hv', 'evenness'])
+# sheet = analyzer.make_better_sheet(methods=['normal', 'NSGAII'], indicators=['igd', 'hv', 'evenness'])
+# Analyzer.tabulate(folder + '.csv', sheet)
+# # analyzer.plot_2D_pareto('MSWord')
 
 # Result.quick_prob('triurgency_exact')
 

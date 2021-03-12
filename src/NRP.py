@@ -1,7 +1,7 @@
 #
 # DONG Shi, dongshi@mail.ustc.edu.cn
 # NRP.py, created: 2020.10.31
-# last modified: 2021.01.22
+# last modified: 2021.03.12
 #
 
 import os
@@ -15,6 +15,7 @@ from typing import Dict, Tuple, List, Union, Set, Any
 from src.Loader import Loader, XuanProblem, ReleasePlannerProblem
 from src.Config import Config
 from src.util.moipProb import MOIPProblem
+from src.Loader import BaanProblem
 
 
 class XuanNRP:
@@ -84,7 +85,7 @@ class NRPProblem:
 
 
 # Type
-NRPType = Union[XuanNRP, RPNRP]
+NRPType = Union[XuanNRP, RPNRP, BaanProblem]
 
 
 class NextReleaseProblem:
@@ -222,6 +223,13 @@ class NextReleaseProblem:
         nrp.couplings = raw_problem.couplings
         nrp.cost = raw_problem.cost
         # return
+        return nrp
+
+    @staticmethod
+    def construct_from_baan(project: str) -> BaanProblem:
+        loader = Loader()
+        nrp = loader.load(project)
+        assert isinstance(nrp, BaanProblem)
         return nrp
 
     def reencode_xuan(self) -> Tuple[Dict[int, int], Dict[int, int]]:
@@ -384,6 +392,9 @@ class NextReleaseProblem:
             premodel the ReleasePlanner dataset
         """
         self.rp_premodel(option)
+
+    def Baan_premodel(self, option: Dict[str, Any]) -> None:
+        pass
 
     @staticmethod
     def dump_nrp(file_name: str, nrp: NRPProblem) -> None:
@@ -650,6 +661,11 @@ class NextReleaseProblem:
         # return
         return mnrp
 
+    def to_baan_binary_form(self, option: Dict[str, Any]) -> NRPProblem:
+        mnrp = self.to_baan_triurgency_form(option)
+        del mnrp.objectives[2]
+        return mnrp
+
     def to_binary_form(self, option: Dict[str, Any]) -> NRPProblem:
         """to_binary_form [summary]
         form as binary-objective form as metioned in
@@ -670,6 +686,8 @@ class NextReleaseProblem:
             return self.to_basic_binary_form(option)
         elif isinstance(self.nrp, RPNRP):
             return self.to_rp_binary_form(option)
+        elif isinstance(self.nrp, BaanProblem):
+            return self.to_baan_binary_form(option)
         else:
             assert False
 
@@ -755,6 +773,16 @@ class NextReleaseProblem:
             urgency_cst[constant_id] = sum_urgency * option['bound']
             mnrp.inequations.append(urgency_cst)
             # return
+            return mnrp
+        elif isinstance(self.nrp, BaanProblem):
+            mnrp = self.to_baan_triurgency_form(option)
+            del mnrp.objectives[2]
+            urgency_cst = {k: -v for k, v in enumerate(self.nrp.urgency)}
+            constant_id = len(mnrp.variables)
+            assert 'bound' in option
+            sum_urgency = sum(urgency_cst.values())
+            urgency_cst[constant_id] = sum_urgency * option['bound']
+            mnrp.inequations.append(urgency_cst)
             return mnrp
         else:
             assert False
@@ -843,6 +871,17 @@ class NextReleaseProblem:
             fin.close()
         return max_urgency
 
+    def to_baan_triurgency_form(self, option: Dict[str, Any]) -> NRPProblem:
+        assert isinstance(self.nrp, BaanProblem)
+        mnrp = NRPProblem()
+        mnrp.variables = list(range(len(self.nrp.cost)))
+        max_profit = {k: -v for k, v in enumerate(self.nrp.profit)}
+        min_cost = {k: v for k, v in enumerate(self.nrp.cost)}
+        max_urgency = {k: -v for k, v in enumerate(self.nrp.urgency)}
+        mnrp.objectives = [max_profit, min_cost, max_urgency]
+        mnrp.inequations = []
+        return mnrp
+
     def to_triurgency_form(self, option: Dict[str, Any]) -> NRPProblem:
         """to_trisk_form [summary] triple objective NRP,
         with objectives: profit, cost and the urgency
@@ -854,6 +893,8 @@ class NextReleaseProblem:
         """
         if isinstance(self.nrp, XuanNRP):
             return self.to_xuan_triple_form(option)
+        elif isinstance(self.nrp, BaanProblem):
+            return self.to_baan_triurgency_form(option)
         # basic form
         mnrp = self.to_basic_rp_form(option)
         profit = deepcopy(mnrp.objectives[0])
