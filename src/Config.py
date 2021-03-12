@@ -111,7 +111,8 @@ class Config:
         self.dataset['ReleasePlanner'] = path.join(self.dataset_path, 'rp/rp')
 
     def make_Baan_index(self) -> None:
-        self.dataset['Baan'] = path.join(self.dataset_path, 'Baan/Baan_simplified.csv')
+        self.dataset['Baan'] = \
+            path.join(self.dataset_path, 'Baan/Baan_simplified.csv')
 
     def get_index_dict(self, keywords: List[str]) -> Dict[str, str]:
         """get_index_dict [summary] get given keywords dataset subset
