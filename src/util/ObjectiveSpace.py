@@ -61,20 +61,39 @@ class ObjectiveSpace3D:
                                   types='C' * (self.dimension + 1),
                                   lb=[-infinity] * self.dimension + [0.0],
                                   ub=[infinity] * (self.dimension + 1))
-        # add binary constraints
-        pairs: List[SparsePair] = []
-        for inequation in problem.inequations:
-            c, r = ObjectiveSpace3D.parse_request(inequation)
-            c = self.binary_index[c]
-            r = self.binary_index[r]
-            pair = SparsePair(ind=['x' + str(c), 'x' + str(r)],
-                              val=[1, -1])
-            pairs.append(pair)
-        names = ['req' + str(i) for i in range(len(pairs))]
-        self.solver.linear_constraints.add(lin_expr=pairs,
-                                           senses='L'*len(pairs),
-                                           rhs=[0.0]*len(pairs),
-                                           names=names)
+        # add binary constraints, xuan
+        # pairs: List[SparsePair] = []
+        # for inequation in problem.inequations:
+        #     c, r = ObjectiveSpace3D.parse_request(inequation)
+        #     c = self.binary_index[c]
+        #     r = self.binary_index[r]
+        #     pair = SparsePair(ind=['x' + str(c), 'x' + str(r)],
+        #                       val=[1, -1])
+        #     pairs.append(pair)
+        # names = ['req' + str(i) for i in range(len(pairs))]
+        # self.solver.linear_constraints.add(lin_expr=pairs,
+        #                                    senses='L'*len(pairs),
+        #                                    rhs=[0.0]*len(pairs),
+        #                                    names=names)
+        # for Baan
+        vars_num = len(self.binary_variables)
+        for index, inequation in enumerate(problem.inequations):
+            rows = []
+            vari = []
+            coef = []
+            if vars_num in inequation:
+                rs = inequation[vars_num]
+            else:
+                rs = 0
+            for key in inequation:
+                if key != vars_num:
+                    vari.append('x' + str(key))
+                    coef.append(inequation[key])
+            rows.append([vari, coef])
+            self.solver.linear_constraints.add(lin_expr=rows,
+                                               senses='L',
+                                               rhs=[rs],
+                                               names=['c' + str(index)])
         # add objective as constraints
         pairs = []
         for ind, obj in enumerate(self.objectives):
