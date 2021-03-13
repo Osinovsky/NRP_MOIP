@@ -1,6 +1,6 @@
 [
     {
-        "name": "baan_binary",
+        "name": "baan_binary_moea",
         "dataset": "Baan",
         "modelling": [
             {
@@ -15,7 +15,7 @@
                 "max_evaluations": 50000,
                 "patient": 0,
                 "tournament": 5,
-                "mutation": 0.04,
+                "mutation": 0.01,
                 "crossover": 0.8,
                 "repair": 0.0001,
                 "time_limit": 1.0
@@ -23,7 +23,7 @@
         ]
     },
     {
-        "name": "baan_bincst",
+        "name": "baan_bincst_moea",
         "dataset": "Baan",
         "modelling": [
             {
@@ -39,7 +39,7 @@
                 "max_evaluations": 50000,
                 "patient": 0,
                 "tournament": 5,
-                "mutation": 0.04,
+                "mutation": 0.01,
                 "crossover": 0.8,
                 "repair": 0.0001,
                 "time_limit": 1.0
@@ -47,7 +47,7 @@
         ]
     },
     {
-        "name": "baan_bincst",
+        "name": "baan_bincst_moea",
         "dataset": "Baan",
         "modelling": [
             {
@@ -63,7 +63,7 @@
                 "max_evaluations": 50000,
                 "patient": 0,
                 "tournament": 5,
-                "mutation": 0.04,
+                "mutation": 0.01,
                 "crossover": 0.8,
                 "repair": 0.0001,
                 "time_limit": 1.0
@@ -71,7 +71,7 @@
         ]
     },
     {
-        "name": "baan_bincst",
+        "name": "baan_bincst_moea",
         "dataset": "Baan",
         "modelling": [
             {
@@ -87,7 +87,7 @@
                 "max_evaluations": 50000,
                 "patient": 0,
                 "tournament": 5,
-                "mutation": 0.04,
+                "mutation": 0.01,
                 "crossover": 0.8,
                 "repair": 0.0001,
                 "time_limit": 1.0
@@ -110,7 +110,7 @@
                 "max_evaluations": 50000,
                 "patient": 0,
                 "tournament": 5,
-                "mutation": 0.04,
+                "mutation": 0.01,
                 "crossover": 0.8,
                 "repair": 0.0001,
                 "time_limit": 1.0
