@@ -1,7 +1,7 @@
 #
 # DONG Shi, dongshi@mail.ustc.edu.cn
 # Loader.py, created: 2020.10.31
-# last modified: 2021.03.12
+# last modified: 2021.03.13
 #
 
 from typing import List, Tuple, Union, Dict
@@ -57,6 +57,10 @@ class BaanProblem:
     def __init__(self) -> None:
         # cost
         self.cost: List[int] = []
+        # sub-cost
+        self.sub_cost: List[Dict[int, int]] = []
+        # team capacity
+        self.team: List[int] = []
         # profit
         self.profit: List[int] = []
         # urgency
@@ -312,11 +316,25 @@ class Loader:
     @staticmethod
     def load_Baan(name: str) -> ProblemType:
         problem = BaanProblem()
+        team_num = 17
+        req_num = 100
         with open(name, 'r') as fin:
-            csv = reader(fin, delimiter='\t', skipinitialspace=True)
+            csv = reader(fin, delimiter=',', skipinitialspace=True)
             lines = list(csv)
-            problem.cost = [int(x) for x in lines[0]]
-            problem.profit = [int(x) for x in lines[1]]
-            problem.urgency = [int(x) for x in lines[2]]
+            for line_num, str_line in enumerate(lines):
+                if line_num >= req_num:
+                    break
+                line = [int(x) for x in str_line]
+                subcost = {}
+                for index, val in enumerate(line[0:team_num]):
+                    if val != 0:
+                        subcost[index] = val
+                assert(sum(subcost.values()) == line[team_num])
+                problem.sub_cost.append(subcost)
+                problem.cost.append(line[team_num])
+                problem.profit.append(line[-2])
+                problem.urgency.append(line[-1])
+            problem.team = [int(x) for x in lines[req_num] if int(x) > 0]
+            assert len(problem.team) == team_num
             fin.close()
         return problem

@@ -880,6 +880,15 @@ class NextReleaseProblem:
         max_urgency = {k: -v for k, v in enumerate(self.nrp.urgency)}
         mnrp.objectives = [max_profit, min_cost, max_urgency]
         mnrp.inequations = []
+        team_work: List[Dict[int, int]] = \
+            [{} for _ in range(len(self.nrp.team))]
+        for index, sc in enumerate(self.nrp.sub_cost):
+            for key, val in sc.items():
+                team_work[key][index] = val
+        for team_id, team_workload in enumerate(team_work):
+            cost_cst = deepcopy(team_workload)
+            cost_cst[len(mnrp.variables)] = self.nrp.team[team_id]
+            mnrp.inequations.append(cost_cst)
         return mnrp
 
     def to_triurgency_form(self, option: Dict[str, Any]) -> NRPProblem:

@@ -1,7 +1,7 @@
 #
 # DONG Shi, dongshi@mail.ustc.edu.cn
 # Config.py, created: 2020.10.31
-# last modified: 2021.03.12
+# last modified: 2021.03.13
 #
 
 from typing import Dict, List
@@ -112,7 +112,7 @@ class Config:
 
     def make_Baan_index(self) -> None:
         self.dataset['Baan'] = \
-            path.join(self.dataset_path, 'Baan/Baan_simplified.csv')
+            path.join(self.dataset_path, 'Baan/Baan_core.csv')
 
     def get_index_dict(self, keywords: List[str]) -> Dict[str, str]:
         """get_index_dict [summary] get given keywords dataset subset

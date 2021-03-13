@@ -1,5 +1,88 @@
 [
     {
+        "name": "baan_binary_exact",
+        "dataset": "Baan",
+        "modelling": [
+            {
+                "name": "binary"
+            }
+        ],
+        "method":[
+            {
+                "name": "epsilon"
+            },
+            {
+                "name": "imprec"
+            },
+            {
+                "name": "cwmoip"
+            }
+        ]
+    },
+    {
+        "name": "baan_bincst_exact",
+        "dataset": "Baan",
+        "modelling": [
+            {
+                "name": "bincst",
+                "bound": 0.3
+            }
+        ],
+        "method":[
+            {
+                "name": "epsilon"
+            },
+            {
+                "name": "imprec"
+            },
+            {
+                "name": "cwmoip"
+            }
+        ]
+    },
+    {
+        "name": "baan_bincst_exact",
+        "dataset": "Baan",
+        "modelling": [
+            {
+                "name": "bincst",
+                "bound": 0.5
+            }
+        ],
+        "method":[
+            {
+                "name": "epsilon"
+            },
+            {
+                "name": "imprec"
+            },
+            {
+                "name": "cwmoip"
+            }
+        ]
+    },
+    {
+        "name": "baan_bincst_exact",
+        "dataset": "Baan",
+        "modelling": [
+            {
+                "name": "bincst",
+                "bound": 0.7
+            }
+        ],
+        "method":[
+            {
+                "name": "epsilon"
+            },
+            {
+                "name": "imprec"
+            },
+            {
+                "name": "cwmoip"
+            }
+        ]
+    },
+    {
         "name": "baan_binary_moea",
         "dataset": "Baan",
         "modelling": [
@@ -84,14 +167,14 @@
         "dataset": "Baan",
         "modelling": [
             {
-                "name": "imprec"
-            },
-            {
                 "name": "bincst",
                 "bound": 0.7
             }
         ],
         "method":[
+            {
+                "name": "imprec"
+            },
             {
                 "name": "NSGAII",
                 "iteration": 30,
