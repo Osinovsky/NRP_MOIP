@@ -5,15 +5,19 @@ from src import Controller
 from src import Analyzer, Result
 
 # Controller.run('./baan/bin_exact.json')
-Controller.run('./baan/moea.json')
+# Controller.run('./baan/moea.json')
+Controller.run('tmp.json')
 
-# gc.collect()
+gc.collect()
 
-# analyzer = Analyzer(folder)
-# # sheet = analyzer.make_better_sheet(methods=['epsilon', 'NSGAII'], indicators=['igd', 'hv', 'evenness'])
-# sheet = analyzer.make_better_sheet(methods=['normal', 'NSGAII'], indicators=['igd', 'hv', 'evenness'])
-# Analyzer.tabulate(folder + '.csv', sheet)
-# # analyzer.plot_2D_pareto('MSWord')
+for folder in ['baan_binary_moea', 'baan_bincst_moea']:
+    analyzer = Analyzer(folder)
+    sheet = analyzer.make_better_sheet(methods=['imprec', 'NSGAII'], indicators=['igd', 'hv', 'evenness'])
+    Analyzer.tabulate(folder + '.csv', sheet)
+
+folder = 'baan_triurgency'
+sheet = analyzer.make_better_sheet(methods=['normal', 'NSGAII'], indicators=['igd', 'hv', 'evenness'])
+Analyzer.tabulate(folder + '.csv', sheet)
 
 # Result.quick_prob('triurgency_exact')
 

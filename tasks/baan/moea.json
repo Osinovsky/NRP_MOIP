@@ -76,7 +76,7 @@
         "modelling": [
             {
                 "name": "bincst",
-                "bound": 0.5
+                "bound": 0.7
             }
         ],
         "method":[
