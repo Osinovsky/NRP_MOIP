@@ -1,11 +1,10 @@
 # Readme
 
-## 工程结构
+`datasets` folder contains the datasets we use, they are pre-processed for input.
 
-datasets 文件夹装了全部的数据集，有用的没用的。
+`src` folder is for the source codes, `src/Solvers` contains .py and .jar solvers and source codes for .jar are in `src/Solvers/MOEA`.
 
-doc 是文档文件夹。
+Files in `tasks` are the configs for a certain problem solved by a certain algorithm. During processing, `dump` folder would be generated which contains the intermediate config for .jar solver. Finally the results would be found in `results`.
 
-src 是源代码。
+`run.py` shows how to get the results and give an analysis on them.
 
-test 是测试文件夹。
